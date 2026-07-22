@@ -17,6 +17,8 @@ export function CharacterStudio() {
   const [selected, setSelected] = useState<Character | null>(null);
   const [form, setForm] = useState<CreateCharacterInput>(emptyForm);
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,6 +77,61 @@ export function CharacterStudio() {
     }
   }
 
+  function openEditDialog() {
+    if (!selected) return;
+    setForm({
+      name: selected.name,
+      description: selected.description,
+      personality: selected.personality,
+      species: selected.species,
+    });
+    setIsEditing(true);
+  }
+
+  async function updateCharacter(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selected) return;
+
+    try {
+      setError(null);
+      const response = await fetch(`/api/characters/${selected.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const character = await response.json();
+      if (!response.ok) throw new Error(character.error ?? "Could not update character.");
+
+      setCharacters((items) => items.map((item) => item.id === character.id ? character : item));
+      setSelected(character);
+      setForm(emptyForm);
+      setIsEditing(false);
+    } catch (updateError) {
+      setError(updateError instanceof Error ? updateError.message : "Could not update character.");
+    }
+  }
+
+  async function deleteCharacter() {
+    if (!selected) return;
+    const deletedId = selected.id;
+
+    try {
+      setError(null);
+      const response = await fetch(`/api/characters/${deletedId}`, { method: "DELETE" });
+      if (!response.ok) {
+        const body = await response.json();
+        throw new Error(body.error ?? "Could not delete character.");
+      }
+
+      const remaining = characters.filter((item) => item.id !== deletedId);
+      setCharacters(remaining);
+      setSelected(remaining[0] ?? null);
+      setIsConfirmingDelete(false);
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "Could not delete character.");
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#0b1020] text-slate-100">
       <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-1 lg:grid-cols-[340px_1fr]">
@@ -108,7 +165,7 @@ export function CharacterStudio() {
           {selected ? (
             <article className="mt-10 max-w-2xl rounded-2xl border border-white/10 bg-white/[.03] p-6">
               <p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">Character profile</p>
-              <h2 className="mt-2 text-3xl font-semibold">{selected.name}</h2>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-3"><h2 className="text-3xl font-semibold">{selected.name}</h2><div className="flex gap-2"><button className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:border-violet-400/60" onClick={openEditDialog}>Edit</button><button className="rounded-lg border border-rose-400/30 px-3 py-2 text-sm text-rose-200 hover:bg-rose-500/10" onClick={() => setIsConfirmingDelete(true)}>Delete</button></div></div>
               <dl className="mt-8 grid gap-6 sm:grid-cols-2">
                 <Detail label="Species" value={selected.species} />
                 <Detail label="Created" value={new Date(selected.createdAt).toLocaleDateString()} />
@@ -121,19 +178,37 @@ export function CharacterStudio() {
       </div>
 
       {isCreating && (
+        <CharacterFormDialog title="Create a character" description="These four fields are stored in your local SQLite database." form={form} setForm={setForm} onClose={() => setIsCreating(false)} onSubmit={createCharacter} submitLabel="Create character" />
+      )}
+
+      {isEditing && (
+        <CharacterFormDialog title="Edit character" description="Save changes to update this character in the database." form={form} setForm={setForm} onClose={() => { setIsEditing(false); setForm(emptyForm); }} onSubmit={updateCharacter} submitLabel="Save changes" />
+      )}
+
+      {isConfirmingDelete && selected && (
         <div className="fixed inset-0 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm">
-          <form className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#151c32] p-6" onSubmit={createCharacter}>
-            <h2 className="text-xl font-semibold">Create a character</h2>
-            <p className="mt-1 text-sm text-slate-400">These four fields are stored in your local SQLite database.</p>
+          <section aria-modal="true" role="dialog" className="w-full max-w-md rounded-2xl border border-white/10 bg-[#151c32] p-6"><h2 className="text-xl font-semibold">Delete {selected.name}?</h2><p className="mt-2 text-sm leading-6 text-slate-400">This permanently removes the character from the local database. This action cannot be undone.</p><div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" onClick={() => setIsConfirmingDelete(false)}>Cancel</button><button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-400" onClick={() => void deleteCharacter()}>Delete character</button></div></section>
+        </div>
+      )}
+    </main>
+  );
+}
+
+// Both create and edit use the same fields, so one dialog keeps their UI and
+// validation consistent while their submit handlers remain separate.
+function CharacterFormDialog({ title, description, form, setForm, onClose, onSubmit, submitLabel }: { title: string; description: string; form: CreateCharacterInput; setForm: (form: CreateCharacterInput) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void; submitLabel: string }) {
+  return (
+    <div className="fixed inset-0 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm">
+          <form className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#151c32] p-6" onSubmit={onSubmit}>
+            <h2 className="text-xl font-semibold">{title}</h2>
+            <p className="mt-1 text-sm text-slate-400">{description}</p>
             <Field label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} />
             <Field label="Species" value={form.species} onChange={(species) => setForm({ ...form, species })} />
             <Field label="Personality" value={form.personality} onChange={(personality) => setForm({ ...form, personality })} />
             <Field label="Description" value={form.description} onChange={(description) => setForm({ ...form, description })} multiline />
-            <div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" type="button" onClick={() => setIsCreating(false)}>Cancel</button><button className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold hover:bg-violet-400">Create character</button></div>
+            <div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" type="button" onClick={onClose}>Cancel</button><button className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold hover:bg-violet-400">{submitLabel}</button></div>
           </form>
-        </div>
-      )}
-    </main>
+    </div>
   );
 }
 

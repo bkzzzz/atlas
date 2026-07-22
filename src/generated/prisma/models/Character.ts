@@ -27,28 +27,28 @@ export type AggregateCharacter = {
 export type CharacterMinAggregateOutputType = {
   id: string | null
   name: string | null
-  role: string | null
-  summary: string | null
+  description: string | null
+  personality: string | null
+  species: string | null
   createdAt: Date | null
-  updatedAt: Date | null
 }
 
 export type CharacterMaxAggregateOutputType = {
   id: string | null
   name: string | null
-  role: string | null
-  summary: string | null
+  description: string | null
+  personality: string | null
+  species: string | null
   createdAt: Date | null
-  updatedAt: Date | null
 }
 
 export type CharacterCountAggregateOutputType = {
   id: number
   name: number
-  role: number
-  summary: number
+  description: number
+  personality: number
+  species: number
   createdAt: number
-  updatedAt: number
   _all: number
 }
 
@@ -56,28 +56,28 @@ export type CharacterCountAggregateOutputType = {
 export type CharacterMinAggregateInputType = {
   id?: true
   name?: true
-  role?: true
-  summary?: true
+  description?: true
+  personality?: true
+  species?: true
   createdAt?: true
-  updatedAt?: true
 }
 
 export type CharacterMaxAggregateInputType = {
   id?: true
   name?: true
-  role?: true
-  summary?: true
+  description?: true
+  personality?: true
+  species?: true
   createdAt?: true
-  updatedAt?: true
 }
 
 export type CharacterCountAggregateInputType = {
   id?: true
   name?: true
-  role?: true
-  summary?: true
+  description?: true
+  personality?: true
+  species?: true
   createdAt?: true
-  updatedAt?: true
   _all?: true
 }
 
@@ -156,10 +156,10 @@ export type CharacterGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type CharacterGroupByOutputType = {
   id: string
   name: string
-  role: string | null
-  summary: string | null
+  description: string
+  personality: string
+  species: string
   createdAt: Date
-  updatedAt: Date
   _count: CharacterCountAggregateOutputType | null
   _min: CharacterMinAggregateOutputType | null
   _max: CharacterMaxAggregateOutputType | null
@@ -186,25 +186,19 @@ export type CharacterWhereInput = {
   NOT?: Prisma.CharacterWhereInput | Prisma.CharacterWhereInput[]
   id?: Prisma.StringFilter<"Character"> | string
   name?: Prisma.StringFilter<"Character"> | string
-  role?: Prisma.StringNullableFilter<"Character"> | string | null
-  summary?: Prisma.StringNullableFilter<"Character"> | string | null
+  description?: Prisma.StringFilter<"Character"> | string
+  personality?: Prisma.StringFilter<"Character"> | string
+  species?: Prisma.StringFilter<"Character"> | string
   createdAt?: Prisma.DateTimeFilter<"Character"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Character"> | Date | string
-  memories?: Prisma.CharacterMemoryListRelationFilter
-  assets?: Prisma.AssetListRelationFilter
-  records?: Prisma.GenerationRecordListRelationFilter
 }
 
 export type CharacterOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  role?: Prisma.SortOrderInput | Prisma.SortOrder
-  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
+  species?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
-  memories?: Prisma.CharacterMemoryOrderByRelationAggregateInput
-  assets?: Prisma.AssetOrderByRelationAggregateInput
-  records?: Prisma.GenerationRecordOrderByRelationAggregateInput
 }
 
 export type CharacterWhereUniqueInput = Prisma.AtLeast<{
@@ -213,22 +207,19 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.CharacterWhereInput[]
   NOT?: Prisma.CharacterWhereInput | Prisma.CharacterWhereInput[]
   name?: Prisma.StringFilter<"Character"> | string
-  role?: Prisma.StringNullableFilter<"Character"> | string | null
-  summary?: Prisma.StringNullableFilter<"Character"> | string | null
+  description?: Prisma.StringFilter<"Character"> | string
+  personality?: Prisma.StringFilter<"Character"> | string
+  species?: Prisma.StringFilter<"Character"> | string
   createdAt?: Prisma.DateTimeFilter<"Character"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Character"> | Date | string
-  memories?: Prisma.CharacterMemoryListRelationFilter
-  assets?: Prisma.AssetListRelationFilter
-  records?: Prisma.GenerationRecordListRelationFilter
 }, "id">
 
 export type CharacterOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  role?: Prisma.SortOrderInput | Prisma.SortOrder
-  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
+  species?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CharacterCountOrderByAggregateInput
   _max?: Prisma.CharacterMaxOrderByAggregateInput
   _min?: Prisma.CharacterMinOrderByAggregateInput
@@ -240,466 +231,160 @@ export type CharacterScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CharacterScalarWhereWithAggregatesInput | Prisma.CharacterScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Character"> | string
   name?: Prisma.StringWithAggregatesFilter<"Character"> | string
-  role?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
-  summary?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
+  description?: Prisma.StringWithAggregatesFilter<"Character"> | string
+  personality?: Prisma.StringWithAggregatesFilter<"Character"> | string
+  species?: Prisma.StringWithAggregatesFilter<"Character"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Character"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Character"> | Date | string
 }
 
 export type CharacterCreateInput = {
   id?: string
   name: string
-  role?: string | null
-  summary?: string | null
+  description: string
+  personality: string
+  species: string
   createdAt?: Date | string
-  updatedAt?: Date | string
-  memories?: Prisma.CharacterMemoryCreateNestedManyWithoutCharacterInput
-  assets?: Prisma.AssetCreateNestedManyWithoutCharacterInput
-  records?: Prisma.GenerationRecordCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateInput = {
   id?: string
   name: string
-  role?: string | null
-  summary?: string | null
+  description: string
+  personality: string
+  species: string
   createdAt?: Date | string
-  updatedAt?: Date | string
-  memories?: Prisma.CharacterMemoryUncheckedCreateNestedManyWithoutCharacterInput
-  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutCharacterInput
-  records?: Prisma.GenerationRecordUncheckedCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memories?: Prisma.CharacterMemoryUpdateManyWithoutCharacterNestedInput
-  assets?: Prisma.AssetUpdateManyWithoutCharacterNestedInput
-  records?: Prisma.GenerationRecordUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memories?: Prisma.CharacterMemoryUncheckedUpdateManyWithoutCharacterNestedInput
-  assets?: Prisma.AssetUncheckedUpdateManyWithoutCharacterNestedInput
-  records?: Prisma.GenerationRecordUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterCreateManyInput = {
   id?: string
   name: string
-  role?: string | null
-  summary?: string | null
+  description: string
+  personality: string
+  species: string
   createdAt?: Date | string
-  updatedAt?: Date | string
 }
 
 export type CharacterUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CharacterUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CharacterCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
+  species?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
 export type CharacterMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
+  species?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
 export type CharacterMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  role?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
+  species?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
-}
-
-export type CharacterScalarRelationFilter = {
-  is?: Prisma.CharacterWhereInput
-  isNot?: Prisma.CharacterWhereInput
 }
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
-export type CharacterCreateNestedOneWithoutMemoriesInput = {
-  create?: Prisma.XOR<Prisma.CharacterCreateWithoutMemoriesInput, Prisma.CharacterUncheckedCreateWithoutMemoriesInput>
-  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutMemoriesInput
-  connect?: Prisma.CharacterWhereUniqueInput
-}
-
-export type CharacterUpdateOneRequiredWithoutMemoriesNestedInput = {
-  create?: Prisma.XOR<Prisma.CharacterCreateWithoutMemoriesInput, Prisma.CharacterUncheckedCreateWithoutMemoriesInput>
-  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutMemoriesInput
-  upsert?: Prisma.CharacterUpsertWithoutMemoriesInput
-  connect?: Prisma.CharacterWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutMemoriesInput, Prisma.CharacterUpdateWithoutMemoriesInput>, Prisma.CharacterUncheckedUpdateWithoutMemoriesInput>
-}
-
-export type CharacterCreateNestedOneWithoutAssetsInput = {
-  create?: Prisma.XOR<Prisma.CharacterCreateWithoutAssetsInput, Prisma.CharacterUncheckedCreateWithoutAssetsInput>
-  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutAssetsInput
-  connect?: Prisma.CharacterWhereUniqueInput
-}
-
-export type CharacterUpdateOneRequiredWithoutAssetsNestedInput = {
-  create?: Prisma.XOR<Prisma.CharacterCreateWithoutAssetsInput, Prisma.CharacterUncheckedCreateWithoutAssetsInput>
-  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutAssetsInput
-  upsert?: Prisma.CharacterUpsertWithoutAssetsInput
-  connect?: Prisma.CharacterWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutAssetsInput, Prisma.CharacterUpdateWithoutAssetsInput>, Prisma.CharacterUncheckedUpdateWithoutAssetsInput>
-}
-
-export type CharacterCreateNestedOneWithoutRecordsInput = {
-  create?: Prisma.XOR<Prisma.CharacterCreateWithoutRecordsInput, Prisma.CharacterUncheckedCreateWithoutRecordsInput>
-  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutRecordsInput
-  connect?: Prisma.CharacterWhereUniqueInput
-}
-
-export type CharacterUpdateOneRequiredWithoutRecordsNestedInput = {
-  create?: Prisma.XOR<Prisma.CharacterCreateWithoutRecordsInput, Prisma.CharacterUncheckedCreateWithoutRecordsInput>
-  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutRecordsInput
-  upsert?: Prisma.CharacterUpsertWithoutRecordsInput
-  connect?: Prisma.CharacterWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutRecordsInput, Prisma.CharacterUpdateWithoutRecordsInput>, Prisma.CharacterUncheckedUpdateWithoutRecordsInput>
-}
-
-export type CharacterCreateWithoutMemoriesInput = {
-  id?: string
-  name: string
-  role?: string | null
-  summary?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  assets?: Prisma.AssetCreateNestedManyWithoutCharacterInput
-  records?: Prisma.GenerationRecordCreateNestedManyWithoutCharacterInput
-}
-
-export type CharacterUncheckedCreateWithoutMemoriesInput = {
-  id?: string
-  name: string
-  role?: string | null
-  summary?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutCharacterInput
-  records?: Prisma.GenerationRecordUncheckedCreateNestedManyWithoutCharacterInput
-}
-
-export type CharacterCreateOrConnectWithoutMemoriesInput = {
-  where: Prisma.CharacterWhereUniqueInput
-  create: Prisma.XOR<Prisma.CharacterCreateWithoutMemoriesInput, Prisma.CharacterUncheckedCreateWithoutMemoriesInput>
-}
-
-export type CharacterUpsertWithoutMemoriesInput = {
-  update: Prisma.XOR<Prisma.CharacterUpdateWithoutMemoriesInput, Prisma.CharacterUncheckedUpdateWithoutMemoriesInput>
-  create: Prisma.XOR<Prisma.CharacterCreateWithoutMemoriesInput, Prisma.CharacterUncheckedCreateWithoutMemoriesInput>
-  where?: Prisma.CharacterWhereInput
-}
-
-export type CharacterUpdateToOneWithWhereWithoutMemoriesInput = {
-  where?: Prisma.CharacterWhereInput
-  data: Prisma.XOR<Prisma.CharacterUpdateWithoutMemoriesInput, Prisma.CharacterUncheckedUpdateWithoutMemoriesInput>
-}
-
-export type CharacterUpdateWithoutMemoriesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  assets?: Prisma.AssetUpdateManyWithoutCharacterNestedInput
-  records?: Prisma.GenerationRecordUpdateManyWithoutCharacterNestedInput
-}
-
-export type CharacterUncheckedUpdateWithoutMemoriesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  assets?: Prisma.AssetUncheckedUpdateManyWithoutCharacterNestedInput
-  records?: Prisma.GenerationRecordUncheckedUpdateManyWithoutCharacterNestedInput
-}
-
-export type CharacterCreateWithoutAssetsInput = {
-  id?: string
-  name: string
-  role?: string | null
-  summary?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memories?: Prisma.CharacterMemoryCreateNestedManyWithoutCharacterInput
-  records?: Prisma.GenerationRecordCreateNestedManyWithoutCharacterInput
-}
-
-export type CharacterUncheckedCreateWithoutAssetsInput = {
-  id?: string
-  name: string
-  role?: string | null
-  summary?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memories?: Prisma.CharacterMemoryUncheckedCreateNestedManyWithoutCharacterInput
-  records?: Prisma.GenerationRecordUncheckedCreateNestedManyWithoutCharacterInput
-}
-
-export type CharacterCreateOrConnectWithoutAssetsInput = {
-  where: Prisma.CharacterWhereUniqueInput
-  create: Prisma.XOR<Prisma.CharacterCreateWithoutAssetsInput, Prisma.CharacterUncheckedCreateWithoutAssetsInput>
-}
-
-export type CharacterUpsertWithoutAssetsInput = {
-  update: Prisma.XOR<Prisma.CharacterUpdateWithoutAssetsInput, Prisma.CharacterUncheckedUpdateWithoutAssetsInput>
-  create: Prisma.XOR<Prisma.CharacterCreateWithoutAssetsInput, Prisma.CharacterUncheckedCreateWithoutAssetsInput>
-  where?: Prisma.CharacterWhereInput
-}
-
-export type CharacterUpdateToOneWithWhereWithoutAssetsInput = {
-  where?: Prisma.CharacterWhereInput
-  data: Prisma.XOR<Prisma.CharacterUpdateWithoutAssetsInput, Prisma.CharacterUncheckedUpdateWithoutAssetsInput>
-}
-
-export type CharacterUpdateWithoutAssetsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memories?: Prisma.CharacterMemoryUpdateManyWithoutCharacterNestedInput
-  records?: Prisma.GenerationRecordUpdateManyWithoutCharacterNestedInput
-}
-
-export type CharacterUncheckedUpdateWithoutAssetsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memories?: Prisma.CharacterMemoryUncheckedUpdateManyWithoutCharacterNestedInput
-  records?: Prisma.GenerationRecordUncheckedUpdateManyWithoutCharacterNestedInput
-}
-
-export type CharacterCreateWithoutRecordsInput = {
-  id?: string
-  name: string
-  role?: string | null
-  summary?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memories?: Prisma.CharacterMemoryCreateNestedManyWithoutCharacterInput
-  assets?: Prisma.AssetCreateNestedManyWithoutCharacterInput
-}
-
-export type CharacterUncheckedCreateWithoutRecordsInput = {
-  id?: string
-  name: string
-  role?: string | null
-  summary?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memories?: Prisma.CharacterMemoryUncheckedCreateNestedManyWithoutCharacterInput
-  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutCharacterInput
-}
-
-export type CharacterCreateOrConnectWithoutRecordsInput = {
-  where: Prisma.CharacterWhereUniqueInput
-  create: Prisma.XOR<Prisma.CharacterCreateWithoutRecordsInput, Prisma.CharacterUncheckedCreateWithoutRecordsInput>
-}
-
-export type CharacterUpsertWithoutRecordsInput = {
-  update: Prisma.XOR<Prisma.CharacterUpdateWithoutRecordsInput, Prisma.CharacterUncheckedUpdateWithoutRecordsInput>
-  create: Prisma.XOR<Prisma.CharacterCreateWithoutRecordsInput, Prisma.CharacterUncheckedCreateWithoutRecordsInput>
-  where?: Prisma.CharacterWhereInput
-}
-
-export type CharacterUpdateToOneWithWhereWithoutRecordsInput = {
-  where?: Prisma.CharacterWhereInput
-  data: Prisma.XOR<Prisma.CharacterUpdateWithoutRecordsInput, Prisma.CharacterUncheckedUpdateWithoutRecordsInput>
-}
-
-export type CharacterUpdateWithoutRecordsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memories?: Prisma.CharacterMemoryUpdateManyWithoutCharacterNestedInput
-  assets?: Prisma.AssetUpdateManyWithoutCharacterNestedInput
-}
-
-export type CharacterUncheckedUpdateWithoutRecordsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memories?: Prisma.CharacterMemoryUncheckedUpdateManyWithoutCharacterNestedInput
-  assets?: Prisma.AssetUncheckedUpdateManyWithoutCharacterNestedInput
-}
-
-
-/**
- * Count Type CharacterCountOutputType
- */
-
-export type CharacterCountOutputType = {
-  memories: number
-  assets: number
-  records: number
-}
-
-export type CharacterCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  memories?: boolean | CharacterCountOutputTypeCountMemoriesArgs
-  assets?: boolean | CharacterCountOutputTypeCountAssetsArgs
-  records?: boolean | CharacterCountOutputTypeCountRecordsArgs
-}
-
-/**
- * CharacterCountOutputType without action
- */
-export type CharacterCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the CharacterCountOutputType
-   */
-  select?: Prisma.CharacterCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * CharacterCountOutputType without action
- */
-export type CharacterCountOutputTypeCountMemoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CharacterMemoryWhereInput
-}
-
-/**
- * CharacterCountOutputType without action
- */
-export type CharacterCountOutputTypeCountAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AssetWhereInput
-}
-
-/**
- * CharacterCountOutputType without action
- */
-export type CharacterCountOutputTypeCountRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.GenerationRecordWhereInput
-}
 
 
 export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  role?: boolean
-  summary?: boolean
+  description?: boolean
+  personality?: boolean
+  species?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
-  memories?: boolean | Prisma.Character$memoriesArgs<ExtArgs>
-  assets?: boolean | Prisma.Character$assetsArgs<ExtArgs>
-  records?: boolean | Prisma.Character$recordsArgs<ExtArgs>
-  _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["character"]>
 
 export type CharacterSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  role?: boolean
-  summary?: boolean
+  description?: boolean
+  personality?: boolean
+  species?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
 }, ExtArgs["result"]["character"]>
 
 export type CharacterSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  role?: boolean
-  summary?: boolean
+  description?: boolean
+  personality?: boolean
+  species?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
 }, ExtArgs["result"]["character"]>
 
 export type CharacterSelectScalar = {
   id?: boolean
   name?: boolean
-  role?: boolean
-  summary?: boolean
+  description?: boolean
+  personality?: boolean
+  species?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "role" | "summary" | "createdAt" | "updatedAt", ExtArgs["result"]["character"]>
-export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  memories?: boolean | Prisma.Character$memoriesArgs<ExtArgs>
-  assets?: boolean | Prisma.Character$assetsArgs<ExtArgs>
-  records?: boolean | Prisma.Character$recordsArgs<ExtArgs>
-  _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
-}
-export type CharacterIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type CharacterIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "personality" | "species" | "createdAt", ExtArgs["result"]["character"]>
 
 export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Character"
-  objects: {
-    memories: Prisma.$CharacterMemoryPayload<ExtArgs>[]
-    assets: Prisma.$AssetPayload<ExtArgs>[]
-    records: Prisma.$GenerationRecordPayload<ExtArgs>[]
-  }
+  objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    role: string | null
-    summary: string | null
+    description: string
+    personality: string
+    species: string
     createdAt: Date
-    updatedAt: Date
   }, ExtArgs["result"]["character"]>
   composites: {}
 }
@@ -1094,9 +779,6 @@ readonly fields: CharacterFieldRefs;
  */
 export interface Prisma__CharacterClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  memories<T extends Prisma.Character$memoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$memoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterMemoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  assets<T extends Prisma.Character$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  records<T extends Prisma.Character$recordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$recordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GenerationRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1128,10 +810,10 @@ export interface Prisma__CharacterClient<T, Null = never, ExtArgs extends runtim
 export interface CharacterFieldRefs {
   readonly id: Prisma.FieldRef<"Character", 'String'>
   readonly name: Prisma.FieldRef<"Character", 'String'>
-  readonly role: Prisma.FieldRef<"Character", 'String'>
-  readonly summary: Prisma.FieldRef<"Character", 'String'>
+  readonly description: Prisma.FieldRef<"Character", 'String'>
+  readonly personality: Prisma.FieldRef<"Character", 'String'>
+  readonly species: Prisma.FieldRef<"Character", 'String'>
   readonly createdAt: Prisma.FieldRef<"Character", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"Character", 'DateTime'>
 }
     
 
@@ -1148,10 +830,6 @@ export type CharacterFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
   /**
    * Filter, which Character to fetch.
    */
@@ -1171,10 +849,6 @@ export type CharacterFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
-  /**
    * Filter, which Character to fetch.
    */
   where: Prisma.CharacterWhereUniqueInput
@@ -1192,10 +866,6 @@ export type CharacterFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
   /**
    * Filter, which Character to fetch.
    */
@@ -1245,10 +915,6 @@ export type CharacterFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
-  /**
    * Filter, which Character to fetch.
    */
   where?: Prisma.CharacterWhereInput
@@ -1296,10 +962,6 @@ export type CharacterFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
   /**
    * Filter, which Characters to fetch.
    */
@@ -1349,10 +1011,6 @@ export type CharacterCreateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
-  /**
    * The data needed to create a Character.
    */
   data: Prisma.XOR<Prisma.CharacterCreateInput, Prisma.CharacterUncheckedCreateInput>
@@ -1366,7 +1024,6 @@ export type CharacterCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * The data used to create many Characters.
    */
   data: Prisma.CharacterCreateManyInput | Prisma.CharacterCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1385,7 +1042,6 @@ export type CharacterCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many Characters.
    */
   data: Prisma.CharacterCreateManyInput | Prisma.CharacterCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1400,10 +1056,6 @@ export type CharacterUpdateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
   /**
    * The data needed to update a Character.
    */
@@ -1471,10 +1123,6 @@ export type CharacterUpsertArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
-  /**
    * The filter to search for the Character to update in case it exists.
    */
   where: Prisma.CharacterWhereUniqueInput
@@ -1501,10 +1149,6 @@ export type CharacterDeleteArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
-  /**
    * Filter which Character to delete.
    */
   where: Prisma.CharacterWhereUniqueInput
@@ -1525,78 +1169,6 @@ export type CharacterDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
- * Character.memories
- */
-export type Character$memoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the CharacterMemory
-   */
-  select?: Prisma.CharacterMemorySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the CharacterMemory
-   */
-  omit?: Prisma.CharacterMemoryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterMemoryInclude<ExtArgs> | null
-  where?: Prisma.CharacterMemoryWhereInput
-  orderBy?: Prisma.CharacterMemoryOrderByWithRelationInput | Prisma.CharacterMemoryOrderByWithRelationInput[]
-  cursor?: Prisma.CharacterMemoryWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CharacterMemoryScalarFieldEnum | Prisma.CharacterMemoryScalarFieldEnum[]
-}
-
-/**
- * Character.assets
- */
-export type Character$assetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Asset
-   */
-  select?: Prisma.AssetSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Asset
-   */
-  omit?: Prisma.AssetOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AssetInclude<ExtArgs> | null
-  where?: Prisma.AssetWhereInput
-  orderBy?: Prisma.AssetOrderByWithRelationInput | Prisma.AssetOrderByWithRelationInput[]
-  cursor?: Prisma.AssetWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AssetScalarFieldEnum | Prisma.AssetScalarFieldEnum[]
-}
-
-/**
- * Character.records
- */
-export type Character$recordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the GenerationRecord
-   */
-  select?: Prisma.GenerationRecordSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the GenerationRecord
-   */
-  omit?: Prisma.GenerationRecordOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.GenerationRecordInclude<ExtArgs> | null
-  where?: Prisma.GenerationRecordWhereInput
-  orderBy?: Prisma.GenerationRecordOrderByWithRelationInput | Prisma.GenerationRecordOrderByWithRelationInput[]
-  cursor?: Prisma.GenerationRecordWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.GenerationRecordScalarFieldEnum | Prisma.GenerationRecordScalarFieldEnum[]
-}
-
-/**
  * Character without action
  */
 export type CharacterDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1608,8 +1180,4 @@ export type CharacterDefaultArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CharacterInclude<ExtArgs> | null
 }

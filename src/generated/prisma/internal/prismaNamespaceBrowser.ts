@@ -51,10 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Character: 'Character',
-  CharacterMemory: 'CharacterMemory',
-  Asset: 'Asset',
-  GenerationRecord: 'GenerationRecord'
+  Character: 'Character'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -64,9 +61,6 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
  */
 
 export const TransactionIsolationLevel = runtime.makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 } as const)
 
@@ -76,60 +70,13 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const CharacterScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  role: 'role',
-  summary: 'summary',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  description: 'description',
+  personality: 'personality',
+  species: 'species',
+  createdAt: 'createdAt'
 } as const
 
 export type CharacterScalarFieldEnum = (typeof CharacterScalarFieldEnum)[keyof typeof CharacterScalarFieldEnum]
-
-
-export const CharacterMemoryScalarFieldEnum = {
-  id: 'id',
-  characterId: 'characterId',
-  category: 'category',
-  content: 'content',
-  isActive: 'isActive',
-  createdAt: 'createdAt'
-} as const
-
-export type CharacterMemoryScalarFieldEnum = (typeof CharacterMemoryScalarFieldEnum)[keyof typeof CharacterMemoryScalarFieldEnum]
-
-
-export const AssetScalarFieldEnum = {
-  id: 'id',
-  characterId: 'characterId',
-  type: 'type',
-  url: 'url',
-  version: 'version',
-  status: 'status',
-  provider: 'provider',
-  createdAt: 'createdAt'
-} as const
-
-export type AssetScalarFieldEnum = (typeof AssetScalarFieldEnum)[keyof typeof AssetScalarFieldEnum]
-
-
-export const GenerationRecordScalarFieldEnum = {
-  id: 'id',
-  characterId: 'characterId',
-  task: 'task',
-  provider: 'provider',
-  prompt: 'prompt',
-  inputContextIds: 'inputContextIds',
-  outputAssetId: 'outputAssetId',
-  status: 'status',
-  feedback: 'feedback',
-  inputTokens: 'inputTokens',
-  outputTokens: 'outputTokens',
-  estimatedCost: 'estimatedCost',
-  latencyMs: 'latencyMs',
-  retryCount: 'retryCount',
-  createdAt: 'createdAt'
-} as const
-
-export type GenerationRecordScalarFieldEnum = (typeof GenerationRecordScalarFieldEnum)[keyof typeof GenerationRecordScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -138,44 +85,4 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
-
-
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
-export const NullableJsonNullValueInput = {
-  DbNull: DbNull,
-  JsonNull: JsonNull
-} as const
-
-export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

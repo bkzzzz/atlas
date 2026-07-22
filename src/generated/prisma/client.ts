@@ -46,18 +46,3 @@ export { Prisma }
  * 
  */
 export type Character = Prisma.CharacterModel
-/**
- * Model CharacterMemory
- * 
- */
-export type CharacterMemory = Prisma.CharacterMemoryModel
-/**
- * Model Asset
- * 
- */
-export type Asset = Prisma.AssetModel
-/**
- * Model GenerationRecord
- * 
- */
-export type GenerationRecord = Prisma.GenerationRecordModel

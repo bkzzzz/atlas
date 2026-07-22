@@ -1,0 +1,2 @@
+# Prisma uses this file to ensure migrations are applied with SQLite.
+provider = "sqlite"

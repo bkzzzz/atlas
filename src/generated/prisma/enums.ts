@@ -9,21 +9,7 @@
 * 🟢 You can import this file directly.
 */
 
-export const AssetStatus = {
-  DRAFT: 'DRAFT',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED'
-} as const
-
-export type AssetStatus = (typeof AssetStatus)[keyof typeof AssetStatus]
 
 
-export const GenerationTask = {
-  CHARACTER_MEMORY: 'CHARACTER_MEMORY',
-  DIALOGUE: 'DIALOGUE',
-  SKILL: 'SKILL',
-  BASE_ART: 'BASE_ART',
-  PROFILE_ICON: 'PROFILE_ICON'
-} as const
-
-export type GenerationTask = (typeof GenerationTask)[keyof typeof GenerationTask]
+// This file is empty because there are no enums in the schema.
+export {}

@@ -4,72 +4,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
-enum AssetStatus {
-  DRAFT
-  APPROVED
-  REJECTED
-}
-
-enum GenerationTask {
-  CHARACTER_MEMORY
-  DIALOGUE
-  SKILL
-  BASE_ART
-  PROFILE_ICON
-}
-
+// This model is the first persistent data owned by Atlas.
 model Character {
-  id        String             @id @default(cuid())
-  name      String
-  role      String?
-  summary   String?            @db.Text
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  memories  CharacterMemory[]
-  assets    Asset[]
-  records   GenerationRecord[]
-}
-
-model CharacterMemory {
-  id          String    @id @default(cuid())
-  characterId String
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  category    String
-  content     Json
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-}
-
-model Asset {
-  id          String      @id @default(cuid())
-  characterId String
-  character   Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  type        String
-  url         String
-  version     Int         @default(1)
-  status      AssetStatus @default(DRAFT)
-  provider    String?
-  createdAt   DateTime    @default(now())
-}
-
-model GenerationRecord {
-  id              String         @id @default(cuid())
-  characterId     String
-  character       Character      @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  task            GenerationTask
-  provider        String
-  prompt          String         @db.Text
-  inputContextIds Json?
-  outputAssetId   String?
-  status          AssetStatus    @default(DRAFT)
-  feedback        String?        @db.Text
-  inputTokens     Int?
-  outputTokens    Int?
-  estimatedCost   Decimal?       @db.Decimal(10, 6)
-  latencyMs       Int?
-  retryCount      Int            @default(0)
-  createdAt       DateTime       @default(now())
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  personality String
+  species     String
+  createdAt   DateTime @default(now())
 }

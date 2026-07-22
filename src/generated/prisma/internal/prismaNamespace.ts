@@ -397,10 +397,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  Character: 'Character',
-  CharacterMemory: 'CharacterMemory',
-  Asset: 'Asset',
-  GenerationRecord: 'GenerationRecord'
+  Character: 'Character'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "character" | "characterMemory" | "asset" | "generationRecord"
+    modelProps: "character"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -494,228 +491,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    CharacterMemory: {
-      payload: Prisma.$CharacterMemoryPayload<ExtArgs>
-      fields: Prisma.CharacterMemoryFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.CharacterMemoryFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.CharacterMemoryFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
-        }
-        findFirst: {
-          args: Prisma.CharacterMemoryFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.CharacterMemoryFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
-        }
-        findMany: {
-          args: Prisma.CharacterMemoryFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>[]
-        }
-        create: {
-          args: Prisma.CharacterMemoryCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
-        }
-        createMany: {
-          args: Prisma.CharacterMemoryCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.CharacterMemoryCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>[]
-        }
-        delete: {
-          args: Prisma.CharacterMemoryDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
-        }
-        update: {
-          args: Prisma.CharacterMemoryUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
-        }
-        deleteMany: {
-          args: Prisma.CharacterMemoryDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.CharacterMemoryUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.CharacterMemoryUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>[]
-        }
-        upsert: {
-          args: Prisma.CharacterMemoryUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
-        }
-        aggregate: {
-          args: Prisma.CharacterMemoryAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCharacterMemory>
-        }
-        groupBy: {
-          args: Prisma.CharacterMemoryGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CharacterMemoryGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.CharacterMemoryCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CharacterMemoryCountAggregateOutputType> | number
-        }
-      }
-    }
-    Asset: {
-      payload: Prisma.$AssetPayload<ExtArgs>
-      fields: Prisma.AssetFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.AssetFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.AssetFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
-        }
-        findFirst: {
-          args: Prisma.AssetFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.AssetFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
-        }
-        findMany: {
-          args: Prisma.AssetFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>[]
-        }
-        create: {
-          args: Prisma.AssetCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
-        }
-        createMany: {
-          args: Prisma.AssetCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.AssetCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>[]
-        }
-        delete: {
-          args: Prisma.AssetDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
-        }
-        update: {
-          args: Prisma.AssetUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
-        }
-        deleteMany: {
-          args: Prisma.AssetDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.AssetUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.AssetUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>[]
-        }
-        upsert: {
-          args: Prisma.AssetUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssetPayload>
-        }
-        aggregate: {
-          args: Prisma.AssetAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAsset>
-        }
-        groupBy: {
-          args: Prisma.AssetGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssetGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.AssetCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AssetCountAggregateOutputType> | number
-        }
-      }
-    }
-    GenerationRecord: {
-      payload: Prisma.$GenerationRecordPayload<ExtArgs>
-      fields: Prisma.GenerationRecordFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.GenerationRecordFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.GenerationRecordFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
-        }
-        findFirst: {
-          args: Prisma.GenerationRecordFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.GenerationRecordFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
-        }
-        findMany: {
-          args: Prisma.GenerationRecordFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>[]
-        }
-        create: {
-          args: Prisma.GenerationRecordCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
-        }
-        createMany: {
-          args: Prisma.GenerationRecordCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.GenerationRecordCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>[]
-        }
-        delete: {
-          args: Prisma.GenerationRecordDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
-        }
-        update: {
-          args: Prisma.GenerationRecordUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
-        }
-        deleteMany: {
-          args: Prisma.GenerationRecordDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.GenerationRecordUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.GenerationRecordUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>[]
-        }
-        upsert: {
-          args: Prisma.GenerationRecordUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenerationRecordPayload>
-        }
-        aggregate: {
-          args: Prisma.GenerationRecordAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateGenerationRecord>
-        }
-        groupBy: {
-          args: Prisma.GenerationRecordGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GenerationRecordGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.GenerationRecordCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GenerationRecordCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -746,9 +521,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
  */
 
 export const TransactionIsolationLevel = runtime.makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 } as const)
 
@@ -758,60 +530,13 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const CharacterScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  role: 'role',
-  summary: 'summary',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  description: 'description',
+  personality: 'personality',
+  species: 'species',
+  createdAt: 'createdAt'
 } as const
 
 export type CharacterScalarFieldEnum = (typeof CharacterScalarFieldEnum)[keyof typeof CharacterScalarFieldEnum]
-
-
-export const CharacterMemoryScalarFieldEnum = {
-  id: 'id',
-  characterId: 'characterId',
-  category: 'category',
-  content: 'content',
-  isActive: 'isActive',
-  createdAt: 'createdAt'
-} as const
-
-export type CharacterMemoryScalarFieldEnum = (typeof CharacterMemoryScalarFieldEnum)[keyof typeof CharacterMemoryScalarFieldEnum]
-
-
-export const AssetScalarFieldEnum = {
-  id: 'id',
-  characterId: 'characterId',
-  type: 'type',
-  url: 'url',
-  version: 'version',
-  status: 'status',
-  provider: 'provider',
-  createdAt: 'createdAt'
-} as const
-
-export type AssetScalarFieldEnum = (typeof AssetScalarFieldEnum)[keyof typeof AssetScalarFieldEnum]
-
-
-export const GenerationRecordScalarFieldEnum = {
-  id: 'id',
-  characterId: 'characterId',
-  task: 'task',
-  provider: 'provider',
-  prompt: 'prompt',
-  inputContextIds: 'inputContextIds',
-  outputAssetId: 'outputAssetId',
-  status: 'status',
-  feedback: 'feedback',
-  inputTokens: 'inputTokens',
-  outputTokens: 'outputTokens',
-  estimatedCost: 'estimatedCost',
-  latencyMs: 'latencyMs',
-  retryCount: 'retryCount',
-  createdAt: 'createdAt'
-} as const
-
-export type GenerationRecordScalarFieldEnum = (typeof GenerationRecordScalarFieldEnum)[keyof typeof GenerationRecordScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -820,46 +545,6 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
-
-
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
-export const NullableJsonNullValueInput = {
-  DbNull: DbNull,
-  JsonNull: JsonNull
-} as const
-
-export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -876,13 +561,6 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
 
 
 /**
- * Reference to a field of type 'String[]'
- */
-export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
-
-
-/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -890,100 +568,9 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
 
 
 /**
- * Reference to a field of type 'DateTime[]'
- */
-export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
- * Reference to a field of type 'AssetStatus'
- */
-export type EnumAssetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetStatus'>
-    
-
-
-/**
- * Reference to a field of type 'AssetStatus[]'
- */
-export type ListEnumAssetStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'GenerationTask'
- */
-export type EnumGenerationTaskFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GenerationTask'>
-    
-
-
-/**
- * Reference to a field of type 'GenerationTask[]'
- */
-export type ListEnumGenerationTaskFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GenerationTask[]'>
-    
-
-
-/**
- * Reference to a field of type 'Decimal'
- */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
-    
-
-
-/**
- * Reference to a field of type 'Decimal[]'
- */
-export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1138,9 +725,6 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   character?: Prisma.CharacterOmit
-  characterMemory?: Prisma.CharacterMemoryOmit
-  asset?: Prisma.AssetOmit
-  generationRecord?: Prisma.GenerationRecordOmit
 }
 
 /* Types for Logging */

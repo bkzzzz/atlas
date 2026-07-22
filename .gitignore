@@ -30,8 +30,18 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# local secrets — never commit credentials
+.env
+.env.local
 .env*
+# Keep the safe variable template in version control.
+!.env.example
+
+# local database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
 
 # vercel
 .vercel

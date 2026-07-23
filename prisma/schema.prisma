@@ -16,6 +16,7 @@ model Character {
   species     String
   createdAt   DateTime @default(now())
   assets      ImageAsset[]
+  memory      CharacterMemory?
 }
 
 // An asset is a visual reference owned by one character. onDelete: Cascade
@@ -32,4 +33,19 @@ model ImageAsset {
   prompt      String?
   feedback    String?
   createdAt   DateTime  @default(now())
+}
+
+// One durable memory record stores the human-approved character context.
+// characterId is unique to enforce one memory record per character.
+model CharacterMemory {
+  id              String    @id @default(cuid())
+  characterId     String    @unique
+  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  visualStyle     String?
+  lore            String?
+  designRules     String?
+  approvedSummary String?
+  rejectedSummary String?
+  preferredPrompt String?
+  lastUpdated     DateTime  @updatedAt
 }

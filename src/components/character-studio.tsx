@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { AssetSection } from "@/components/asset-section";
+import { MemorySection } from "@/components/memory-section";
 import type { Character, CreateCharacterInput } from "@/lib/characters";
 
 const emptyForm: CreateCharacterInput = {
@@ -176,6 +177,7 @@ export function CharacterStudio() {
               </dl>
               </article>
               <AssetSection characterId={selected.id} />
+              <MemorySection characterId={selected.id} />
             </>
           ) : !isLoading && <div className="mt-10 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">Create your first character to begin.</div>}
         </section>

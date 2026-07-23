@@ -191,6 +191,7 @@ export type CharacterWhereInput = {
   species?: Prisma.StringFilter<"Character"> | string
   createdAt?: Prisma.DateTimeFilter<"Character"> | Date | string
   assets?: Prisma.ImageAssetListRelationFilter
+  memory?: Prisma.XOR<Prisma.CharacterMemoryNullableScalarRelationFilter, Prisma.CharacterMemoryWhereInput> | null
 }
 
 export type CharacterOrderByWithRelationInput = {
@@ -201,6 +202,7 @@ export type CharacterOrderByWithRelationInput = {
   species?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   assets?: Prisma.ImageAssetOrderByRelationAggregateInput
+  memory?: Prisma.CharacterMemoryOrderByWithRelationInput
 }
 
 export type CharacterWhereUniqueInput = Prisma.AtLeast<{
@@ -214,6 +216,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   species?: Prisma.StringFilter<"Character"> | string
   createdAt?: Prisma.DateTimeFilter<"Character"> | Date | string
   assets?: Prisma.ImageAssetListRelationFilter
+  memory?: Prisma.XOR<Prisma.CharacterMemoryNullableScalarRelationFilter, Prisma.CharacterMemoryWhereInput> | null
 }, "id">
 
 export type CharacterOrderByWithAggregationInput = {
@@ -248,6 +251,7 @@ export type CharacterCreateInput = {
   species: string
   createdAt?: Date | string
   assets?: Prisma.ImageAssetCreateNestedManyWithoutCharacterInput
+  memory?: Prisma.CharacterMemoryCreateNestedOneWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateInput = {
@@ -258,6 +262,7 @@ export type CharacterUncheckedCreateInput = {
   species: string
   createdAt?: Date | string
   assets?: Prisma.ImageAssetUncheckedCreateNestedManyWithoutCharacterInput
+  memory?: Prisma.CharacterMemoryUncheckedCreateNestedOneWithoutCharacterInput
 }
 
 export type CharacterUpdateInput = {
@@ -268,6 +273,7 @@ export type CharacterUpdateInput = {
   species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.ImageAssetUpdateManyWithoutCharacterNestedInput
+  memory?: Prisma.CharacterMemoryUpdateOneWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateInput = {
@@ -278,6 +284,7 @@ export type CharacterUncheckedUpdateInput = {
   species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.ImageAssetUncheckedUpdateManyWithoutCharacterNestedInput
+  memory?: Prisma.CharacterMemoryUncheckedUpdateOneWithoutCharacterNestedInput
 }
 
 export type CharacterCreateManyInput = {
@@ -361,6 +368,20 @@ export type CharacterUpdateOneRequiredWithoutAssetsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutAssetsInput, Prisma.CharacterUpdateWithoutAssetsInput>, Prisma.CharacterUncheckedUpdateWithoutAssetsInput>
 }
 
+export type CharacterCreateNestedOneWithoutMemoryInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutMemoryInput, Prisma.CharacterUncheckedCreateWithoutMemoryInput>
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutMemoryInput
+  connect?: Prisma.CharacterWhereUniqueInput
+}
+
+export type CharacterUpdateOneRequiredWithoutMemoryNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutMemoryInput, Prisma.CharacterUncheckedCreateWithoutMemoryInput>
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutMemoryInput
+  upsert?: Prisma.CharacterUpsertWithoutMemoryInput
+  connect?: Prisma.CharacterWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutMemoryInput, Prisma.CharacterUpdateWithoutMemoryInput>, Prisma.CharacterUncheckedUpdateWithoutMemoryInput>
+}
+
 export type CharacterCreateWithoutAssetsInput = {
   id?: string
   name: string
@@ -368,6 +389,7 @@ export type CharacterCreateWithoutAssetsInput = {
   personality: string
   species: string
   createdAt?: Date | string
+  memory?: Prisma.CharacterMemoryCreateNestedOneWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateWithoutAssetsInput = {
@@ -377,6 +399,7 @@ export type CharacterUncheckedCreateWithoutAssetsInput = {
   personality: string
   species: string
   createdAt?: Date | string
+  memory?: Prisma.CharacterMemoryUncheckedCreateNestedOneWithoutCharacterInput
 }
 
 export type CharacterCreateOrConnectWithoutAssetsInput = {
@@ -402,6 +425,7 @@ export type CharacterUpdateWithoutAssetsInput = {
   personality?: Prisma.StringFieldUpdateOperationsInput | string
   species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memory?: Prisma.CharacterMemoryUpdateOneWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateWithoutAssetsInput = {
@@ -411,6 +435,63 @@ export type CharacterUncheckedUpdateWithoutAssetsInput = {
   personality?: Prisma.StringFieldUpdateOperationsInput | string
   species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memory?: Prisma.CharacterMemoryUncheckedUpdateOneWithoutCharacterNestedInput
+}
+
+export type CharacterCreateWithoutMemoryInput = {
+  id?: string
+  name: string
+  description: string
+  personality: string
+  species: string
+  createdAt?: Date | string
+  assets?: Prisma.ImageAssetCreateNestedManyWithoutCharacterInput
+}
+
+export type CharacterUncheckedCreateWithoutMemoryInput = {
+  id?: string
+  name: string
+  description: string
+  personality: string
+  species: string
+  createdAt?: Date | string
+  assets?: Prisma.ImageAssetUncheckedCreateNestedManyWithoutCharacterInput
+}
+
+export type CharacterCreateOrConnectWithoutMemoryInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutMemoryInput, Prisma.CharacterUncheckedCreateWithoutMemoryInput>
+}
+
+export type CharacterUpsertWithoutMemoryInput = {
+  update: Prisma.XOR<Prisma.CharacterUpdateWithoutMemoryInput, Prisma.CharacterUncheckedUpdateWithoutMemoryInput>
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutMemoryInput, Prisma.CharacterUncheckedCreateWithoutMemoryInput>
+  where?: Prisma.CharacterWhereInput
+}
+
+export type CharacterUpdateToOneWithWhereWithoutMemoryInput = {
+  where?: Prisma.CharacterWhereInput
+  data: Prisma.XOR<Prisma.CharacterUpdateWithoutMemoryInput, Prisma.CharacterUncheckedUpdateWithoutMemoryInput>
+}
+
+export type CharacterUpdateWithoutMemoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.ImageAssetUpdateManyWithoutCharacterNestedInput
+}
+
+export type CharacterUncheckedUpdateWithoutMemoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.ImageAssetUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
 
@@ -452,6 +533,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   species?: boolean
   createdAt?: boolean
   assets?: boolean | Prisma.Character$assetsArgs<ExtArgs>
+  memory?: boolean | Prisma.Character$memoryArgs<ExtArgs>
   _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["character"]>
 
@@ -485,6 +567,7 @@ export type CharacterSelectScalar = {
 export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "personality" | "species" | "createdAt", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assets?: boolean | Prisma.Character$assetsArgs<ExtArgs>
+  memory?: boolean | Prisma.Character$memoryArgs<ExtArgs>
   _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CharacterIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -494,6 +577,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "Character"
   objects: {
     assets: Prisma.$ImageAssetPayload<ExtArgs>[]
+    memory: Prisma.$CharacterMemoryPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -897,6 +981,7 @@ readonly fields: CharacterFieldRefs;
 export interface Prisma__CharacterClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   assets<T extends Prisma.Character$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ImageAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  memory<T extends Prisma.Character$memoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$memoryArgs<ExtArgs>>): Prisma.Prisma__CharacterMemoryClient<runtime.Types.Result.GetResult<Prisma.$CharacterMemoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1344,6 +1429,25 @@ export type Character$assetsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.ImageAssetScalarFieldEnum | Prisma.ImageAssetScalarFieldEnum[]
+}
+
+/**
+ * Character.memory
+ */
+export type Character$memoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CharacterMemory
+   */
+  select?: Prisma.CharacterMemorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CharacterMemory
+   */
+  omit?: Prisma.CharacterMemoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterMemoryInclude<ExtArgs> | null
+  where?: Prisma.CharacterMemoryWhereInput
 }
 
 /**

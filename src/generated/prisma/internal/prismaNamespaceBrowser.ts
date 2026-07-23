@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Character: 'Character',
-  ImageAsset: 'ImageAsset'
+  ImageAsset: 'ImageAsset',
+  CharacterMemory: 'CharacterMemory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -94,6 +95,21 @@ export const ImageAssetScalarFieldEnum = {
 } as const
 
 export type ImageAssetScalarFieldEnum = (typeof ImageAssetScalarFieldEnum)[keyof typeof ImageAssetScalarFieldEnum]
+
+
+export const CharacterMemoryScalarFieldEnum = {
+  id: 'id',
+  characterId: 'characterId',
+  visualStyle: 'visualStyle',
+  lore: 'lore',
+  designRules: 'designRules',
+  approvedSummary: 'approvedSummary',
+  rejectedSummary: 'rejectedSummary',
+  preferredPrompt: 'preferredPrompt',
+  lastUpdated: 'lastUpdated'
+} as const
+
+export type CharacterMemoryScalarFieldEnum = (typeof CharacterMemoryScalarFieldEnum)[keyof typeof CharacterMemoryScalarFieldEnum]
 
 
 export const SortOrder = {

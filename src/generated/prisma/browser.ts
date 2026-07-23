@@ -27,3 +27,8 @@ export type Character = Prisma.CharacterModel
  * 
  */
 export type ImageAsset = Prisma.ImageAssetModel
+/**
+ * Model CharacterMemory
+ * 
+ */
+export type CharacterMemory = Prisma.CharacterMemoryModel

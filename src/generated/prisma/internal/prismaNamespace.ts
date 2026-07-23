@@ -398,7 +398,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Character: 'Character',
-  ImageAsset: 'ImageAsset'
+  ImageAsset: 'ImageAsset',
+  CharacterMemory: 'CharacterMemory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "character" | "imageAsset"
+    modelProps: "character" | "imageAsset" | "characterMemory"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -566,6 +567,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CharacterMemory: {
+      payload: Prisma.$CharacterMemoryPayload<ExtArgs>
+      fields: Prisma.CharacterMemoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CharacterMemoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CharacterMemoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
+        }
+        findFirst: {
+          args: Prisma.CharacterMemoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CharacterMemoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
+        }
+        findMany: {
+          args: Prisma.CharacterMemoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>[]
+        }
+        create: {
+          args: Prisma.CharacterMemoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
+        }
+        createMany: {
+          args: Prisma.CharacterMemoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CharacterMemoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>[]
+        }
+        delete: {
+          args: Prisma.CharacterMemoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
+        }
+        update: {
+          args: Prisma.CharacterMemoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.CharacterMemoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CharacterMemoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CharacterMemoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.CharacterMemoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CharacterMemoryPayload>
+        }
+        aggregate: {
+          args: Prisma.CharacterMemoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCharacterMemory>
+        }
+        groupBy: {
+          args: Prisma.CharacterMemoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CharacterMemoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CharacterMemoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CharacterMemoryCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -628,6 +703,21 @@ export const ImageAssetScalarFieldEnum = {
 } as const
 
 export type ImageAssetScalarFieldEnum = (typeof ImageAssetScalarFieldEnum)[keyof typeof ImageAssetScalarFieldEnum]
+
+
+export const CharacterMemoryScalarFieldEnum = {
+  id: 'id',
+  characterId: 'characterId',
+  visualStyle: 'visualStyle',
+  lore: 'lore',
+  designRules: 'designRules',
+  approvedSummary: 'approvedSummary',
+  rejectedSummary: 'rejectedSummary',
+  preferredPrompt: 'preferredPrompt',
+  lastUpdated: 'lastUpdated'
+} as const
+
+export type CharacterMemoryScalarFieldEnum = (typeof CharacterMemoryScalarFieldEnum)[keyof typeof CharacterMemoryScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -825,6 +915,7 @@ export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaC
 export type GlobalOmitConfig = {
   character?: Prisma.CharacterOmit
   imageAsset?: Prisma.ImageAssetOmit
+  characterMemory?: Prisma.CharacterMemoryOmit
 }
 
 /* Types for Logging */

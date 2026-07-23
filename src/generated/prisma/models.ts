@@ -10,4 +10,5 @@
  */
 export type * from './models/Character'
 export type * from './models/ImageAsset'
+export type * from './models/CharacterMemory'
 export type * from './commonInputTypes'

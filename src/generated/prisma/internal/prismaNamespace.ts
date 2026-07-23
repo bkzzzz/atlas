@@ -397,7 +397,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  Character: 'Character'
+  Character: 'Character',
+  ImageAsset: 'ImageAsset'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "character"
+    modelProps: "character" | "imageAsset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -491,6 +492,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ImageAsset: {
+      payload: Prisma.$ImageAssetPayload<ExtArgs>
+      fields: Prisma.ImageAssetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ImageAssetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ImageAssetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>
+        }
+        findFirst: {
+          args: Prisma.ImageAssetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ImageAssetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>
+        }
+        findMany: {
+          args: Prisma.ImageAssetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>[]
+        }
+        create: {
+          args: Prisma.ImageAssetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>
+        }
+        createMany: {
+          args: Prisma.ImageAssetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ImageAssetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>[]
+        }
+        delete: {
+          args: Prisma.ImageAssetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>
+        }
+        update: {
+          args: Prisma.ImageAssetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>
+        }
+        deleteMany: {
+          args: Prisma.ImageAssetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ImageAssetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ImageAssetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>[]
+        }
+        upsert: {
+          args: Prisma.ImageAssetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ImageAssetPayload>
+        }
+        aggregate: {
+          args: Prisma.ImageAssetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateImageAsset>
+        }
+        groupBy: {
+          args: Prisma.ImageAssetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ImageAssetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ImageAssetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ImageAssetCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -539,12 +614,36 @@ export const CharacterScalarFieldEnum = {
 export type CharacterScalarFieldEnum = (typeof CharacterScalarFieldEnum)[keyof typeof CharacterScalarFieldEnum]
 
 
+export const ImageAssetScalarFieldEnum = {
+  id: 'id',
+  characterId: 'characterId',
+  name: 'name',
+  imageUrl: 'imageUrl',
+  type: 'type',
+  provider: 'provider',
+  status: 'status',
+  prompt: 'prompt',
+  feedback: 'feedback',
+  createdAt: 'createdAt'
+} as const
+
+export type ImageAssetScalarFieldEnum = (typeof ImageAssetScalarFieldEnum)[keyof typeof ImageAssetScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -725,6 +824,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   character?: Prisma.CharacterOmit
+  imageAsset?: Prisma.ImageAssetOmit
 }
 
 /* Types for Logging */

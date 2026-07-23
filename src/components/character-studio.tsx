@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { AssetSection } from "@/components/asset-section";
 import type { Character, CreateCharacterInput } from "@/lib/characters";
 
 const emptyForm: CreateCharacterInput = {
@@ -163,7 +164,8 @@ export function CharacterStudio() {
           {error && <p className="mt-6 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p>}
 
           {selected ? (
-            <article className="mt-10 max-w-2xl rounded-2xl border border-white/10 bg-white/[.03] p-6">
+            <>
+              <article className="mt-10 max-w-2xl rounded-2xl border border-white/10 bg-white/[.03] p-6">
               <p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">Character profile</p>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-3"><h2 className="text-3xl font-semibold">{selected.name}</h2><div className="flex gap-2"><button className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:border-violet-400/60" onClick={openEditDialog}>Edit</button><button className="rounded-lg border border-rose-400/30 px-3 py-2 text-sm text-rose-200 hover:bg-rose-500/10" onClick={() => setIsConfirmingDelete(true)}>Delete</button></div></div>
               <dl className="mt-8 grid gap-6 sm:grid-cols-2">
@@ -172,7 +174,9 @@ export function CharacterStudio() {
                 <Detail label="Personality" value={selected.personality} />
                 <Detail label="Description" value={selected.description} />
               </dl>
-            </article>
+              </article>
+              <AssetSection characterId={selected.id} />
+            </>
           ) : !isLoading && <div className="mt-10 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">Create your first character to begin.</div>}
         </section>
       </div>

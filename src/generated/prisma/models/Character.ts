@@ -190,6 +190,7 @@ export type CharacterWhereInput = {
   personality?: Prisma.StringFilter<"Character"> | string
   species?: Prisma.StringFilter<"Character"> | string
   createdAt?: Prisma.DateTimeFilter<"Character"> | Date | string
+  assets?: Prisma.ImageAssetListRelationFilter
 }
 
 export type CharacterOrderByWithRelationInput = {
@@ -199,6 +200,7 @@ export type CharacterOrderByWithRelationInput = {
   personality?: Prisma.SortOrder
   species?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  assets?: Prisma.ImageAssetOrderByRelationAggregateInput
 }
 
 export type CharacterWhereUniqueInput = Prisma.AtLeast<{
@@ -211,6 +213,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   personality?: Prisma.StringFilter<"Character"> | string
   species?: Prisma.StringFilter<"Character"> | string
   createdAt?: Prisma.DateTimeFilter<"Character"> | Date | string
+  assets?: Prisma.ImageAssetListRelationFilter
 }, "id">
 
 export type CharacterOrderByWithAggregationInput = {
@@ -244,6 +247,7 @@ export type CharacterCreateInput = {
   personality: string
   species: string
   createdAt?: Date | string
+  assets?: Prisma.ImageAssetCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUncheckedCreateInput = {
@@ -253,6 +257,7 @@ export type CharacterUncheckedCreateInput = {
   personality: string
   species: string
   createdAt?: Date | string
+  assets?: Prisma.ImageAssetUncheckedCreateNestedManyWithoutCharacterInput
 }
 
 export type CharacterUpdateInput = {
@@ -262,6 +267,7 @@ export type CharacterUpdateInput = {
   personality?: Prisma.StringFieldUpdateOperationsInput | string
   species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.ImageAssetUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterUncheckedUpdateInput = {
@@ -271,6 +277,7 @@ export type CharacterUncheckedUpdateInput = {
   personality?: Prisma.StringFieldUpdateOperationsInput | string
   species?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.ImageAssetUncheckedUpdateManyWithoutCharacterNestedInput
 }
 
 export type CharacterCreateManyInput = {
@@ -327,6 +334,11 @@ export type CharacterMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
+export type CharacterScalarRelationFilter = {
+  is?: Prisma.CharacterWhereInput
+  isNot?: Prisma.CharacterWhereInput
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -335,6 +347,101 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type CharacterCreateNestedOneWithoutAssetsInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutAssetsInput, Prisma.CharacterUncheckedCreateWithoutAssetsInput>
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutAssetsInput
+  connect?: Prisma.CharacterWhereUniqueInput
+}
+
+export type CharacterUpdateOneRequiredWithoutAssetsNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutAssetsInput, Prisma.CharacterUncheckedCreateWithoutAssetsInput>
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutAssetsInput
+  upsert?: Prisma.CharacterUpsertWithoutAssetsInput
+  connect?: Prisma.CharacterWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutAssetsInput, Prisma.CharacterUpdateWithoutAssetsInput>, Prisma.CharacterUncheckedUpdateWithoutAssetsInput>
+}
+
+export type CharacterCreateWithoutAssetsInput = {
+  id?: string
+  name: string
+  description: string
+  personality: string
+  species: string
+  createdAt?: Date | string
+}
+
+export type CharacterUncheckedCreateWithoutAssetsInput = {
+  id?: string
+  name: string
+  description: string
+  personality: string
+  species: string
+  createdAt?: Date | string
+}
+
+export type CharacterCreateOrConnectWithoutAssetsInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutAssetsInput, Prisma.CharacterUncheckedCreateWithoutAssetsInput>
+}
+
+export type CharacterUpsertWithoutAssetsInput = {
+  update: Prisma.XOR<Prisma.CharacterUpdateWithoutAssetsInput, Prisma.CharacterUncheckedUpdateWithoutAssetsInput>
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutAssetsInput, Prisma.CharacterUncheckedCreateWithoutAssetsInput>
+  where?: Prisma.CharacterWhereInput
+}
+
+export type CharacterUpdateToOneWithWhereWithoutAssetsInput = {
+  where?: Prisma.CharacterWhereInput
+  data: Prisma.XOR<Prisma.CharacterUpdateWithoutAssetsInput, Prisma.CharacterUncheckedUpdateWithoutAssetsInput>
+}
+
+export type CharacterUpdateWithoutAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CharacterUncheckedUpdateWithoutAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type CharacterCountOutputType
+ */
+
+export type CharacterCountOutputType = {
+  assets: number
+}
+
+export type CharacterCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assets?: boolean | CharacterCountOutputTypeCountAssetsArgs
+}
+
+/**
+ * CharacterCountOutputType without action
+ */
+export type CharacterCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CharacterCountOutputType
+   */
+  select?: Prisma.CharacterCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CharacterCountOutputType without action
+ */
+export type CharacterCountOutputTypeCountAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ImageAssetWhereInput
+}
 
 
 export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -344,6 +451,8 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   personality?: boolean
   species?: boolean
   createdAt?: boolean
+  assets?: boolean | Prisma.Character$assetsArgs<ExtArgs>
+  _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["character"]>
 
 export type CharacterSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -374,10 +483,18 @@ export type CharacterSelectScalar = {
 }
 
 export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "personality" | "species" | "createdAt", ExtArgs["result"]["character"]>
+export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assets?: boolean | Prisma.Character$assetsArgs<ExtArgs>
+  _count?: boolean | Prisma.CharacterCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type CharacterIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type CharacterIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Character"
-  objects: {}
+  objects: {
+    assets: Prisma.$ImageAssetPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
@@ -779,6 +896,7 @@ readonly fields: CharacterFieldRefs;
  */
 export interface Prisma__CharacterClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  assets<T extends Prisma.Character$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ImageAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -831,6 +949,10 @@ export type CharacterFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
+  /**
    * Filter, which Character to fetch.
    */
   where: Prisma.CharacterWhereUniqueInput
@@ -849,6 +971,10 @@ export type CharacterFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
+  /**
    * Filter, which Character to fetch.
    */
   where: Prisma.CharacterWhereUniqueInput
@@ -866,6 +992,10 @@ export type CharacterFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
   /**
    * Filter, which Character to fetch.
    */
@@ -915,6 +1045,10 @@ export type CharacterFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
+  /**
    * Filter, which Character to fetch.
    */
   where?: Prisma.CharacterWhereInput
@@ -962,6 +1096,10 @@ export type CharacterFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
   /**
    * Filter, which Characters to fetch.
    */
@@ -1011,6 +1149,10 @@ export type CharacterCreateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
+  /**
    * The data needed to create a Character.
    */
   data: Prisma.XOR<Prisma.CharacterCreateInput, Prisma.CharacterUncheckedCreateInput>
@@ -1056,6 +1198,10 @@ export type CharacterUpdateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
   /**
    * The data needed to update a Character.
    */
@@ -1123,6 +1269,10 @@ export type CharacterUpsertArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
+  /**
    * The filter to search for the Character to update in case it exists.
    */
   where: Prisma.CharacterWhereUniqueInput
@@ -1149,6 +1299,10 @@ export type CharacterDeleteArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
+  /**
    * Filter which Character to delete.
    */
   where: Prisma.CharacterWhereUniqueInput
@@ -1169,6 +1323,30 @@ export type CharacterDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
+ * Character.assets
+ */
+export type Character$assetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ImageAsset
+   */
+  select?: Prisma.ImageAssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ImageAsset
+   */
+  omit?: Prisma.ImageAssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ImageAssetInclude<ExtArgs> | null
+  where?: Prisma.ImageAssetWhereInput
+  orderBy?: Prisma.ImageAssetOrderByWithRelationInput | Prisma.ImageAssetOrderByWithRelationInput[]
+  cursor?: Prisma.ImageAssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ImageAssetScalarFieldEnum | Prisma.ImageAssetScalarFieldEnum[]
+}
+
+/**
  * Character without action
  */
 export type CharacterDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1180,4 +1358,8 @@ export type CharacterDefaultArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the Character
    */
   omit?: Prisma.CharacterOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CharacterInclude<ExtArgs> | null
 }

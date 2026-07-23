@@ -15,4 +15,21 @@ model Character {
   personality String
   species     String
   createdAt   DateTime @default(now())
+  assets      ImageAsset[]
+}
+
+// An asset is a visual reference owned by one character. onDelete: Cascade
+// keeps the database consistent by removing assets with their character.
+model ImageAsset {
+  id          String    @id @default(cuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  name        String
+  imageUrl    String
+  type        String
+  provider    String
+  status      String
+  prompt      String?
+  feedback    String?
+  createdAt   DateTime  @default(now())
 }

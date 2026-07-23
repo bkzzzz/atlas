@@ -18,7 +18,7 @@ export type ImageAsset = {
 
 export type CreateImageAssetInput = Pick<
   ImageAsset,
-  "name" | "imageUrl" | "type" | "provider" | "status"
+  "name" | "imageUrl" | "type" | "provider"
 >;
 
 export type UpdateImageAssetInput = Pick<

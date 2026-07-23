@@ -3,7 +3,6 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import {
-  ASSET_STATUSES,
   type AssetStatus,
   type CreateImageAssetInput,
   type ImageAsset,
@@ -15,7 +14,6 @@ const emptyAssetForm: CreateImageAssetInput = {
   imageUrl: "",
   type: "Reference",
   provider: "Manual",
-  status: "PENDING",
 };
 
 const emptyEditForm: UpdateImageAssetInput = {
@@ -161,7 +159,7 @@ export function AssetSection({ characterId }: { characterId: string }) {
 }
 
 function AssetCard({ asset, onApprove, onReject, onEdit, onDelete }: { asset: ImageAsset; onApprove: () => void; onReject: () => void; onEdit: () => void; onDelete: () => void }) {
-  return <article className="overflow-hidden rounded-xl border border-white/10 bg-white/[.03]"><AssetPreview asset={asset} /><div className="p-4"><div className="flex items-start justify-between gap-2"><p className="font-semibold">{asset.name}</p><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusClass(asset.status)}`}>{asset.status}</span></div><p className="mt-2 text-sm text-slate-400">{asset.provider} · {asset.type}</p>{asset.feedback && <p className="mt-3 rounded-lg border border-rose-400/20 bg-rose-500/[.06] p-2 text-xs leading-5 text-rose-100"><span className="font-semibold">Feedback: </span>{asset.feedback}</p>}<div className="mt-4 border-t border-white/10 pt-3"><div className="flex items-center justify-between gap-2"><div className="flex gap-2"><button className="rounded-md bg-emerald-500/15 px-2 py-1 text-xs font-medium text-emerald-200 hover:bg-emerald-500/25" onClick={onApprove}>Approve</button><button className="rounded-md bg-amber-500/15 px-2 py-1 text-xs font-medium text-amber-200 hover:bg-amber-500/25" onClick={onReject}>Reject</button></div><div className="flex items-center gap-2 border-l border-white/10 pl-2 text-xs"><button className="text-slate-300 hover:text-white" onClick={onEdit}>Edit</button><button className="text-rose-300 hover:text-rose-200" onClick={onDelete}>Delete</button></div></div><time className="mt-3 block text-xs text-slate-500">{new Date(asset.createdAt).toLocaleDateString()}</time></div></div></article>;
+  return <article className="overflow-hidden rounded-xl border border-white/10 bg-white/[.03]"><AssetPreview asset={asset} /><div className="p-4"><div className="flex items-start justify-between gap-2"><p className="font-semibold">{asset.name}</p><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusClass(asset.status)}`}>{asset.status}</span></div><p className="mt-2 text-sm text-slate-400">{asset.provider} · {asset.type}</p>{asset.feedback && <p className="mt-3 rounded-lg border border-rose-400/20 bg-rose-500/[.06] p-2 text-xs leading-5 text-rose-100"><span className="font-semibold">Feedback: </span>{asset.feedback}</p>}<div className="mt-4 border-t border-white/10 pt-3"><div className="flex gap-2"><button className="rounded-md bg-emerald-500/15 px-2 py-1 text-xs font-medium text-emerald-200 hover:bg-emerald-500/25" onClick={onApprove}>Approve</button><button className="rounded-md bg-amber-500/15 px-2 py-1 text-xs font-medium text-amber-200 hover:bg-amber-500/25" onClick={onReject}>Reject</button></div><div className="mt-3 flex justify-end gap-3 border-t border-white/10 pt-3 text-xs"><button className="text-slate-300 hover:text-white" onClick={onEdit}>Edit details</button><button className="text-rose-300 hover:text-rose-200" onClick={onDelete}>Delete</button></div><time className="mt-3 block text-xs text-slate-500">{new Date(asset.createdAt).toLocaleDateString()}</time></div></div></article>;
 }
 
 // A failed remote URL is replaced in-place so card height and layout stay stable.
@@ -178,7 +176,7 @@ function statusClass(status: AssetStatus) {
 }
 
 function AssetFormDialog({ form, setForm, onClose, onSubmit }: { form: CreateImageAssetInput; setForm: (form: CreateImageAssetInput) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) {
-  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><form className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#151c32] p-6" onSubmit={onSubmit}><h2 className="text-xl font-semibold">Add asset</h2><p className="mt-1 text-sm text-slate-400">Use a public mock image URL for now. Uploads and AI generation are not part of this step.</p><AssetField label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} /><AssetField label="Image URL" value={form.imageUrl} placeholder="https://images.unsplash.com/..." onChange={(imageUrl) => setForm({ ...form, imageUrl })} /><AssetField label="Asset type" value={form.type} onChange={(type) => setForm({ ...form, type })} /><AssetField label="Provider" value={form.provider} onChange={(provider) => setForm({ ...form, provider })} /><StatusField status={form.status} setStatus={(status) => setForm({ ...form, status })} /><DialogActions onClose={onClose} submitLabel="Add asset" /></form></div>;
+  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><form className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#151c32] p-6" onSubmit={onSubmit}><h2 className="text-xl font-semibold">Add asset</h2><p className="mt-1 text-sm text-slate-400">New assets start as pending review. Uploads and AI generation are not part of this step.</p><AssetField label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} /><AssetField label="Image URL" value={form.imageUrl} placeholder="https://images.unsplash.com/..." onChange={(imageUrl) => setForm({ ...form, imageUrl })} /><AssetField label="Asset type" value={form.type} onChange={(type) => setForm({ ...form, type })} /><AssetField label="Provider" value={form.provider} onChange={(provider) => setForm({ ...form, provider })} /><DialogActions onClose={onClose} submitLabel="Add asset" /></form></div>;
 }
 
 function EditAssetDialog({ form, setForm, onClose, onSubmit }: { form: UpdateImageAssetInput; setForm: (form: UpdateImageAssetInput) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) {
@@ -195,10 +193,6 @@ function DeleteAssetDialog({ asset, onCancel, onConfirm }: { asset: ImageAsset; 
 
 function DialogActions({ onClose, submitLabel, destructive = false }: { onClose: () => void; submitLabel: string; destructive?: boolean }) {
   return <div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" type="button" onClick={onClose}>Cancel</button><button className={`rounded-lg px-4 py-2 text-sm font-semibold text-white ${destructive ? "bg-rose-500 hover:bg-rose-400" : "bg-violet-500 hover:bg-violet-400"}`}>{submitLabel}</button></div>;
-}
-
-function StatusField({ status, setStatus }: { status: AssetStatus; setStatus: (status: AssetStatus) => void }) {
-  return <label className="mt-4 block text-sm font-medium">Status<select className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400" value={status} onChange={(event) => setStatus(event.target.value as AssetStatus)}>{ASSET_STATUSES.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>;
 }
 
 function AssetField({ label, value, placeholder, required = true, multiline = false, onChange }: { label: string; value: string; placeholder?: string; required?: boolean; multiline?: boolean; onChange: (value: string) => void }) {

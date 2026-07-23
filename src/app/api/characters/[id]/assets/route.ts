@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { ASSET_STATUSES } from "@/lib/assets";
 
-const requiredFields = ["name", "imageUrl", "type", "provider", "status"] as const;
+const requiredFields = ["name", "imageUrl", "type", "provider"] as const;
 
 // Assets are nested under a character because creating or listing an asset
 // always happens in the context of its owner.
@@ -27,13 +26,9 @@ export async function POST(
 
   if (requiredFields.some((field) => typeof body[field] !== "string" || !body[field].trim())) {
     return Response.json(
-      { error: "Name, image URL, type, provider, and status are required." },
+      { error: "Name, image URL, type, and provider are required." },
       { status: 400 },
     );
-  }
-
-  if (!ASSET_STATUSES.includes(body.status)) {
-    return Response.json({ error: "Asset status is invalid." }, { status: 400 });
   }
 
   const character = await prisma.character.findUnique({ where: { id: characterId } });
@@ -48,7 +43,8 @@ export async function POST(
       imageUrl: body.imageUrl.trim(),
       type: body.type.trim(),
       provider: body.provider.trim(),
-      status: body.status.trim(),
+      // New assets always enter the review queue before a reviewer acts.
+      status: "PENDING",
     },
   });
 

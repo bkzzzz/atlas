@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { ASSET_STATUSES } from "@/lib/assets";
 
 const requiredFields = ["name", "imageUrl", "type", "provider", "status"] as const;
 
@@ -29,6 +30,10 @@ export async function POST(
       { error: "Name, image URL, type, provider, and status are required." },
       { status: 400 },
     );
+  }
+
+  if (!ASSET_STATUSES.includes(body.status)) {
+    return Response.json({ error: "Asset status is invalid." }, { status: 400 });
   }
 
   const character = await prisma.character.findUnique({ where: { id: characterId } });

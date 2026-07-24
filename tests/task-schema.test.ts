@@ -25,3 +25,9 @@ test("rejects extra fields and invalid provider-animation combinations", () => {
   assert.equal(validateParsedTask({ ...generic, extra: true }, "x"), null);
   assert.equal(validateParsedTask({ ...generic, provider: "RIKA_ANIMATION", operation: "animate" }, "x"), null);
 });
+
+test("represents a static rotating visual element as a generic generation", () => {
+  const parsed = validateParsedTask({ ...generic, visualSubject: "floating eye with a rotating golden outer ring" }, "Generate a still floating eye with a rotating ring");
+  assert.equal(parsed?.provider, "GENERIC_IMAGE");
+  assert.equal(parsed?.operation, "generate");
+});

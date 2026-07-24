@@ -57,7 +57,7 @@ export async function parseArtTask(request: string): Promise<ParseArtTaskResult>
   try {
     const response = await createClient().responses.create({
       model: getTaskParserModel(), store: false, max_output_tokens: 500,
-      instructions: "Extract one game-art production task. Return only the supplied JSON schema. Preserve stated requirements; make conservative assumptions only when needed. Choose RIKA_ANIMATION only for animation or motion; otherwise choose GENERIC_IMAGE.",
+      instructions: "Extract one game-art production task. Return only the supplied JSON schema. Preserve stated requirements; make conservative assumptions only when needed. Choose RIKA_ANIMATION only when the user explicitly requests animation, video, frames, looping, or time-based motion. A rotating, flying, moving, or posed subject in one still image is GENERIC_IMAGE + generate.",
       input: request,
       text: { format: { type: "json_schema", name: "atlas_art_task", strict: true, schema: taskSchema } },
     }, { signal: AbortSignal.timeout(PARSER_TIMEOUT_MS) });

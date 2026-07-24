@@ -2,6 +2,7 @@ import { buildCharacterMetadata } from "@/lib/metadata-builder";
 import { getProviderAdapter } from "@/lib/providers";
 import { prisma } from "@/lib/prisma";
 import { classifyParserError, parseArtTask } from "@/lib/task-parser";
+import { createGenerationToken } from "@/lib/generation-session";
 
 const activeParses = new Set<string>();
 
@@ -50,7 +51,11 @@ export async function POST(
       rikaOptions: parsed.parsedTask.rikaOptions ?? undefined,
     });
 
-    return Response.json({ parsedTask: parsed.parsedTask, metadata, ...compiled, parser: { model: parsed.model, usage: parsed.usage } });
+    // Only static GENERIC_IMAGE generation is enabled in this first paid loop.
+    const generationToken = parsed.parsedTask.provider === "GENERIC_IMAGE" && parsed.parsedTask.operation === "generate"
+      ? createGenerationToken(compiled.compiledPrompt)
+      : null;
+    return Response.json({ parsedTask: parsed.parsedTask, metadata, ...compiled, generationToken, parser: { model: parsed.model, usage: parsed.usage } });
   } catch (cause) {
     const error = classifyParserError(cause);
     // Retain provider diagnostics only on the server. These fields never

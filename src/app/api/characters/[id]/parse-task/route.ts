@@ -1,67 +1,119 @@
 import { buildCharacterMetadata } from "@/lib/metadata-builder";
-import { getProviderAdapter } from "@/lib/providers";
 import { prisma } from "@/lib/prisma";
-import { classifyParserError, parseArtTask } from "@/lib/task-parser";
 import { createGenerationToken } from "@/lib/generation-session";
+import { compileSingleStaticImageTask } from "@/lib/single-image-compiler";
+import { classifyParserError, parseStaticImageTask } from "@/lib/task-parser";
+import {
+  runStaticImageMode,
+  validateParseTaskRequest,
+} from "@/lib/task-mode";
 
 const activeParses = new Set<string>();
 
 function developmentDiagnostic(error: ReturnType<typeof classifyParserError>) {
-  if (process.env.NODE_ENV !== "development") return undefined;
-  return error.diagnostic;
+  return process.env.NODE_ENV === "development" ? error.diagnostic : undefined;
 }
 
-// This server-only flow makes one LLM parsing call, validates it, then passes
-// the result to the existing deterministic provider adapter and compiler.
+function parserErrorStatus(category: ReturnType<typeof classifyParserError>["category"]) {
+  if (category === "not_configured") return 503;
+  if (category === "authentication_error") return 401;
+  if (category === "permission_or_model_access") return 403;
+  if (category === "model_not_found") return 404;
+  if (category === "insufficient_quota" || category === "rate_limit_exceeded") return 429;
+  if (category === "timeout") return 504;
+  return 502;
+}
+
+// The selected mode is the single eligibility gate. Only STATIC_IMAGE enters
+// the parser/compiler/token flow; unsupported modes return before database or
+// LLM work and never acquire a one-time generation token.
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  let body: unknown;
   try {
-    const { id: characterId } = await context.params;
-    const body = await request.json();
-    if (!body || typeof body.request !== "string" || !body.request.trim()) {
-      return Response.json({ error: "A natural-language art request is required." }, { status: 400 });
-    }
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: "A valid mode and natural-language request are required." },
+      { status: 400 },
+    );
+  }
 
-    const character = await prisma.character.findUnique({ where: { id: characterId } });
-    if (!character) return Response.json({ error: "Character not found." }, { status: 404 });
-    const [memory, assets] = await Promise.all([
-      prisma.characterMemory.findUnique({ where: { characterId } }),
-      prisma.imageAsset.findMany({ where: { characterId, status: { in: ["APPROVED", "REJECTED"] } }, orderBy: { createdAt: "desc" } }),
-    ]);
+  const validation = validateParseTaskRequest(body);
+  if (!validation.valid) {
+    return Response.json({ error: validation.error }, { status: 400 });
+  }
 
-    // Prevent repeated clicks from starting a second billable request while the
-    // same request is already in flight in this server process.
-    const parseKey = `${characterId}:${body.request.trim()}`;
-    if (activeParses.has(parseKey)) {
-      return Response.json({ error: "This request is already being parsed. Please wait." }, { status: 409 });
-    }
-    activeParses.add(parseKey);
-    let parsed;
-    try {
-      parsed = await parseArtTask(body.request);
-    } finally {
-      activeParses.delete(parseKey);
-    }
-    const metadata = buildCharacterMetadata({ character, memory, assets });
-    const compiled = getProviderAdapter(parsed.parsedTask.provider).compile({
-      metadata,
-      userRequest: parsed.parsedTask.userRequest,
-      rikaOptions: parsed.parsedTask.rikaOptions ?? undefined,
+  const { selectedMode, request: naturalLanguageRequest } = validation.value;
+
+  try {
+    const modeResult = await runStaticImageMode(selectedMode, async () => {
+      const { id: characterId } = await context.params;
+      const character = await prisma.character.findUnique({ where: { id: characterId } });
+      if (!character) return Response.json({ error: "Character not found." }, { status: 404 });
+
+      const [memory, assets] = await Promise.all([
+        prisma.characterMemory.findUnique({ where: { characterId } }),
+        prisma.imageAsset.findMany({
+          where: { characterId, status: { in: ["APPROVED", "REJECTED"] } },
+          orderBy: { createdAt: "desc" },
+        }),
+      ]);
+
+      // Prevent repeated clicks from starting a second parser request while
+      // the same static-image request is in flight in this server process.
+      const parseKey = `${characterId}:${naturalLanguageRequest}`;
+      if (activeParses.has(parseKey)) {
+        return Response.json(
+          { error: "This request is already being parsed. Please wait." },
+          { status: 409 },
+        );
+      }
+
+      activeParses.add(parseKey);
+      let parsed;
+      try {
+        parsed = await parseStaticImageTask(naturalLanguageRequest);
+      } finally {
+        activeParses.delete(parseKey);
+      }
+
+      const metadata = buildCharacterMetadata({ character, memory, assets });
+      const compiled = compileSingleStaticImageTask(parsed.parsedTask, metadata);
+      const generationToken = createGenerationToken(compiled.compiledPrompt);
+
+      return Response.json({
+        selectedMode,
+        parsedTask: parsed.parsedTask,
+        metadata,
+        ...compiled,
+        generationToken,
+        parser: { model: parsed.model, usage: parsed.usage },
+      });
     });
 
-    // Only static GENERIC_IMAGE generation is enabled in this first paid loop.
-    const generationToken = parsed.parsedTask.provider === "GENERIC_IMAGE" && parsed.parsedTask.operation === "generate"
-      ? createGenerationToken(compiled.compiledPrompt)
-      : null;
-    return Response.json({ parsedTask: parsed.parsedTask, metadata, ...compiled, generationToken, parser: { model: parsed.model, usage: parsed.usage } });
+    if (!modeResult.supported) {
+      return Response.json(
+        { error: modeResult.error, category: "unsupported_task" },
+        { status: 422 },
+      );
+    }
+
+    return modeResult.value;
   } catch (cause) {
     const error = classifyParserError(cause);
-    // Retain provider diagnostics only on the server. These fields never
-    // include the API key; production responses stay intentionally generic.
+    // Only safe, non-secret diagnostics are logged. The raw provider payload,
+    // prompt and credentials never enter logs or client responses.
     console.error("Task parser failure", { category: error.category, ...error.diagnostic });
-    const status = error.category === "not_configured" ? 503 : error.category === "authentication_error" ? 401 : error.category === "permission_or_model_access" ? 403 : error.category === "model_not_found" ? 404 : error.category === "insufficient_quota" || error.category === "rate_limit_exceeded" ? 429 : error.category === "timeout" ? 504 : error.category === "malformed_structured_output" ? 502 : 502;
-    return Response.json({ error: error.message, category: error.category, diagnostic: developmentDiagnostic(error) }, { status });
+    return Response.json(
+      {
+        error: error.message,
+        category: error.category,
+        diagnostic: developmentDiagnostic(error),
+      },
+      { status: parserErrorStatus(error.category) },
+    );
   }
 }

@@ -1,11 +1,41 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { consumeGenerationToken, createGenerationToken } from "../src/lib/generation-session";
+import { createGenerationSession } from "../src/lib/generation-session";
 
-test("a generation token can be used exactly once", () => {
-  const token = createGenerationToken("compiled prompt");
-  const pending = consumeGenerationToken(token);
-  assert.equal(pending?.compiledPrompt, "compiled prompt");
-  assert.equal(typeof pending?.expiresAt, "number");
-  assert.equal(consumeGenerationToken(token), null);
+function makeSession(now = 1_000) {
+  let currentTime = now;
+  let sequence = 0;
+  const session = createGenerationSession({
+    now: () => currentTime,
+    createToken: () => `test-token-${++sequence}`,
+    ttlMs: 100,
+  });
+
+  return {
+    session,
+    advanceBy(milliseconds: number) {
+      currentTime += milliseconds;
+    },
+  };
+}
+
+test("a valid generation token succeeds once and unknown tokens fail", () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken("compiled prompt");
+
+  assert.equal(token, "test-token-1");
+  assert.deepEqual(session.consumeGenerationToken(token), {
+    compiledPrompt: "compiled prompt",
+    expiresAt: 1_100,
+  });
+  assert.equal(session.consumeGenerationToken(token), null);
+  assert.equal(session.consumeGenerationToken("unknown-token"), null);
+});
+
+test("expired generation tokens fail without becoming usable", () => {
+  const { session, advanceBy } = makeSession();
+  const token = session.createGenerationToken("compiled prompt");
+
+  advanceBy(100);
+  assert.equal(session.consumeGenerationToken(token), null);
 });

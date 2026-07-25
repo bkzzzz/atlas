@@ -4,7 +4,6 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import { AssetSection } from "@/components/asset-section";
 import { MemorySection } from "@/components/memory-section";
 import { MetadataPreview } from "@/components/metadata-preview";
-import { PromptPreview } from "@/components/prompt-preview";
 import { LlmTaskParser } from "@/components/llm-task-parser";
 import type { Character, CreateCharacterInput } from "@/lib/characters";
 
@@ -183,7 +182,6 @@ export function CharacterStudio() {
               <MemorySection characterId={selected.id} />
               <MetadataPreview characterId={selected.id} />
               <LlmTaskParser characterId={selected.id} />
-              <PromptPreview characterId={selected.id} />
             </>
           ) : !isLoading && <div className="mt-10 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">Create your first character to begin.</div>}
         </section>

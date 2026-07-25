@@ -1,33 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateParsedTask } from "../src/lib/task-schema";
+import { validateParsedStaticImageTask } from "../src/lib/task-schema";
 
-const generic = {
-  provider: "GENERIC_IMAGE", operation: "generate", assetKind: "sprite", visualSubject: "floating eye", visualStyle: "pixel art", composition: "front view", dimensions: "64x64", background: "white", animationSpecification: null,
-  positiveConstraints: ["clear edges"], negativeConstraints: ["ground shadow"], referenceAssets: [], outputVariants: 1, assumptions: [],
+const staticImage = {
+  assetKind: "sprite",
+  visualSubject: "floating eye with a rotating golden outer ring",
+  visualStyle: "low-resolution pixel art",
+  composition: "centered front view",
+  dimensions: "1024x1024",
+  background: "white",
+  positiveConstraints: ["clear crisp edges"],
+  negativeConstraints: ["no ground shadow"],
+  referenceAssets: [],
+  assumptions: [],
 };
 
-test("accepts the scoped generic art task and retains original input locally", () => {
-  const parsed = validateParsedTask(generic, "Create a floating eye");
-  assert.equal(parsed?.provider, "GENERIC_IMAGE");
-  assert.equal(parsed?.userRequest, "Create a floating eye");
-  assert.equal(parsed?.rikaOptions, null);
+test("accepts a strict static-image task and retains the original request locally", () => {
+  const parsed = validateParsedStaticImageTask(
+    staticImage,
+    "Create a floating eye with a rotating golden outer ring.",
+  );
+
+  assert.deepEqual(parsed, {
+    ...staticImage,
+    userRequest: "Create a floating eye with a rotating golden outer ring.",
+  });
 });
 
-test("derives Rika adapter options from animation specification", () => {
-  const parsed = validateParsedTask({ ...generic, provider: "RIKA_ANIMATION", operation: "animate", animationSpecification: { animationType: "idle", frameCount: 12, looping: true, cameraMovementAllowed: false, projectileAllowed: false, motionDescription: "outer ring rotates; body breathes subtly" } }, "Animate the eye");
-  assert.equal(parsed?.provider, "RIKA_ANIMATION");
-  assert.equal(parsed?.rikaOptions?.frameCount, 12);
-  assert.equal(parsed?.rikaOptions?.playback, "LOOP");
-});
-
-test("rejects extra fields and invalid provider-animation combinations", () => {
-  assert.equal(validateParsedTask({ ...generic, extra: true }, "x"), null);
-  assert.equal(validateParsedTask({ ...generic, provider: "RIKA_ANIMATION", operation: "animate" }, "x"), null);
-});
-
-test("represents a static rotating visual element as a generic generation", () => {
-  const parsed = validateParsedTask({ ...generic, visualSubject: "floating eye with a rotating golden outer ring" }, "Generate a still floating eye with a rotating ring");
-  assert.equal(parsed?.provider, "GENERIC_IMAGE");
-  assert.equal(parsed?.operation, "generate");
+test("rejects extra, missing, and malformed static-image fields", () => {
+  assert.equal(validateParsedStaticImageTask({ ...staticImage, extra: true }, "x"), null);
+  assert.equal(validateParsedStaticImageTask({ ...staticImage, dimensions: "" }, "x"), null);
+  assert.equal(validateParsedStaticImageTask({ ...staticImage, positiveConstraints: "clear edges" }, "x"), null);
+  const withoutBackground: Record<string, unknown> = { ...staticImage };
+  delete withoutBackground.background;
+  assert.equal(validateParsedStaticImageTask(withoutBackground, "x"), null);
 });

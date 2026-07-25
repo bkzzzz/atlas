@@ -46,7 +46,11 @@ export async function POST(
     return Response.json({ error: validation.error }, { status: 400 });
   }
 
-  const { selectedMode, request: naturalLanguageRequest } = validation.value;
+  const {
+    selectedMode,
+    request: naturalLanguageRequest,
+    assetSettings,
+  } = validation.value;
 
   try {
     const modeResult = await runStaticImageMode(selectedMode, async () => {
@@ -75,7 +79,7 @@ export async function POST(
       activeParses.add(parseKey);
       let parsed;
       try {
-        parsed = await parseStaticImageTask(naturalLanguageRequest);
+        parsed = await parseStaticImageTask(naturalLanguageRequest, assetSettings);
       } finally {
         activeParses.delete(parseKey);
       }

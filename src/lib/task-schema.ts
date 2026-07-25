@@ -1,3 +1,8 @@
+import {
+  isStaticImageAssetSettings,
+  type StaticImageAssetSettings,
+} from "@/lib/task-mode";
+
 // This is the strict shape returned by the parser for the only executable
 // Atlas mode: one static image. Top-level mode selection stays with the user.
 export type ParsedStaticImageTask = {
@@ -11,6 +16,7 @@ export type ParsedStaticImageTask = {
   negativeConstraints: string[];
   referenceAssets: string[];
   assumptions: string[];
+  assetSettings: StaticImageAssetSettings;
   // The compiler retains the original request so stated details are never
   // lost while the structured fields remain available for review.
   userRequest: string;
@@ -83,7 +89,9 @@ function clean(items: string[]): string[] {
 export function validateParsedStaticImageTask(
   value: unknown,
   originalRequest: string,
+  assetSettings: unknown,
 ): ParsedStaticImageTask | null {
+  if (!isStaticImageAssetSettings(assetSettings)) return null;
   if (!isExactObject(value, modelKeys)) return null;
   const task = value;
   if (
@@ -118,6 +126,7 @@ export function validateParsedStaticImageTask(
     negativeConstraints: clean(task.negativeConstraints),
     referenceAssets: clean(task.referenceAssets),
     assumptions: clean(task.assumptions),
+    assetSettings,
     userRequest: originalRequest.trim(),
   };
 }

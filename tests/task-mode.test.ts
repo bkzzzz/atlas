@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
   MAX_NATURAL_LANGUAGE_REQUEST_LENGTH,
   isSupportedTaskMode,
   runStaticImageMode,
@@ -13,12 +14,14 @@ test("accepts a valid explicit STATIC_IMAGE parse request", () => {
     validateParseTaskRequest({
       selectedMode: "STATIC_IMAGE",
       request: "Create a floating eye with a rotating golden outer ring.",
+      assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
     }),
     {
       valid: true,
       value: {
         selectedMode: "STATIC_IMAGE",
         request: "Create a floating eye with a rotating golden outer ring.",
+        assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
       },
     },
   );
@@ -28,14 +31,27 @@ test("rejects missing or invalid selected modes and invalid request text before 
   const cases: unknown[] = [
     {},
     { request: "Create a sprite" },
-    { selectedMode: "VIDEO", request: "Create a sprite" },
-    { selectedMode: "STATIC_IMAGE", request: "   " },
-    { selectedMode: "STATIC_IMAGE", request: "x".repeat(MAX_NATURAL_LANGUAGE_REQUEST_LENGTH + 1) },
+    { selectedMode: "VIDEO", request: "Create a sprite", assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS },
+    { selectedMode: "STATIC_IMAGE", request: "   ", assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS },
+    { selectedMode: "STATIC_IMAGE", request: "x".repeat(MAX_NATURAL_LANGUAGE_REQUEST_LENGTH + 1), assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS },
   ];
 
   for (const value of cases) {
     assert.equal(validateParseTaskRequest(value).valid, false);
   }
+});
+
+test("rejects unknown asset-style enum values", () => {
+  const validation = validateParseTaskRequest({
+    selectedMode: "STATIC_IMAGE",
+    request: "Create a sprite",
+    assetSettings: { ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, viewAngle: "DIAGONAL" },
+  });
+
+  assert.deepEqual(validation, {
+    valid: false,
+    error: "Choose valid static image asset settings.",
+  });
 });
 
 test("unsupported selected modes are explicit and never eligible for the static parser flow", async () => {
@@ -47,7 +63,11 @@ test("unsupported selected modes are explicit and never eligible for the static 
   ] as const;
 
   for (const [mode, expectedMessage] of modes) {
-    const validation = validateParseTaskRequest({ selectedMode: mode, request: "Create an asset" });
+    const validation = validateParseTaskRequest({
+      selectedMode: mode,
+      request: "Create an asset",
+      assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+    });
     assert.equal(validation.valid, true);
     if (!validation.valid) continue;
     // The route evaluates this pure mode gate before any database, LLM,

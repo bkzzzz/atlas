@@ -6,6 +6,7 @@ import {
   type ParsedStaticImageTask,
   validateParsedStaticImageTask,
 } from "@/lib/task-schema";
+import type { StaticImageAssetSettings } from "@/lib/task-mode";
 
 export type { ParsedStaticImageTask } from "@/lib/task-schema";
 
@@ -140,7 +141,10 @@ function createClient() {
 // The caller has already selected STATIC_IMAGE. This function therefore makes
 // exactly one parsing call and extracts only still-image details; it never
 // infers, rejects, or chooses a top-level product mode.
-export async function parseStaticImageTask(request: string): Promise<ParseStaticImageTaskResult> {
+export async function parseStaticImageTask(
+  request: string,
+  assetSettings: StaticImageAssetSettings,
+): Promise<ParseStaticImageTaskResult> {
   try {
     const response = await createClient().responses.create(
       {
@@ -174,7 +178,10 @@ export async function parseStaticImageTask(request: string): Promise<ParseStatic
       });
     }
 
-    const parsedTask = validateParsedStaticImageTask(output, request);
+    // Asset settings never come from the model. They were validated at the
+    // route boundary and are attached locally so explicit UI choices remain
+    // authoritative even when the wording asks for something different.
+    const parsedTask = validateParsedStaticImageTask(output, request, assetSettings);
     if (!parsedTask) {
       throw new TaskParserError("malformed_structured_output", {
         code: null,

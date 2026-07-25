@@ -12,6 +12,53 @@ export type TaskMode = (typeof TASK_MODES)[number];
 
 export const MAX_NATURAL_LANGUAGE_REQUEST_LENGTH = 4_000;
 
+export const STATIC_IMAGE_VISUAL_STYLES = [
+  "PIXEL_ART",
+  "VECTOR_STYLE",
+  "ILLUSTRATION",
+] as const;
+export const STATIC_IMAGE_VIEW_ANGLES = [
+  "SIDE",
+  "FRONT",
+  "TOP_DOWN",
+  "ISOMETRIC",
+  "THREE_QUARTER",
+  "UNSPECIFIED",
+] as const;
+export const STATIC_IMAGE_BACKGROUNDS = [
+  "TRANSPARENT",
+  "WHITE",
+  "SIMPLE_SOLID",
+  "UNSPECIFIED",
+] as const;
+export const PIXEL_ART_DETAILS = ["LOW", "MEDIUM", "HIGH"] as const;
+export const GROUND_SHADOW_OPTIONS = ["ALLOW", "NONE"] as const;
+
+export type StaticImageVisualStyle = (typeof STATIC_IMAGE_VISUAL_STYLES)[number];
+export type StaticImageViewAngle = (typeof STATIC_IMAGE_VIEW_ANGLES)[number];
+export type StaticImageBackground = (typeof STATIC_IMAGE_BACKGROUNDS)[number];
+export type PixelArtDetail = (typeof PIXEL_ART_DETAILS)[number];
+export type GroundShadowOption = (typeof GROUND_SHADOW_OPTIONS)[number];
+
+// These are explicit creation constraints, not model-selected metadata. The
+// browser sends them with the request and the deterministic compiler gives
+// them priority over any conflicting wording in the natural-language input.
+export type StaticImageAssetSettings = {
+  visualStyle: StaticImageVisualStyle;
+  viewAngle: StaticImageViewAngle;
+  background: StaticImageBackground;
+  pixelDetail: PixelArtDetail;
+  groundShadow: GroundShadowOption;
+};
+
+export const DEFAULT_STATIC_IMAGE_ASSET_SETTINGS: StaticImageAssetSettings = {
+  visualStyle: "ILLUSTRATION",
+  viewAngle: "UNSPECIFIED",
+  background: "UNSPECIFIED",
+  pixelDetail: "MEDIUM",
+  groundShadow: "ALLOW",
+};
+
 const unsupportedMessages: Record<Exclude<TaskMode, "STATIC_IMAGE">, string> = {
   ANIMATION: "Animation generation is not supported yet.",
   EDIT_IMAGE: "Image editing is not supported yet.",
@@ -29,6 +76,23 @@ export function isSupportedTaskMode(mode: TaskMode): mode is "STATIC_IMAGE" {
 
 export function unsupportedMessageForTaskMode(mode: TaskMode): string | null {
   return isSupportedTaskMode(mode) ? null : unsupportedMessages[mode];
+}
+
+function isOneOf<T extends readonly string[]>(value: unknown, options: T): value is T[number] {
+  return typeof value === "string" && options.includes(value);
+}
+
+export function isStaticImageAssetSettings(value: unknown): value is StaticImageAssetSettings {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const settings = value as Record<string, unknown>;
+  return (
+    Object.keys(settings).length === 5 &&
+    isOneOf(settings.visualStyle, STATIC_IMAGE_VISUAL_STYLES) &&
+    isOneOf(settings.viewAngle, STATIC_IMAGE_VIEW_ANGLES) &&
+    isOneOf(settings.background, STATIC_IMAGE_BACKGROUNDS) &&
+    isOneOf(settings.pixelDetail, PIXEL_ART_DETAILS) &&
+    isOneOf(settings.groundShadow, GROUND_SHADOW_OPTIONS)
+  );
 }
 
 export type StaticImageModeResult<T> =
@@ -51,6 +115,7 @@ export async function runStaticImageMode<T>(
 export type ValidParseTaskRequest = {
   selectedMode: TaskMode;
   request: string;
+  assetSettings: StaticImageAssetSettings;
 };
 
 export type ParseTaskRequestValidation =
@@ -71,11 +136,17 @@ export function validateParseTaskRequest(value: unknown): ParseTaskRequestValida
   if (typeof body.request !== "string") {
     return { valid: false, error: "A natural-language art request is required." };
   }
+  if (!isStaticImageAssetSettings(body.assetSettings)) {
+    return { valid: false, error: "Choose valid static image asset settings." };
+  }
 
   const request = body.request.trim();
   if (!request || request.length > MAX_NATURAL_LANGUAGE_REQUEST_LENGTH) {
     return { valid: false, error: "Enter a non-empty art request within the supported length." };
   }
 
-  return { valid: true, value: { selectedMode: body.selectedMode, request } };
+  return {
+    valid: true,
+    value: { selectedMode: body.selectedMode, request, assetSettings: body.assetSettings },
+  };
 }

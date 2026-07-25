@@ -3,8 +3,15 @@
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 import {
+  DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+  GROUND_SHADOW_OPTIONS,
   isSupportedTaskMode,
+  PIXEL_ART_DETAILS,
+  STATIC_IMAGE_BACKGROUNDS,
+  STATIC_IMAGE_VIEW_ANGLES,
+  STATIC_IMAGE_VISUAL_STYLES,
   TASK_MODES,
+  type StaticImageAssetSettings,
   type TaskMode,
   unsupportedMessageForTaskMode,
 } from "@/lib/task-mode";
@@ -32,11 +39,43 @@ const TASK_MODE_LABELS: Record<TaskMode, string> = {
   THREE_D_ASSET: "3D Asset",
 };
 
+const VISUAL_STYLE_LABELS: Record<StaticImageAssetSettings["visualStyle"], string> = {
+  PIXEL_ART: "Pixel art",
+  VECTOR_STYLE: "Vector style",
+  ILLUSTRATION: "Illustration",
+};
+const VIEW_ANGLE_LABELS: Record<StaticImageAssetSettings["viewAngle"], string> = {
+  SIDE: "Side",
+  FRONT: "Front",
+  TOP_DOWN: "Top-down",
+  ISOMETRIC: "Isometric",
+  THREE_QUARTER: "Three-quarter",
+  UNSPECIFIED: "Unspecified",
+};
+const BACKGROUND_LABELS: Record<StaticImageAssetSettings["background"], string> = {
+  TRANSPARENT: "Transparent",
+  WHITE: "White",
+  SIMPLE_SOLID: "Simple solid",
+  UNSPECIFIED: "Unspecified",
+};
+const PIXEL_DETAIL_LABELS: Record<StaticImageAssetSettings["pixelDetail"], string> = {
+  LOW: "Low detail",
+  MEDIUM: "Medium detail",
+  HIGH: "High detail",
+};
+const GROUND_SHADOW_LABELS: Record<StaticImageAssetSettings["groundShadow"], string> = {
+  ALLOW: "Allow",
+  NONE: "None",
+};
+
 // Parsing and generation are separate deliberate actions. The latter receives
 // only a one-time server token, never an API key or browser-built prompt.
 export function LlmTaskParser({ characterId }: { characterId: string }) {
   const [request, setRequest] = useState("");
   const [selectedMode, setSelectedMode] = useState<TaskMode>("STATIC_IMAGE");
+  const [assetSettings, setAssetSettings] = useState<StaticImageAssetSettings>(
+    DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+  );
   const [result, setResult] = useState<ParseTaskResult | null>(null);
   const [image, setImage] = useState<GeneratedImage | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -46,14 +85,28 @@ export function LlmTaskParser({ characterId }: { characterId: string }) {
 
   const unsupportedModeMessage = unsupportedMessageForTaskMode(selectedMode);
 
-  function selectMode(mode: TaskMode) {
-    setSelectedMode(mode);
-    // A token belongs only to the prior compiled static-image request. Clearing
-    // the result also removes it from browser state when the mode changes.
+  function clearCompiledState() {
     setResult(null);
     setImage(null);
     setError(null);
     setCopyLabel("Copy prompt");
+  }
+
+  function selectMode(mode: TaskMode) {
+    setSelectedMode(mode);
+    // A token belongs only to the prior compiled static-image request. Clearing
+    // the result also removes it from browser state when the mode changes.
+    clearCompiledState();
+  }
+
+  function updateAssetSetting<Key extends keyof StaticImageAssetSettings>(
+    field: Key,
+    value: StaticImageAssetSettings[Key],
+  ) {
+    setAssetSettings((current) => ({ ...current, [field]: value }));
+    // Each token belongs to the exact settings used during compilation. A
+    // changed setting therefore requires a new parse before generation.
+    clearCompiledState();
   }
 
   async function parseAndCompile(event: FormEvent<HTMLFormElement>) {
@@ -62,23 +115,18 @@ export function LlmTaskParser({ characterId }: { characterId: string }) {
     // Unsupported modes are intentionally local-only placeholders. They must
     // not create parser, compiler, token, or image-generation requests.
     if (!isSupportedTaskMode(selectedMode)) {
-      setResult(null);
-      setImage(null);
-      setError(null);
+      clearCompiledState();
       return;
     }
 
     try {
       setIsParsing(true);
-      setError(null);
-      setResult(null);
-      setImage(null);
-      setCopyLabel("Copy prompt");
+      clearCompiledState();
 
       const response = await fetch(`/api/characters/${characterId}/parse-task`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selectedMode, request }),
+        body: JSON.stringify({ selectedMode, request, assetSettings }),
       });
       const payload = await response.json();
 
@@ -199,6 +247,70 @@ export function LlmTaskParser({ characterId }: { characterId: string }) {
           </label>
         </div>
 
+        {selectedMode === "STATIC_IMAGE" && (
+          <fieldset className="mt-5 border-t border-white/10 pt-5">
+            <legend className="text-sm font-medium">Asset style controls</legend>
+            <p className="mt-1 text-xs text-slate-500">
+              These explicit choices take priority over conflicting wording in the request.
+              Vector style still produces a raster PNG, not an SVG file.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <AssetSettingSelect
+                label="Visual style"
+                disabled={isParsing || isGenerating}
+                onChange={(value) =>
+                  updateAssetSetting("visualStyle", value as StaticImageAssetSettings["visualStyle"])
+                }
+                options={STATIC_IMAGE_VISUAL_STYLES}
+                labels={VISUAL_STYLE_LABELS}
+                value={assetSettings.visualStyle}
+              />
+              <AssetSettingSelect
+                label="Camera / view"
+                disabled={isParsing || isGenerating}
+                onChange={(value) =>
+                  updateAssetSetting("viewAngle", value as StaticImageAssetSettings["viewAngle"])
+                }
+                options={STATIC_IMAGE_VIEW_ANGLES}
+                labels={VIEW_ANGLE_LABELS}
+                value={assetSettings.viewAngle}
+              />
+              <AssetSettingSelect
+                label="Background"
+                disabled={isParsing || isGenerating}
+                onChange={(value) =>
+                  updateAssetSetting("background", value as StaticImageAssetSettings["background"])
+                }
+                options={STATIC_IMAGE_BACKGROUNDS}
+                labels={BACKGROUND_LABELS}
+                value={assetSettings.background}
+              />
+              {assetSettings.visualStyle === "PIXEL_ART" && (
+                <AssetSettingSelect
+                  label="Pixel detail"
+                  disabled={isParsing || isGenerating}
+                  onChange={(value) =>
+                    updateAssetSetting("pixelDetail", value as StaticImageAssetSettings["pixelDetail"])
+                  }
+                  options={PIXEL_ART_DETAILS}
+                  labels={PIXEL_DETAIL_LABELS}
+                  value={assetSettings.pixelDetail}
+                />
+              )}
+              <AssetSettingSelect
+                label="Ground shadow"
+                disabled={isParsing || isGenerating}
+                onChange={(value) =>
+                  updateAssetSetting("groundShadow", value as StaticImageAssetSettings["groundShadow"])
+                }
+                options={GROUND_SHADOW_OPTIONS}
+                labels={GROUND_SHADOW_LABELS}
+                value={assetSettings.groundShadow}
+              />
+            </div>
+          </fieldset>
+        )}
+
         {unsupportedModeMessage && (
           <p
             className="mt-4 rounded-lg border border-amber-400/30 bg-amber-500/10 p-3 text-sm text-amber-100"
@@ -306,5 +418,39 @@ export function LlmTaskParser({ characterId }: { characterId: string }) {
       )}
 
     </section>
+  );
+}
+
+function AssetSettingSelect<T extends string>({
+  disabled = false,
+  label,
+  labels,
+  onChange,
+  options,
+  value,
+}: {
+  disabled?: boolean;
+  label: string;
+  labels: Record<T, string>;
+  onChange: (value: T) => void;
+  options: readonly T[];
+  value: T;
+}) {
+  return (
+    <label className="block text-sm font-medium">
+      {label}
+      <select
+        className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value as T)}
+        value={value}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {labels[option]}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }

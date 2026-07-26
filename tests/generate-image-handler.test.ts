@@ -115,6 +115,28 @@ test("uses only the compiled prompt stored behind the token and calls the image 
   });
 });
 
+test("uses only the output background stored behind the token", async () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken("trusted server compiled prompt", "transparent");
+  assert.ok(token);
+  const received: unknown[] = [];
+  const handler = createGenerateImageHandler({
+    consumeGenerationToken: session.consumeGenerationToken,
+    generateCompiledImage: async (prompt, background) => {
+      received.push({ prompt, background });
+      return generatedImage;
+    },
+  });
+
+  const response = await handler(requestFor(token, { background: "opaque" }));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(received, [{
+    prompt: "trusted server compiled prompt",
+    background: "transparent",
+  }]);
+});
+
 test("consumes a token before the external image API and consumes it after a failed generation", async () => {
   const { session } = makeSession();
   const token = session.createGenerationToken("stored prompt");

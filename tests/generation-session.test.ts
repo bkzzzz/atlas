@@ -26,10 +26,22 @@ test("a valid generation token succeeds once and unknown tokens fail", () => {
   assert.equal(token, "test-token-1");
   assert.deepEqual(session.consumeGenerationToken(token), {
     compiledPrompt: "compiled prompt",
+    background: "opaque",
     expiresAt: 1_100,
   });
   assert.equal(session.consumeGenerationToken(token), null);
   assert.equal(session.consumeGenerationToken("unknown-token"), null);
+});
+
+test("a generation token preserves the server-selected output background", () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken("compiled prompt", "transparent");
+
+  assert.deepEqual(session.consumeGenerationToken(token), {
+    compiledPrompt: "compiled prompt",
+    background: "transparent",
+    expiresAt: 1_100,
+  });
 });
 
 test("expired generation tokens fail without becoming usable", () => {

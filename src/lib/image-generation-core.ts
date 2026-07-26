@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import type { GenerationBackground } from "@/lib/generation-session";
 
 export type ImageGenerationErrorCategory =
   | "insufficient_quota"
@@ -52,6 +53,7 @@ export type ImageGenerationDependencies = {
   createClient: (apiKey: string) => ImageApiClient;
   now?: () => Date;
   timeoutMs?: number;
+  background?: GenerationBackground;
 };
 
 const DEFAULT_TIMEOUT_MS = 60_000;
@@ -63,9 +65,9 @@ export function safeImageGenerationMessage(category: ImageGenerationErrorCategor
     model_not_found: "Requested model is unavailable.",
     permission_or_model_access: "The API key cannot access the requested model.",
     authentication_error: "API key is invalid or inaccessible.",
-    timeout: "Image generation timed out. Please parse and compile again before retrying.",
+    timeout: "Image generation timed out. Click Generate to try again.",
     not_configured: "Image generation is not configured on this server.",
-    unknown_upstream_error: "Could not generate the image. Parse and compile again before retrying.",
+    unknown_upstream_error: "Could not generate the image. Click Generate to try again.",
   }[category];
 }
 
@@ -145,7 +147,7 @@ export async function generateImageFromCompiledPrompt(
         n: 1,
         size: "1024x1024",
         quality: "low",
-        background: "opaque",
+        background: dependencies.background ?? "opaque",
         output_format: "png",
       },
       { signal: AbortSignal.timeout(dependencies.timeoutMs ?? DEFAULT_TIMEOUT_MS) },

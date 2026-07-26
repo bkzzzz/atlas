@@ -87,6 +87,36 @@ test("PIXEL_ART plus LOW detail adds the low-resolution pixel instructions", () 
   assert.match(prompt, /Very low-resolution pixel-art appearance with large visible pixels and minimal detail/i);
 });
 
+test("style source inheritance is independent from the selected visual style", () => {
+  const styleSource = {
+    ...metadata,
+    character: { ...metadata.character, id: "character-2", name: "Nova" },
+    memory: {
+      visualStyle: "storybook cut paper",
+      lore: null,
+      designRules: "rounded layered shapes",
+      approvedSummary: null,
+      rejectedSummary: null,
+      preferredPrompt: "warm paper texture",
+    },
+  };
+  const prompt = compileSingleStaticImageTask(
+    parsedTask({
+      ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+      visualStyle: "PIXEL_ART",
+    }),
+    metadata,
+    styleSource,
+  ).compiledPrompt;
+
+  assert.match(prompt, /Style source: Inherit Nova's style\/theme/);
+  assert.match(prompt, /Inherited visual style: storybook cut paper/);
+  assert.match(prompt, /Inherited design rules: rounded layered shapes/);
+  assert.match(prompt, /Pixel-art game asset with hard pixel edges/);
+  assert.match(prompt, /Isolated subject on a transparent background/i);
+  assert.match(prompt, /No ground shadow/i);
+});
+
 test("VECTOR_STYLE remains raster and ignores pixelDetail", () => {
   const prompt = compileSingleStaticImageTask(
     parsedTask({ ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, visualStyle: "VECTOR_STYLE", pixelDetail: "HIGH" }),
@@ -127,6 +157,7 @@ test("STATIC_IMAGE validates, compiles, and receives a one-time token", async ()
   assert.deepEqual(result, { supported: true, value: "static-image-token" });
   assert.deepEqual(session.consumeGenerationToken("static-image-token"), {
     compiledPrompt: compiled.compiledPrompt,
+    background: "opaque",
     expiresAt: 1_100,
   });
 });

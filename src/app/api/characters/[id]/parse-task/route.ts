@@ -50,6 +50,7 @@ export async function POST(
     selectedMode,
     request: naturalLanguageRequest,
     assetSettings,
+    styleSourceCharacterId,
   } = validation.value;
 
   try {
@@ -57,6 +58,12 @@ export async function POST(
       const { id: characterId } = await context.params;
       const character = await prisma.character.findUnique({ where: { id: characterId } });
       if (!character) return Response.json({ error: "Character not found." }, { status: 404 });
+      if (styleSourceCharacterId === characterId) {
+        return Response.json(
+          { error: "Choose another character as the style source." },
+          { status: 400 },
+        );
+      }
 
       const [memory, assets] = await Promise.all([
         prisma.characterMemory.findUnique({ where: { characterId } }),
@@ -65,10 +72,37 @@ export async function POST(
           orderBy: { createdAt: "desc" },
         }),
       ]);
+      let styleSourceMetadata = null;
+      if (styleSourceCharacterId) {
+        const [styleCharacter, styleMemory, styleAssets] = await Promise.all([
+          prisma.character.findUnique({ where: { id: styleSourceCharacterId } }),
+          prisma.characterMemory.findUnique({
+            where: { characterId: styleSourceCharacterId },
+          }),
+          prisma.imageAsset.findMany({
+            where: {
+              characterId: styleSourceCharacterId,
+              status: { in: ["APPROVED", "REJECTED"] },
+            },
+            orderBy: { createdAt: "desc" },
+          }),
+        ]);
+        if (!styleCharacter) {
+          return Response.json(
+            { error: "Style source character not found." },
+            { status: 404 },
+          );
+        }
+        styleSourceMetadata = buildCharacterMetadata({
+          character: styleCharacter,
+          memory: styleMemory,
+          assets: styleAssets,
+        });
+      }
 
       // Prevent repeated clicks from starting a second parser request while
       // the same static-image request is in flight in this server process.
-      const parseKey = `${characterId}:${naturalLanguageRequest}`;
+      const parseKey = `${characterId}:${styleSourceCharacterId ?? "new"}:${naturalLanguageRequest}`;
       if (activeParses.has(parseKey)) {
         return Response.json(
           { error: "This request is already being parsed. Please wait." },
@@ -85,8 +119,15 @@ export async function POST(
       }
 
       const metadata = buildCharacterMetadata({ character, memory, assets });
-      const compiled = compileSingleStaticImageTask(parsed.parsedTask, metadata);
-      const generationToken = createGenerationToken(compiled.compiledPrompt);
+      const compiled = compileSingleStaticImageTask(
+        parsed.parsedTask,
+        metadata,
+        styleSourceMetadata,
+      );
+      const generationToken = createGenerationToken(
+        compiled.compiledPrompt,
+        assetSettings.background === "TRANSPARENT" ? "transparent" : "opaque",
+      );
 
       return Response.json({
         selectedMode,

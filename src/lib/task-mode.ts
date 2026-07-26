@@ -54,9 +54,9 @@ export type StaticImageAssetSettings = {
 export const DEFAULT_STATIC_IMAGE_ASSET_SETTINGS: StaticImageAssetSettings = {
   visualStyle: "ILLUSTRATION",
   viewAngle: "UNSPECIFIED",
-  background: "UNSPECIFIED",
+  background: "TRANSPARENT",
   pixelDetail: "MEDIUM",
-  groundShadow: "ALLOW",
+  groundShadow: "NONE",
 };
 
 const unsupportedMessages: Record<Exclude<TaskMode, "STATIC_IMAGE">, string> = {
@@ -116,6 +116,7 @@ export type ValidParseTaskRequest = {
   selectedMode: TaskMode;
   request: string;
   assetSettings: StaticImageAssetSettings;
+  styleSourceCharacterId: string | null;
 };
 
 export type ParseTaskRequestValidation =
@@ -139,6 +140,13 @@ export function validateParseTaskRequest(value: unknown): ParseTaskRequestValida
   if (!isStaticImageAssetSettings(body.assetSettings)) {
     return { valid: false, error: "Choose valid static image asset settings." };
   }
+  if (
+    body.styleSourceCharacterId !== undefined &&
+    body.styleSourceCharacterId !== null &&
+    (typeof body.styleSourceCharacterId !== "string" || !body.styleSourceCharacterId.trim())
+  ) {
+    return { valid: false, error: "Choose a valid style source character." };
+  }
 
   const request = body.request.trim();
   if (!request || request.length > MAX_NATURAL_LANGUAGE_REQUEST_LENGTH) {
@@ -147,6 +155,14 @@ export function validateParseTaskRequest(value: unknown): ParseTaskRequestValida
 
   return {
     valid: true,
-    value: { selectedMode: body.selectedMode, request, assetSettings: body.assetSettings },
+    value: {
+      selectedMode: body.selectedMode,
+      request,
+      assetSettings: body.assetSettings,
+      styleSourceCharacterId:
+        typeof body.styleSourceCharacterId === "string"
+          ? body.styleSourceCharacterId.trim()
+          : null,
+    },
   };
 }

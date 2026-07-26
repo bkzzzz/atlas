@@ -84,6 +84,18 @@ test("returns one temporary data URL from a valid mocked b64_json response", asy
   });
 });
 
+test("uses a validated transparent background when the server requests it", async () => {
+  const calls = { count: 0, request: undefined as unknown };
+  await generateImageFromCompiledPrompt(compiledPrompt, {
+    apiKey: testApiKey,
+    model: testModel,
+    createClient: () => clientThat(async () => ({ data: [{ b64_json: "aGVsbG8=" }] }), calls),
+    background: "transparent",
+  });
+
+  assert.equal((calls.request as { background?: unknown }).background, "transparent");
+});
+
 test("classifies mocked upstream API failures safely and never retries", async (t) => {
   const cases: Array<{
     name: string;

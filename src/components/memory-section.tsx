@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import type { CharacterMemory, CharacterMemoryInput } from "@/lib/memory";
 
-type MemoryForm = Record<keyof CharacterMemoryInput, string>;
+export type MemoryForm = Record<keyof CharacterMemoryInput, string>;
 
 const emptyMemoryForm: MemoryForm = {
   visualStyle: "",
@@ -23,8 +23,8 @@ const memoryLabels: { field: keyof MemoryForm; label: string; hint: string }[] =
   { field: "preferredPrompt", label: "Preferred prompt", hint: "A human-maintained prompt starting point." },
 ];
 
-const primaryMemoryFields = memoryLabels.filter(({ field }) => !["approvedSummary", "rejectedSummary"].includes(field));
-const optionalMemoryFields = memoryLabels.filter(({ field }) => ["approvedSummary", "rejectedSummary"].includes(field));
+const primaryMemoryFields = memoryLabels.filter(({ field }) => field === "visualStyle");
+const advancedMemoryFields = memoryLabels.filter(({ field }) => field !== "visualStyle");
 
 // Memory is scoped to a selected character, so this component owns its API
 // calls and editing state without adding unrelated state to CharacterStudio.
@@ -98,18 +98,38 @@ export function MemorySection({ characterId }: { characterId: string }) {
   return <section className="mt-10 max-w-4xl border-t border-white/10 pt-10">
     <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">Character memory</p><h2 className="mt-1 text-xl font-semibold">Persistent creative context</h2></div><div className="flex gap-2"><button className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:border-violet-400/60" onClick={openEditor}>{memory ? "Edit memory" : "Create memory"}</button>{memory && <button className="rounded-lg border border-rose-400/30 px-3 py-2 text-sm text-rose-200 hover:bg-rose-500/10" onClick={() => setIsConfirmingDelete(true)}>Delete</button>}</div></div>
     {error && <p className="mt-4 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p>}
-    {isLoading ? <p className="mt-5 text-sm text-slate-400">Loading memory…</p> : memory ? <MemoryDisplay memory={memory} /> : <div className="mt-5 rounded-xl border border-dashed border-white/15 p-7 text-sm text-slate-400">No persistent memory yet. Create one to record the character details future workflows should preserve.</div>}
+    {isLoading ? <p className="mt-5 text-sm text-slate-400">Loading memory…</p> : memory ? <CharacterMemoryContent memory={memory} /> : <div className="mt-5 rounded-xl border border-dashed border-white/15 p-7 text-sm text-slate-400">No persistent memory yet. Create one to record the character details future workflows should preserve.</div>}
     {isEditing && <MemoryDialog form={form} setForm={setForm} onClose={() => setIsEditing(false)} onSubmit={saveMemory} />}
     {isConfirmingDelete && <DeleteMemoryDialog onCancel={() => setIsConfirmingDelete(false)} onConfirm={() => void deleteMemory()} />}
   </section>;
 }
 
-function MemoryDisplay({ memory }: { memory: CharacterMemory }) {
-  return <div className="mt-5 grid gap-4 sm:grid-cols-2">{memoryLabels.map(({ field, label }) => memory[field] ? <article className="rounded-xl border border-white/10 bg-white/[.03] p-4" key={field}><p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-200">{memory[field]}</p></article> : null)}<p className="sm:col-span-2 text-xs text-slate-500">Last updated {new Date(memory.lastUpdated).toLocaleString()}</p></div>;
+export function CharacterMemoryContent({ memory }: { memory: CharacterMemory }) {
+  const hasAdvancedMemory = advancedMemoryFields.some(({ field }) => memory[field]);
+  return <div className="mt-5">
+    <div className="grid gap-4 sm:grid-cols-2">
+      {primaryMemoryFields.map(({ field, label }) => memory[field] ? <MemoryCard field={field} label={label} memory={memory} key={field} /> : null)}
+    </div>
+    {hasAdvancedMemory && <details className="mt-4 rounded-xl border border-white/10 bg-white/[.025] p-4">
+      <summary className="cursor-pointer text-sm font-semibold text-slate-200">Advanced memory</summary>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        {advancedMemoryFields.map(({ field, label }) => memory[field] ? <MemoryCard field={field} label={label} memory={memory} key={field} /> : null)}
+      </div>
+    </details>}
+    <p className="mt-4 text-xs text-slate-500">Last updated {new Date(memory.lastUpdated).toLocaleString()}</p>
+  </div>;
 }
 
 function MemoryDialog({ form, setForm, onClose, onSubmit }: { form: MemoryForm; setForm: (form: MemoryForm) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) {
-  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><form className="flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#151c32]" onSubmit={onSubmit}><header className="shrink-0 border-b border-white/10 px-6 py-5"><h2 className="text-xl font-semibold">Edit character memory</h2><p className="mt-1 text-sm text-slate-400">This is manual, durable context. No AI generation is used here.</p></header><div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">{primaryMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}<details className="mt-5 rounded-xl border border-white/10 bg-white/[.025] p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-200">Optional review summaries</summary><p className="mt-1 text-xs text-slate-500">Keep approved and rejected guidance here when you need it.</p>{optionalMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}</details></div><footer className="flex shrink-0 justify-end gap-3 border-t border-white/10 bg-[#151c32] px-6 py-4"><button className="px-4 py-2 text-sm text-slate-300" type="button" onClick={onClose}>Cancel</button><button className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold hover:bg-violet-400">Save memory</button></footer></form></div>;
+  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><form className="flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#151c32]" onSubmit={onSubmit}><header className="shrink-0 border-b border-white/10 px-6 py-5"><h2 className="text-xl font-semibold">Edit character memory</h2><p className="mt-1 text-sm text-slate-400">This is manual, durable context. No AI generation is used here.</p></header><div className="min-h-0 flex-1 overflow-y-auto px-6 py-5"><CharacterMemoryFields form={form} setForm={setForm} /></div><footer className="flex shrink-0 justify-end gap-3 border-t border-white/10 bg-[#151c32] px-6 py-4"><button className="px-4 py-2 text-sm text-slate-300" type="button" onClick={onClose}>Cancel</button><button className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold hover:bg-violet-400">Save memory</button></footer></form></div>;
+}
+
+export function CharacterMemoryFields({ form, setForm }: { form: MemoryForm; setForm: (form: MemoryForm) => void }) {
+  return <><p className="text-sm font-semibold text-slate-200">Visual identity</p>{primaryMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}<details className="mt-5 rounded-xl border border-white/10 bg-white/[.025] p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-200">Advanced memory</summary><p className="mt-1 text-xs text-slate-500">Lore, immutable design rules, prompt guidance, and review summaries.</p>{advancedMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}</details></>;
+}
+
+function MemoryCard({ field, label, memory }: { field: keyof MemoryForm; label: string; memory: CharacterMemory }) {
+  return <article className="rounded-xl border border-white/10 bg-white/[.03] p-4"><p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-200">{memory[field]}</p></article>;
 }
 
 function MemoryField({ field, form, setForm, label, hint }: { field: keyof MemoryForm; form: MemoryForm; setForm: (form: MemoryForm) => void; label: string; hint: string }) {

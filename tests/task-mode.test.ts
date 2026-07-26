@@ -22,9 +22,37 @@ test("accepts a valid explicit STATIC_IMAGE parse request", () => {
         selectedMode: "STATIC_IMAGE",
         request: "Create a floating eye with a rotating golden outer ring.",
         assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+        styleSourceCharacterId: null,
       },
     },
   );
+});
+
+test("game asset defaults use an independent illustration style and transparent, shadow-free output", () => {
+  assert.deepEqual(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, {
+    visualStyle: "ILLUSTRATION",
+    viewAngle: "UNSPECIFIED",
+    background: "TRANSPARENT",
+    pixelDetail: "MEDIUM",
+    groundShadow: "NONE",
+  });
+});
+
+test("accepts a separate style source character without changing visual style", () => {
+  const validation = validateParseTaskRequest({
+    selectedMode: "STATIC_IMAGE",
+    request: "Create a sprite",
+    assetSettings: {
+      ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+      visualStyle: "PIXEL_ART",
+    },
+    styleSourceCharacterId: " character-2 ",
+  });
+
+  assert.equal(validation.valid, true);
+  if (!validation.valid) return;
+  assert.equal(validation.value.assetSettings.visualStyle, "PIXEL_ART");
+  assert.equal(validation.value.styleSourceCharacterId, "character-2");
 });
 
 test("rejects missing or invalid selected modes and invalid request text before parsing", () => {

@@ -1,7 +1,10 @@
 export type PendingGeneration = {
   compiledPrompt: string;
+  background: GenerationBackground;
   expiresAt: number;
 };
+
+export type GenerationBackground = "opaque" | "transparent";
 
 export type GenerationSessionOptions = {
   now?: () => number;
@@ -20,9 +23,16 @@ export function createGenerationSession(options: GenerationSessionOptions = {}) 
   const createToken = options.createToken ?? crypto.randomUUID;
   const ttlMs = options.ttlMs ?? SESSION_TTL_MS;
 
-  function createGenerationToken(compiledPrompt: string) {
+  function createGenerationToken(
+    compiledPrompt: string,
+    background: GenerationBackground = "opaque",
+  ) {
     const token = createToken();
-    pendingGenerations.set(token, { compiledPrompt, expiresAt: now() + ttlMs });
+    pendingGenerations.set(token, {
+      compiledPrompt,
+      background,
+      expiresAt: now() + ttlMs,
+    });
     return token;
   }
 

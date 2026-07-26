@@ -25,12 +25,31 @@ function formatMetadataContext(metadata: CharacterMetadata) {
     `Species: ${metadata.character.species}`,
     `Description: ${metadata.character.description}`,
     `Personality: ${metadata.character.personality}`,
-    `Visual style: ${memory?.visualStyle ?? "Not specified"}`,
     `Lore: ${memory?.lore ?? "Not specified"}`,
     `Design rules: ${memory?.designRules ?? "Not specified"}`,
     `Preferred prompt context: ${memory?.preferredPrompt ?? "Not specified"}`,
     `Approved visual references: ${approvedAssets}`,
     `Avoid rejected references: ${rejectedAssets}`,
+  ];
+}
+
+function formatStyleSourceContext(styleSource: CharacterMetadata | null) {
+  if (!styleSource) {
+    return ["Style source: Create a new style for this asset."];
+  }
+
+  const approvedReferences = styleSource.approvedAssets.length
+    ? styleSource.approvedAssets
+        .map((asset) => `${asset.name} (${asset.type}, ${asset.provider})`)
+        .join("; ")
+    : "None";
+
+  return [
+    `Style source: Inherit ${styleSource.character.name}'s style/theme.`,
+    `Inherited visual style: ${styleSource.memory?.visualStyle ?? "Not specified"}`,
+    `Inherited design rules: ${styleSource.memory?.designRules ?? "Not specified"}`,
+    `Inherited prompt context: ${styleSource.memory?.preferredPrompt ?? "Not specified"}`,
+    `Inherited visual references: ${approvedReferences}`,
   ];
 }
 
@@ -90,6 +109,7 @@ function assetSettingInstructions(settings: StaticImageAssetSettings): string[] 
 export function compileSingleStaticImageTask(
   task: ParsedStaticImageTask,
   metadata: CharacterMetadata,
+  styleSource: CharacterMetadata | null = null,
 ): CompiledStaticImagePrompt {
   const explicitAssetInstructions = assetSettingInstructions(task.assetSettings);
   const compilerInstructions = [
@@ -98,8 +118,9 @@ export function compileSingleStaticImageTask(
     "Avoid rejected-reference feedback.",
   ];
   const compiledPrompt = [
-    "Create a still character image.",
+    "Create one still game asset.",
     ...formatMetadataContext(metadata),
+    ...formatStyleSourceContext(styleSource),
     `User request: ${task.userRequest.trim()}`,
     `Asset kind: ${task.assetKind}`,
     `Visual subject: ${task.visualSubject}`,

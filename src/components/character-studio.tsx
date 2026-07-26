@@ -16,7 +16,7 @@ const emptyForm: CreateCharacterInput = {
 
 // This Client Component owns browser interaction. It talks only to the API,
 // leaving database access in server-side Route Handlers.
-export function CharacterStudio() {
+export function CharacterStudio({ developerMode = false }: { developerMode?: boolean }) {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [selected, setSelected] = useState<Character | null>(null);
   const [form, setForm] = useState<CreateCharacterInput>(emptyForm);
@@ -181,7 +181,15 @@ export function CharacterStudio() {
               <AssetSection characterId={selected.id} />
               <MemorySection characterId={selected.id} />
               <MetadataPreview characterId={selected.id} />
-              <LlmTaskParser characterId={selected.id} />
+              <LlmTaskParser
+                characterId={selected.id}
+                characterName={selected.name}
+                developerMode={developerMode}
+                key={selected.id}
+                styleCharacters={characters
+                  .filter((character) => character.id !== selected.id)
+                  .map(({ id, name }) => ({ id, name }))}
+              />
             </>
           ) : !isLoading && <div className="mt-10 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">Create your first character to begin.</div>}
         </section>

@@ -1,4 +1,7 @@
-import type { PendingGeneration } from "@/lib/generation-session";
+import type {
+  GenerationBackground,
+  PendingGeneration,
+} from "@/lib/generation-session";
 import {
   classifyImageGenerationError,
   type GeneratedImage,
@@ -6,7 +9,10 @@ import {
 } from "@/lib/image-generation-core";
 
 type ConsumeGenerationToken = (token: string) => PendingGeneration | null;
-type GenerateCompiledImage = (compiledPrompt: string) => Promise<GeneratedImage>;
+type GenerateCompiledImage = (
+  compiledPrompt: string,
+  background: GenerationBackground,
+) => Promise<GeneratedImage>;
 
 export type GenerateImageHandlerDependencies = {
   consumeGenerationToken: ConsumeGenerationToken;
@@ -69,13 +75,16 @@ export function createGenerateImageHandler(dependencies: GenerateImageHandlerDep
       const pending = dependencies.consumeGenerationToken(token);
       if (!pending) {
         return Response.json(
-          { error: "This compiled request has expired or was already used. Parse and compile again." },
+          { error: "This generation request expired or was already used. Click Generate to try again." },
           { status: 409 },
         );
       }
 
       activeTokens.add(token);
-      const image = await dependencies.generateCompiledImage(pending.compiledPrompt);
+      const image = await dependencies.generateCompiledImage(
+        pending.compiledPrompt,
+        pending.background,
+      );
       return Response.json({ image: { ...image, compiledPrompt: pending.compiledPrompt } });
     } catch (cause) {
       const error = classifyImageGenerationError(cause);

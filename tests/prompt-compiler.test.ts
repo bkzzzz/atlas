@@ -55,7 +55,7 @@ test("compiles identical structured input into the exact same prompt", () => {
   );
 });
 
-test("explicit settings reach the task and override conflicting natural-language wording", () => {
+test("explicit technical settings are preserved without compiler-oriented labels", () => {
   const task = parsedTask(
     {
       visualStyle: "PIXEL_ART",
@@ -70,21 +70,22 @@ test("explicit settings reach the task and override conflicting natural-language
 
   assert.equal(task.assetSettings.viewAngle, "SIDE");
   assert.equal(task.assetSettings.background, "WHITE");
-  assert.match(prompt, /The explicit asset settings below override conflicting wording/i);
-  assert.match(prompt, /Strict side view, camera level with the subject/i);
-  assert.match(prompt, /Isolated subject on a plain white background/i);
-  assert.match(prompt, /No ground shadow, no cast shadow beneath the subject/i);
-  assert.ok(prompt.indexOf("Strict side view") > prompt.indexOf("front-view"));
+  assert.match(prompt, /Technical Requirements:/);
+  assert.match(prompt, /from the side/i);
+  assert.match(prompt, /plain white background/i);
+  assert.match(prompt, /Do not include a ground shadow or cast shadow beneath the subject/i);
+  assert.doesNotMatch(prompt, /override conflicting wording|Compiler rules|Positive constraints/i);
 });
 
-test("PIXEL_ART plus LOW detail adds the low-resolution pixel instructions", () => {
+test("PIXEL_ART uses native pixel-art wording and respects selected detail", () => {
   const prompt = compileSingleStaticImageTask(
     parsedTask({ ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, visualStyle: "PIXEL_ART", pixelDetail: "LOW" }),
     metadata,
   ).compiledPrompt;
 
-  assert.match(prompt, /Pixel-art game asset with hard pixel edges, no anti-aliasing/i);
-  assert.match(prompt, /Very low-resolution pixel-art appearance with large visible pixels and minimal detail/i);
+  assert.match(prompt, /native pixel art with a consistent pixel scale, deliberate pixel clusters, a limited palette, and no painterly smoothing/i);
+  assert.match(prompt, /pixel detail intentionally simple/i);
+  assert.doesNotMatch(prompt, /very low-resolution|large visible pixels|minimal detail/i);
 });
 
 test("style source inheritance is independent from the selected visual style", () => {
@@ -109,12 +110,10 @@ test("style source inheritance is independent from the selected visual style", (
     styleSource,
   ).compiledPrompt;
 
-  assert.match(prompt, /Style source: Inherit Nova's style\/theme/);
-  assert.match(prompt, /Inherited visual style: storybook cut paper/);
-  assert.match(prompt, /Inherited design rules: rounded layered shapes/);
-  assert.match(prompt, /Pixel-art game asset with hard pixel edges/);
-  assert.match(prompt, /Isolated subject on a transparent background/i);
-  assert.match(prompt, /No ground shadow/i);
+  assert.match(prompt, /Draw style and theme from Nova, especially storybook cut paper; rounded layered shapes; warm paper texture/i);
+  assert.match(prompt, /native pixel-art visual style/i);
+  assert.match(prompt, /transparent background/i);
+  assert.match(prompt, /ground shadow/i);
 });
 
 test("VECTOR_STYLE remains raster and ignores pixelDetail", () => {
@@ -123,8 +122,64 @@ test("VECTOR_STYLE remains raster and ignores pixelDetail", () => {
     metadata,
   ).compiledPrompt;
 
-  assert.match(prompt, /Clean vector-style game asset with simple geometric shapes, crisp contours, and flat fills\. Raster image output, not SVG\./i);
-  assert.doesNotMatch(prompt, /Detailed pixel art|pixel clusters|large visible pixels|hard pixel edges/i);
+  assert.match(prompt, /clean vector-inspired style with simple geometric shapes, crisp contours, and flat fills/i);
+  assert.match(prompt, /raster image, not SVG/i);
+  assert.doesNotMatch(prompt, /pixel art|pixel clusters|large visible pixels|hard pixel edges/i);
+});
+
+test("omits empty fields and empty sections", () => {
+  const prompt = compileSingleStaticImageTask(
+    parsedTask(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS),
+    metadata,
+  ).compiledPrompt;
+
+  assert.doesNotMatch(prompt, /Not specified|Reference assets: None|Assumptions: None/);
+  assert.doesNotMatch(prompt, /Reference Guidance:/);
+});
+
+test("deduplicates repeated attributes in structured lists", () => {
+  const task = parsedTask(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS);
+  task.positiveConstraints = ["ornate gold ring", "Ornate gold ring", "clear crisp edges"];
+  const prompt = compileSingleStaticImageTask(task, metadata).compiledPrompt;
+
+  assert.equal(prompt.match(/ornate gold ring/gi)?.length, 1);
+});
+
+test("outputs a concise creative brief using only supported section headings", () => {
+  const prompt = compileSingleStaticImageTask(
+    parsedTask(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS),
+    metadata,
+  ).compiledPrompt;
+  const headings = prompt.split("\n").filter((line) => line.endsWith(":"));
+
+  assert.deepEqual(headings, [
+    "Creative Brief:",
+    "Art Direction:",
+    "Asset Requirements:",
+    "Technical Requirements:",
+  ]);
+  assert.ok(prompt.length < 1_400);
+});
+
+test("approved and requested references receive guidance without copying identity", () => {
+  const task = parsedTask(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS);
+  task.referenceAssets = ["vintage RPG portrait"];
+  const prompt = compileSingleStaticImageTask(task, {
+    ...metadata,
+    approvedAssets: [{
+      id: "asset-1",
+      name: "Gothic palette study",
+      imageUrl: "https://example.com/reference.png",
+      type: "Palette",
+      provider: "Manual",
+      prompt: null,
+      createdAt: "2026-07-27T00:00:00.000Z",
+    }],
+  }).compiledPrompt;
+
+  assert.match(prompt, /Reference Guidance:/);
+  assert.match(prompt, /visual style, palette, costume language, shape language, and theme/i);
+  assert.match(prompt, /without copying another character's identity/i);
 });
 
 test("background and ground-shadow selections compile predictably", () => {
@@ -139,7 +194,7 @@ test("background and ground-shadow selections compile predictably", () => {
 
   assert.match(transparentPrompt, /Isolated subject on a transparent background/i);
   assert.match(whitePrompt, /Isolated subject on a plain white background/i);
-  assert.match(whitePrompt, /No ground shadow, no cast shadow beneath the subject/i);
+  assert.match(whitePrompt, /Do not include a ground shadow or cast shadow beneath the subject/i);
 });
 
 test("STATIC_IMAGE validates, compiles, and receives a one-time token", async () => {

@@ -55,7 +55,7 @@ test("compiles identical structured input into the exact same prompt", () => {
   );
 });
 
-test("explicit technical settings are preserved without compiler-oriented labels", () => {
+test("explicit technical settings compile into concrete production instructions", () => {
   const task = parsedTask(
     {
       visualStyle: "PIXEL_ART",
@@ -70,22 +70,26 @@ test("explicit technical settings are preserved without compiler-oriented labels
 
   assert.equal(task.assetSettings.viewAngle, "SIDE");
   assert.equal(task.assetSettings.background, "WHITE");
-  assert.match(prompt, /Technical Requirements:/);
-  assert.match(prompt, /from the side/i);
-  assert.match(prompt, /plain white background/i);
-  assert.match(prompt, /Do not include a ground shadow or cast shadow beneath the subject/i);
+  assert.match(prompt, /strict orthographic side profile/i);
+  assert.match(prompt, /pure white background/i);
+  assert.match(prompt, /cast shadow, contact shadow, floor ellipse, or glow/i);
   assert.doesNotMatch(prompt, /override conflicting wording|Compiler rules|Positive constraints/i);
 });
 
-test("PIXEL_ART uses native pixel-art wording and respects selected detail", () => {
+test("pixel-art constraints lead the prompt and prohibit post-process pixelation", () => {
   const prompt = compileSingleStaticImageTask(
-    parsedTask({ ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, visualStyle: "PIXEL_ART", pixelDetail: "LOW" }),
+    parsedTask(
+      { ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, visualStyle: "PIXEL_ART", pixelDetail: "LOW" },
+      "Victorian gunslinger girl with long brown hair",
+    ),
     metadata,
   ).compiledPrompt;
 
-  assert.match(prompt, /native pixel art with a consistent pixel scale, deliberate pixel clusters, a limited palette, and no painterly smoothing/i);
-  assert.match(prompt, /pixel detail intentionally simple/i);
-  assert.doesNotMatch(prompt, /very low-resolution|large visible pixels|minimal detail/i);
+  assert.ok(prompt.startsWith("TRUE 2D PIXEL ART GAME ASSET."));
+  assert.ok(prompt.indexOf("TRUE 2D PIXEL ART") < prompt.indexOf("Victorian gunslinger"));
+  assert.match(prompt, /No anti-aliasing/i);
+  assert.match(prompt, /Do not create a high-resolution digital painting and pixelate it afterward/i);
+  assert.match(prompt, /logical sprite scale of 24x48 to 32x64/i);
 });
 
 test("style source inheritance is independent from the selected visual style", () => {
@@ -111,7 +115,7 @@ test("style source inheritance is independent from the selected visual style", (
   ).compiledPrompt;
 
   assert.match(prompt, /Draw style and theme from Nova, especially storybook cut paper; rounded layered shapes; warm paper texture/i);
-  assert.match(prompt, /native pixel-art visual style/i);
+  assert.ok(prompt.startsWith("TRUE 2D PIXEL ART GAME ASSET."));
   assert.match(prompt, /transparent background/i);
   assert.match(prompt, /ground shadow/i);
 });
@@ -122,9 +126,9 @@ test("VECTOR_STYLE remains raster and ignores pixelDetail", () => {
     metadata,
   ).compiledPrompt;
 
-  assert.match(prompt, /clean vector-inspired style with simple geometric shapes, crisp contours, and flat fills/i);
+  assert.match(prompt, /FLAT VECTOR-INSPIRED 2D GAME ASSET/i);
   assert.match(prompt, /raster image, not SVG/i);
-  assert.doesNotMatch(prompt, /pixel art|pixel clusters|large visible pixels|hard pixel edges/i);
+  assert.doesNotMatch(prompt, /pixel art|pixel clusters|logical sprite scale|anti-aliasing/i);
 });
 
 test("omits empty fields and empty sections", () => {
@@ -153,10 +157,10 @@ test("outputs a concise creative brief using only supported section headings", (
   const headings = prompt.split("\n").filter((line) => line.endsWith(":"));
 
   assert.deepEqual(headings, [
-    "Creative Brief:",
-    "Art Direction:",
-    "Asset Requirements:",
-    "Technical Requirements:",
+    "Asset and Subject:",
+    "Composition and Camera:",
+    "Background and Shadow Constraints:",
+    "Final Exclusion Rules:",
   ]);
   assert.ok(prompt.length < 1_400);
 });
@@ -192,9 +196,26 @@ test("background and ground-shadow selections compile predictably", () => {
     metadata,
   ).compiledPrompt;
 
-  assert.match(transparentPrompt, /Isolated subject on a transparent background/i);
-  assert.match(whitePrompt, /Isolated subject on a plain white background/i);
-  assert.match(whitePrompt, /Do not include a ground shadow or cast shadow beneath the subject/i);
+  assert.match(transparentPrompt, /transparent background with no scenery, backdrop, or floor plane/i);
+  assert.match(transparentPrompt, /cast shadow, contact shadow, floor ellipse, or glow/i);
+  assert.match(whitePrompt, /pure white background/i);
+});
+
+test("medium pixel detail compiles scale, palette, clusters, and shading rather than a label", () => {
+  const prompt = compileSingleStaticImageTask(
+    parsedTask({
+      ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+      visualStyle: "PIXEL_ART",
+      pixelDetail: "MEDIUM",
+    }),
+    metadata,
+  ).compiledPrompt;
+
+  assert.match(prompt, /logical sprite scale of 32x64 to 48x96/i);
+  assert.match(prompt, /medium-sized pixel clusters/i);
+  assert.match(prompt, /approximately 16–32 colors/i);
+  assert.match(prompt, /two-to-four-step shading/i);
+  assert.doesNotMatch(prompt, /\bmedium detail\b/i);
 });
 
 test("STATIC_IMAGE validates, compiles, and receives a one-time token", async () => {

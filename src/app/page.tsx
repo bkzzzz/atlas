@@ -1,6 +1,5 @@
-import { CharacterStudio } from "@/components/character-studio";
+import { ForgeStudio } from "@/components/forge-studio";
 
-// The page stays small: the interactive workspace lives in its own component.
 export default function Home() {
-  return <CharacterStudio developerMode={process.env.NODE_ENV === "development"} />;
+  return <ForgeStudio />;
 }

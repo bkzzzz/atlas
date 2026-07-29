@@ -1,17 +1,22 @@
-# Atlas Character Studio
+# Atlas Forge
 
-AI-native character production workspace.
+An AI game-asset studio for quickly creating original 2D art.
 
-Atlas helps teams build, iterate on, and trace character-generation work as a durable production workflow—not a one-off chat experience.
+The playtest experience is intentionally focused: add an optional reference
+image, choose an asset type, visual style, and view, then generate. A short
+creative prompt is optional.
 
 ## Features
 
-- Persistent Character Memory
-- Asset Versioning
-- Generation History
-- Feedback-driven Regeneration
-- Generation Trace
-- Provider Abstraction
+- Optional PNG, JPEG, or WebP reference image
+- Character, item, icon, and scenery presets
+- Pixel, 2D fantasy, and storybook art directions
+- Front, side, isometric, and top-down views
+- One-step generation and PNG download
+- Responsive fantasy UI with reduced-motion support
+
+The current playtest returns generated images directly to the browser. Download
+anything you want to keep before refreshing the page.
 
 ## Tech Stack
 
@@ -19,25 +24,21 @@ Atlas helps teams build, iterate on, and trace character-generation work as a du
 - TypeScript
 - Tailwind CSS
 - Prisma
-- PostgreSQL
+- SQLite
 - OpenAI API
 
 ## Architecture
 
 ```text
-Character
-    ↓
-Memory
-    ↓
-Context Compiler
-    ↓
-Provider
-    ↓
-Generation
-    ↓
-Validation
-    ↓
-History
+Optional reference + required presets + optional prompt
+                         ↓
+             Server-side validation
+                         ↓
+          Deterministic prompt compiler
+                         ↓
+       OpenAI image generation or editing
+                         ↓
+            Browser preview + download
 ```
 
 ## Getting Started
@@ -54,7 +55,8 @@ History
    cp .env.example .env.local
    ```
 
-   Set `DATABASE_URL` and `OPENAI_API_KEY` in `.env.local`. Never commit this file.
+   Set `DATABASE_URL`, `OPENAI_API_KEY`, and `OPENAI_IMAGE_MODEL` in
+   `.env.local`. Never commit this file.
 
 3. Create the database schema:
 

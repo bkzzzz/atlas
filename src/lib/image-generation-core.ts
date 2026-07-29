@@ -120,7 +120,7 @@ function validBase64(value: unknown): value is string {
   return unpaddedLength % 4 !== 1 && (firstPadding === -1 || normalized.length % 4 === 0);
 }
 
-function imageBase64From(response: unknown) {
+export function imageBase64From(response: unknown) {
   if (!response || typeof response !== "object" || Array.isArray(response)) return null;
   const data = (response as { data?: unknown }).data;
   if (!Array.isArray(data) || data.length !== 1 || !data[0] || typeof data[0] !== "object") return null;

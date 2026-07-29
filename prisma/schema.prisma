@@ -54,52 +54,73 @@ model CharacterMemory {
 // makes the canvas data ready for multiple projects without presenting an
 // unimplemented project switcher in the product.
 model WorkspaceDocument {
-  id        String             @id
-  name      String
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  assets    WorkspaceAsset[]
-  messages  WorkspaceMessage[]
-  nodes     WorkspaceNode[]
+  id                   String               @id
+  name                 String
+  gameDescription      String               @default("")
+  genre                String               @default("")
+  mood                 String               @default("")
+  targetPlatform       String               @default("PC")
+  assetType            String               @default("CHARACTER")
+  selectedReferenceIds String               @default("[]")
+  currentStyleSpecId   String?
+  directionRevision    Int                  @default(0)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  assets               WorkspaceAsset[]
+  messages             WorkspaceMessage[]
+  nodes                WorkspaceNode[]
+  references           WorkspaceReference[]
+  styleSpecs           WorkspaceStyleSpec[]
 }
 
 // Workspace images are stored as binary data instead of temporary browser URLs,
 // so uploads and generated assets survive reloads.
 model WorkspaceAsset {
-  id         String             @id @default(cuid())
-  documentId String
-  document   WorkspaceDocument  @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  name       String
-  mimeType   String
-  bytes      Bytes
-  source     String
-  prompt     String?
-  createdAt  DateTime           @default(now())
-  messages   WorkspaceMessage[]
-  nodes      WorkspaceNode[]
+  id                  String               @id @default(cuid())
+  documentId          String
+  document            WorkspaceDocument    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  name                String
+  mimeType            String
+  bytes               Bytes
+  source              String
+  prompt              String?
+  pixelWidth          Int                  @default(0)
+  pixelHeight         Int                  @default(0)
+  parentAssetId       String?
+  operation           String?
+  operationParameters String?
+  createdAt           DateTime             @default(now())
+  messages            WorkspaceMessage[]
+  nodes               WorkspaceNode[]
+  references          WorkspaceReference[]
 
   @@index([documentId])
 }
 
 model WorkspaceNode {
-  id         String             @id @default(cuid())
-  documentId String
-  document   WorkspaceDocument  @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  assetId    String?
-  asset      WorkspaceAsset?    @relation(fields: [assetId], references: [id], onDelete: SetNull)
-  kind       String
-  name       String
-  x          Float
-  y          Float
-  width      Float
-  height     Float
-  rotation   Float              @default(0)
-  opacity    Float              @default(1)
-  color      String             @default("#ffffff")
-  zIndex     Int
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-  messages   WorkspaceMessage[]
+  id           String             @id @default(cuid())
+  documentId   String
+  document     WorkspaceDocument  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  assetId      String?
+  asset        WorkspaceAsset?    @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  kind         String
+  name         String
+  x            Float
+  y            Float
+  width        Float
+  height       Float
+  rotation     Float              @default(0)
+  opacity      Float              @default(1)
+  color        String             @default("#ffffff")
+  zIndex       Int
+  locked       Boolean            @default(false)
+  visible      Boolean            @default(true)
+  aspectLocked Boolean            @default(false)
+  styleSpecId  String?
+  referenceIds String             @default("[]")
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  messages     WorkspaceMessage[]
 
   @@index([documentId, zIndex])
 }
@@ -116,5 +137,48 @@ model WorkspaceMessage {
   content    String
   createdAt  DateTime          @default(now())
 
+  @@index([documentId, createdAt])
+}
+
+// StyleSpecs are immutable art-direction snapshots. Generated assets retain the
+// exact spec ID that directed them even after the active direction changes.
+model WorkspaceStyleSpec {
+  id               String            @id @default(cuid())
+  documentId       String
+  document         WorkspaceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  styleName        String
+  palette          String
+  lineStyle        String
+  lighting         String
+  materials        String
+  shapeLanguage    String
+  detailLevel      String
+  compositionNotes String
+  referenceIds     String
+  createdAt        DateTime          @default(now())
+
+  @@index([documentId, createdAt])
+}
+
+// Uploaded references are durable assets. Curated references remain in the
+// typed local provider and are addressed by stable sourceKey values.
+model WorkspaceReference {
+  id          String            @id
+  documentId  String
+  document    WorkspaceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  assetId     String?
+  asset       WorkspaceAsset?   @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  sourceKey   String
+  title       String
+  sourceName  String
+  sourceUrl   String?
+  license     String?
+  imageUrl    String?
+  palette     String
+  traits      String
+  description String
+  createdAt   DateTime          @default(now())
+
+  @@unique([documentId, sourceKey])
   @@index([documentId, createdAt])
 }

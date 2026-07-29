@@ -57,7 +57,9 @@ export const ModelName = {
   WorkspaceDocument: 'WorkspaceDocument',
   WorkspaceAsset: 'WorkspaceAsset',
   WorkspaceNode: 'WorkspaceNode',
-  WorkspaceMessage: 'WorkspaceMessage'
+  WorkspaceMessage: 'WorkspaceMessage',
+  WorkspaceStyleSpec: 'WorkspaceStyleSpec',
+  WorkspaceReference: 'WorkspaceReference'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -119,6 +121,14 @@ export type CharacterMemoryScalarFieldEnum = (typeof CharacterMemoryScalarFieldE
 export const WorkspaceDocumentScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  gameDescription: 'gameDescription',
+  genre: 'genre',
+  mood: 'mood',
+  targetPlatform: 'targetPlatform',
+  assetType: 'assetType',
+  selectedReferenceIds: 'selectedReferenceIds',
+  currentStyleSpecId: 'currentStyleSpecId',
+  directionRevision: 'directionRevision',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -134,6 +144,11 @@ export const WorkspaceAssetScalarFieldEnum = {
   bytes: 'bytes',
   source: 'source',
   prompt: 'prompt',
+  pixelWidth: 'pixelWidth',
+  pixelHeight: 'pixelHeight',
+  parentAssetId: 'parentAssetId',
+  operation: 'operation',
+  operationParameters: 'operationParameters',
   createdAt: 'createdAt'
 } as const
 
@@ -154,6 +169,11 @@ export const WorkspaceNodeScalarFieldEnum = {
   opacity: 'opacity',
   color: 'color',
   zIndex: 'zIndex',
+  locked: 'locked',
+  visible: 'visible',
+  aspectLocked: 'aspectLocked',
+  styleSpecId: 'styleSpecId',
+  referenceIds: 'referenceIds',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -172,6 +192,43 @@ export const WorkspaceMessageScalarFieldEnum = {
 } as const
 
 export type WorkspaceMessageScalarFieldEnum = (typeof WorkspaceMessageScalarFieldEnum)[keyof typeof WorkspaceMessageScalarFieldEnum]
+
+
+export const WorkspaceStyleSpecScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  styleName: 'styleName',
+  palette: 'palette',
+  lineStyle: 'lineStyle',
+  lighting: 'lighting',
+  materials: 'materials',
+  shapeLanguage: 'shapeLanguage',
+  detailLevel: 'detailLevel',
+  compositionNotes: 'compositionNotes',
+  referenceIds: 'referenceIds',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkspaceStyleSpecScalarFieldEnum = (typeof WorkspaceStyleSpecScalarFieldEnum)[keyof typeof WorkspaceStyleSpecScalarFieldEnum]
+
+
+export const WorkspaceReferenceScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  assetId: 'assetId',
+  sourceKey: 'sourceKey',
+  title: 'title',
+  sourceName: 'sourceName',
+  sourceUrl: 'sourceUrl',
+  license: 'license',
+  imageUrl: 'imageUrl',
+  palette: 'palette',
+  traits: 'traits',
+  description: 'description',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkspaceReferenceScalarFieldEnum = (typeof WorkspaceReferenceScalarFieldEnum)[keyof typeof WorkspaceReferenceScalarFieldEnum]
 
 
 export const SortOrder = {

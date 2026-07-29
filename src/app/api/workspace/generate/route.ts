@@ -1,15 +1,22 @@
-import { compileForgePrompt } from "@/lib/forge-prompt";
-import { generateForgeImage } from "@/lib/forge-image-generator";
 import {
-  ForgeRequestError,
-  parseForgeRequest,
-} from "@/lib/forge-request";
+  optionalFormText,
+  readWorkspaceForm,
+  requiredFormText,
+  workspaceRouteError,
+} from "@/app/api/workspace/_route-utils";
+import { compileGenerationDirection } from "@/lib/art-direction-core";
+import { generateForgeImage } from "@/lib/forge-image-generator";
+import { MAX_FORGE_PROMPT_LENGTH } from "@/lib/forge-request";
 import {
   classifyImageGenerationError,
   safeImageGenerationMessage,
 } from "@/lib/image-generation-core";
 import { generatedPngBytes } from "@/lib/workspace-core";
-import { createImageNode } from "@/lib/workspace-server";
+import {
+  artDirectionForGeneration,
+  createImageNode,
+  generationReferenceImage,
+} from "@/lib/workspace-server";
 
 export const runtime = "nodejs";
 
@@ -23,34 +30,55 @@ function generationStatus(category: ReturnType<typeof classifyImageGenerationErr
   return 502;
 }
 
-const assetNames = {
-  CHARACTER: "Generated character",
-  ITEM: "Generated item",
-  ICON: "Generated icon",
-  ENVIRONMENT: "Generated environment",
-} as const;
+function generatedAssetName(assetType: string) {
+  const label = assetType
+    .replaceAll("_", " ")
+    .replace(/\s+/gu, " ")
+    .trim()
+    .toLocaleLowerCase("en-US");
+  return `Generated ${label || "asset"}`.slice(0, 80);
+}
 
 export async function POST(request: Request) {
   try {
-    const input = await parseForgeRequest(request);
-    const generated = await generateForgeImage(
-      compileForgePrompt(input),
-      input.referenceImage,
+    const form = await readWorkspaceForm(request, ["styleSpecId", "prompt"]);
+    const styleSpecId = requiredFormText(form, "styleSpecId", 120);
+    const prompt = optionalFormText(
+      form,
+      "prompt",
+      MAX_FORGE_PROMPT_LENGTH,
     );
-    const name = assetNames[input.assetType];
-    const direction =
-      input.prompt ??
-      `${input.visualStyle.replaceAll("_", " ").toLowerCase()} ${input.assetType.toLowerCase()}`;
+    const artDirection = await artDirectionForGeneration(styleSpecId);
+    if (!artDirection) {
+      return Response.json(
+        { error: "The selected StyleSpec no longer exists." },
+        { status: 404 },
+      );
+    }
+    const compiledDirection = compileGenerationDirection({
+      brief: artDirection.brief,
+      styleSpec: artDirection.styleSpec,
+      prompt,
+    });
+    const generated = await generateForgeImage(
+      compiledDirection,
+      await generationReferenceImage(artDirection.references),
+    );
+    const name = generatedAssetName(artDirection.brief.assetType);
     const result = await createImageNode({
       name,
       mimeType: "image/png",
       bytes: generatedPngBytes(generated.imageUrl),
-      width: 1024,
-      height: 1024,
+      pixelWidth: 1024,
+      pixelHeight: 1024,
       source: "AI",
-      prompt: input.prompt,
+      prompt: compiledDirection,
+      styleSpecId: artDirection.styleSpec.id,
+      referenceIds: artDirection.styleSpec.referenceIds,
       conversation: {
-        user: direction,
+        user:
+          prompt ??
+          `Generate a ${artDirection.brief.assetType.toLocaleLowerCase("en-US")} using ${artDirection.styleSpec.styleName}.`,
         assistant: `Added ${name.toLowerCase()} to the canvas.`,
       },
     });
@@ -59,8 +87,12 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (cause) {
-    if (cause instanceof ForgeRequestError) {
-      return Response.json({ error: cause.message }, { status: cause.status });
+    const inputError = workspaceRouteError(
+      cause,
+      "The asset could not be generated.",
+    );
+    if (inputError.status < 500) {
+      return inputError;
     }
     const error = classifyImageGenerationError(cause);
     console.error("Workspace image generation failure", {

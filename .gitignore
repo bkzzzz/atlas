@@ -49,3 +49,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Atlas reference assets (original source files)
+data/reference-source/
+
+# Generated thumbnails (future)
+data/thumbnails/
+
+# Future embedding cache
+data/embeddings/

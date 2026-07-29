@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #090a18;
-  --foreground: #f8f3e7;
-  --font-body: "Avenir Next", Avenir, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
-  --font-display: Georgia, "Times New Roman", serif;
+  --background: #0b0c0f;
+  --foreground: #f2efe8;
+  --font-body: Inter, "SF Pro Display", "Avenir Next", Avenir, "Segoe UI",
+    Helvetica, Arial, sans-serif;
+  --font-display: var(--font-body);
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
@@ -15,6 +16,8 @@
 html {
   min-width: 320px;
   background: var(--background);
+  color-scheme: dark;
+  scroll-padding-top: 88px;
   scroll-behavior: smooth;
 }
 
@@ -46,11 +49,17 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 label:focus-within {
-  outline: 2px solid #66e9ff;
+  outline: 2px solid #ff8669;
   outline-offset: 3px;
 }
 
 ::selection {
-  background: rgba(155, 121, 255, 0.34);
+  background: rgba(255, 113, 82, 0.34);
   color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

@@ -1,10 +1,10 @@
-# Atlas Forge
+# Atlas
 
-An AI game-asset studio for quickly creating original 2D art.
+Creative software for directing original 2D game assets.
 
-The playtest experience is intentionally focused: add an optional reference
-image, choose an asset type, visual style, and view, then generate. A short
-creative prompt is optional.
+The creation flow is intentionally focused: add an optional reference image,
+choose an asset type, visual style, and view, then generate. A short creative
+prompt is optional.
 
 ## Features
 
@@ -13,9 +13,10 @@ creative prompt is optional.
 - Pixel, 2D fantasy, and storybook art directions
 - Front, side, isometric, and top-down views
 - One-step generation and PNG download
-- Responsive fantasy UI with reduced-motion support
+- Product-led workbench with interactive style, camera, and output previews
+- Responsive interface with keyboard and reduced-motion support
 
-The current playtest returns generated images directly to the browser. Download
+The current build returns generated images directly to the browser. Download
 anything you want to keep before refreshing the page.
 
 ## Tech Stack

@@ -1,0 +1,287 @@
+.frame {
+  --art-ink: #17171b;
+  --art-paper: #f5e9d8;
+  --art-primary: #dc4f37;
+  --art-primary-light: #ff8a61;
+  --art-secondary: #4a3c89;
+  --art-secondary-light: #8d79df;
+  --art-glow: #ff8665;
+  position: relative;
+  width: min(100%, 440px);
+  aspect-ratio: 1;
+  color: var(--art-ink);
+}
+
+.artwork {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.viewTransform {
+  transform-box: fill-box;
+  transform-origin: 50% 63%;
+  transition: transform 360ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.side .viewTransform {
+  transform: translateX(22px) scaleX(.7) skewY(-1.5deg);
+}
+
+.isometric .viewTransform {
+  transform: translateY(-4px) rotate(-2deg) skewY(-4deg) scaleX(.94);
+}
+
+.topDown .viewTransform {
+  transform: translateY(-13px) scaleX(1.06) scaleY(.7);
+}
+
+.groundGlow {
+  opacity: .72;
+  transition: opacity 220ms ease;
+}
+
+.shadow {
+  fill: #08090c;
+  opacity: .34;
+}
+
+.backShape,
+.bodyShape,
+.arm,
+.face,
+.hair,
+.scarf,
+.crystal,
+.itemOutline,
+.blade,
+.guard,
+.handle,
+.iconBack,
+.iconFace,
+.islandBack,
+.islandEdge,
+.islandTop,
+.tower,
+.roof,
+.tree {
+  stroke: var(--art-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 5;
+}
+
+.face {
+  fill: var(--art-paper);
+}
+
+.cloakFold,
+.eye,
+.staff,
+.bladeLine,
+.paintDetails path {
+  fill: none;
+  stroke: var(--art-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 5;
+}
+
+.belt,
+.boot,
+.guard,
+.handle,
+.itemOutline,
+.iconInset,
+.iconMark,
+.islandEdge,
+.door,
+.window,
+.path,
+.tree,
+.trunk {
+  fill: var(--art-ink);
+}
+
+.scarf,
+.iconCore {
+  fill: var(--art-paper);
+}
+
+.staff {
+  stroke-width: 8;
+}
+
+.crystal {
+  stroke-width: 4;
+}
+
+.bladeLine {
+  opacity: .4;
+  stroke-width: 4;
+}
+
+.iconInset {
+  opacity: .76;
+}
+
+.iconMark {
+  fill: var(--art-paper);
+}
+
+.iconCore {
+  stroke: var(--art-ink);
+  stroke-width: 7;
+}
+
+.islandEdge {
+  opacity: .94;
+}
+
+.door {
+  opacity: .94;
+}
+
+.window {
+  fill: var(--art-glow);
+  stroke: var(--art-ink);
+  stroke-width: 5;
+}
+
+.path {
+  opacity: .35;
+}
+
+.tree {
+  fill: var(--art-secondary);
+}
+
+.trunk {
+  opacity: .88;
+}
+
+.pixel {
+  --art-ink: #13151a;
+  --art-paper: #fff1cf;
+  --art-primary: #e84e32;
+  --art-primary-light: #ff8764;
+  --art-secondary: #4e3f9b;
+  --art-secondary-light: #957bff;
+  --art-glow: #69f4c2;
+}
+
+.pixel .artwork {
+  shape-rendering: crispEdges;
+}
+
+.pixel .backShape,
+.pixel .bodyShape,
+.pixel .arm,
+.pixel .face,
+.pixel .hair,
+.pixel .scarf,
+.pixel .crystal,
+.pixel .itemOutline,
+.pixel .blade,
+.pixel .guard,
+.pixel .handle,
+.pixel .iconBack,
+.pixel .iconFace,
+.pixel .islandBack,
+.pixel .islandEdge,
+.pixel .islandTop,
+.pixel .tower,
+.pixel .roof,
+.pixel .tree,
+.pixel .eye,
+.pixel .staff,
+.pixel .bladeLine {
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.pixelDetails {
+  fill: var(--art-glow);
+  opacity: .9;
+}
+
+.pixel .paintDetails {
+  display: none;
+}
+
+.fantasy {
+  --art-ink: #171821;
+  --art-paper: #f4d9bd;
+  --art-primary: #bb3f4e;
+  --art-primary-light: #f27467;
+  --art-secondary: #303a7b;
+  --art-secondary-light: #7665bd;
+  --art-glow: #79e8d5;
+}
+
+.fantasy .pixelDetails {
+  display: none;
+}
+
+.fantasy .paintDetails {
+  opacity: .38;
+}
+
+.fantasy .groundGlow {
+  opacity: .9;
+}
+
+.storybook {
+  --art-ink: #302c35;
+  --art-paper: #f7dfbf;
+  --art-primary: #cf684f;
+  --art-primary-light: #f2a473;
+  --art-secondary: #396f73;
+  --art-secondary-light: #71aaa0;
+  --art-glow: #f3c75f;
+}
+
+.storybook .artwork {
+  transform: rotate(-.8deg);
+}
+
+.storybook .pixelDetails {
+  display: none;
+}
+
+.storybook .paintDetails {
+  opacity: .46;
+}
+
+.storybook .backShape,
+.storybook .bodyShape,
+.storybook .arm,
+.storybook .face,
+.storybook .hair,
+.storybook .scarf,
+.storybook .crystal,
+.storybook .itemOutline,
+.storybook .blade,
+.storybook .guard,
+.storybook .handle,
+.storybook .iconBack,
+.storybook .iconFace,
+.storybook .islandBack,
+.storybook .islandEdge,
+.storybook .islandTop,
+.storybook .tower,
+.storybook .roof,
+.storybook .tree {
+  stroke-width: 6;
+}
+
+.compact {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewTransform {
+    transition: none;
+  }
+}

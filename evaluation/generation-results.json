@@ -1,7 +1,1045 @@
 {
-  "templateVersion": 1,
-  "status": "pending",
+  "schemaVersion": 1,
+  "status": "partial",
   "datasetHash": "7edabb2490a78451a692ab8043f29f2a0bfcf7deb1b16fb689217120a4b40ec2",
-  "message": "Run npm run evaluation:generate -- --limit 3 --confirm-generation after reviewing the retrieval pilot.",
-  "records": []
+  "gitCommit": "8baac0f012e07399f5350f5e334ee9c12b4d2fb5",
+  "startedAt": "2026-07-29T23:07:49.963Z",
+  "completedAt": "2026-07-29T23:09:12.325Z",
+  "config": {
+    "fingerprint": "d0757d76f832db52e29a90f83e7a23edfab0a1d568641814f750c16251509661",
+    "datasetHash": "7edabb2490a78451a692ab8043f29f2a0bfcf7deb1b16fb689217120a4b40ec2",
+    "comparison": "Baseline workflow vs complete Atlas workflow",
+    "character": {
+      "id": "cms0x65qp000064g9e5ipfz4e",
+      "name": "brankz"
+    },
+    "characterContextHash": "aa31dacbb0e71390852b93989c3cde8d4f7546492a278d40618ee29301f8c9e3",
+    "projectBrief": "A cohesive, production-ready 2D game.",
+    "assetSettings": {
+      "visualStyle": "ILLUSTRATION",
+      "viewAngle": "UNSPECIFIED",
+      "background": "TRANSPARENT",
+      "pixelDetail": "MEDIUM",
+      "groundShadow": "NONE"
+    },
+    "image": {
+      "model": "gpt-image-1.5",
+      "size": "1024x1024",
+      "quality": "low",
+      "outputFormat": "png",
+      "background": "transparent",
+      "count": 1
+    },
+    "referenceSelection": "first-three-valid-top-six"
+  },
+  "costEstimate": {
+    "currency": "USD",
+    "pricingDate": "2026-07-29",
+    "imageOutputFloorUsd": 0.045,
+    "estimatedLowUsd": 0.090508,
+    "estimatedHighUsd": 0.105508,
+    "assumptions": [
+      "gpt-image-1.5 low 1024x1024 output at $0.009 per image",
+      "image text input at $5 per 1M tokens",
+      "gpt-5.6-sol at $5 input and $30 output per 1M tokens",
+      "text-embedding-3-small at $0.02 per 1M tokens",
+      "no retries"
+    ]
+  },
+  "summary": {
+    "datasetSize": 20,
+    "recordedPromptCount": 3,
+    "successfulPairCount": 3,
+    "failedPairCount": 0,
+    "baselineSuccessCount": 3,
+    "atlasSuccessCount": 3
+  },
+  "records": [
+    {
+      "id": "001",
+      "category": "character",
+      "originalPrompt": "A nimble forest adventurer walking through a colorful side-scrolling fantasy game.",
+      "configFingerprint": "d0757d76f832db52e29a90f83e7a23edfab0a1d568641814f750c16251509661",
+      "baseline": {
+        "status": "success",
+        "inputPrompt": "A nimble forest adventurer walking through a colorful side-scrolling fantasy game.",
+        "outputPath": "evaluation/baseline/001.png",
+        "durationMs": 14223.654,
+        "model": "gpt-image-1.5",
+        "settings": {
+          "model": "gpt-image-1.5",
+          "size": "1024x1024",
+          "quality": "low",
+          "outputFormat": "png",
+          "background": "transparent",
+          "count": 1
+        },
+        "failureReason": null
+      },
+      "atlas": {
+        "status": "success",
+        "outputPath": "evaluation/atlas/001.png",
+        "durationMs": 14033.027,
+        "model": "gpt-image-1.5",
+        "settings": {
+          "model": "gpt-image-1.5",
+          "size": "1024x1024",
+          "quality": "low",
+          "outputFormat": "png",
+          "background": "transparent",
+          "count": 1
+        },
+        "draftStatus": "success",
+        "draftDurationMs": 7622.923,
+        "draftStyleSpec": {
+          "assetKind": "2D game character sprite",
+          "visualSubject": "Brankz, a nimble forest adventurer shown in a clear side-view walking pose for a colorful fantasy side-scrolling game",
+          "visualStyle": "cohesive, production-ready 2D fantasy game art with colorful forest-inspired clothing, clean readable shapes, polished linework, and vibrant shading",
+          "composition": "full-body character centered in frame, facing right, captured mid-stride with an agile silhouette; all clothing, limbs, gear, and accessories fully visible within the canvas",
+          "dimensions": "square high-resolution sprite canvas",
+          "background": "transparent background",
+          "positiveConstraints": [
+            "single still sprite",
+            "side-scroller-compatible profile view",
+            "strong silhouette readable at gameplay scale",
+            "consistent lighting and polished game-ready finish",
+            "forest-adventurer theme",
+            "walking action conveyed in one static pose"
+          ],
+          "negativeConstraints": [
+            "no environment or scenery",
+            "no text or UI",
+            "no sprite sheet",
+            "no multiple poses",
+            "no cropped body parts",
+            "no photorealism",
+            "no motion blur"
+          ],
+          "referenceAssets": [],
+          "assumptions": [
+            "Brankz has no predefined appearance, so the design may establish an original forest-adventurer look.",
+            "The sprite faces right as a standard side-scrolling orientation."
+          ],
+          "assetSettings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          },
+          "userRequest": "Create a character sprite for brankz. Additional art direction: Project brief: A cohesive, production-ready 2D game.\nAsset request: A nimble forest adventurer walking through a colorful side-scrolling fantasy game.",
+          "referenceGuidance": []
+        },
+        "draftParser": {
+          "model": "gpt-5.6-sol",
+          "usage": {
+            "inputTokens": 237,
+            "outputTokens": 355,
+            "totalTokens": 592,
+            "estimatedCostUsd": 0.011835
+          }
+        },
+        "retrievalStatus": "success",
+        "retrievalDurationMs": 279.719,
+        "retrievalMode": "semantic",
+        "retrievalQuery": {
+          "projectBrief": "A cohesive, production-ready 2D game. cohesive, production-ready 2D fantasy game art with colorful forest-inspired clothing, clean readable shapes, polished linework, and vibrant shading full-body character centered in frame, facing right, captured mid-stride with an agile silhouette; all clothing, limbs, gear, and accessories fully visible within the canvas transparent background single still sprite side-scroller-compatible profile view strong silhouette readable at gameplay scale consistent lighting and polished game-ready finish forest-adventurer theme walking action conveyed in one static pose",
+          "assetRequest": "A nimble forest adventurer walking through a colorful side-scrolling fantasy game. Brankz, a nimble forest adventurer shown in a clear side-view walking pose for a colorful fantasy side-scrolling game 2D game character sprite",
+          "assetType": "CHARACTER_SPRITE",
+          "settings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          }
+        },
+        "retrievedReferences": [
+          {
+            "id": "kenney-platformer-characters-1-adventurer-adventurer-walk-40936ad8",
+            "title": "Platformer Characters 1 · Adventurer Adventurer Walk",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "adventurer",
+              "character",
+              "platformer",
+              "pose",
+              "sprite",
+              "walk"
+            ],
+            "score": 59.688
+          },
+          {
+            "id": "kenney-platformer-characters-1-female-female-walk-533df5f1",
+            "title": "Platformer Characters 1 · Female Female Walk",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "female",
+              "platformer",
+              "pose",
+              "sprite",
+              "walk"
+            ],
+            "score": 58.763
+          },
+          {
+            "id": "kenney-platformer-characters-1-adventurer-adventurer-action-d71ac2e4",
+            "title": "Platformer Characters 1 · Adventurer Adventurer Action",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "action",
+              "adventurer",
+              "character",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "score": 57.481
+          },
+          {
+            "id": "kenney-platformer-characters-1-player-player-walk-6d8f4e13",
+            "title": "Platformer Characters 1 · Player Player Walk",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "platformer",
+              "player",
+              "pose",
+              "sprite",
+              "walk"
+            ],
+            "score": 57.457
+          },
+          {
+            "id": "kenney-platformer-characters-1-adventurer-adventurer-hold-fddb240e",
+            "title": "Platformer Characters 1 · Adventurer Adventurer Hold",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "adventurer",
+              "character",
+              "hold",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "score": 57.046
+          },
+          {
+            "id": "kenney-platformer-characters-1-female-female-action-21d5f2a1",
+            "title": "Platformer Characters 1 · Female Female Action",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "action",
+              "character",
+              "female",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "score": 56.876
+          }
+        ],
+        "selectedReferences": [
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-adventurer-adventurer-walk-40936ad8",
+            "title": "Platformer Characters 1 · Adventurer Adventurer Walk",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-adventurer-adventurer-walk-40936ad8",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "adventurer",
+              "character",
+              "platformer",
+              "pose",
+              "sprite",
+              "walk"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          },
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-female-female-walk-533df5f1",
+            "title": "Platformer Characters 1 · Female Female Walk",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-female-female-walk-533df5f1",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "female",
+              "platformer",
+              "pose",
+              "sprite",
+              "walk"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          },
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-adventurer-adventurer-action-d71ac2e4",
+            "title": "Platformer Characters 1 · Adventurer Adventurer Action",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-adventurer-adventurer-action-d71ac2e4",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "action",
+              "adventurer",
+              "character",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          }
+        ],
+        "refinedStatus": "success",
+        "refinedDurationMs": 641.131,
+        "refinedStyleSpec": {
+          "assetKind": "2D game character sprite",
+          "visualSubject": "Brankz, a nimble forest adventurer shown in a clear side-view walking pose for a colorful fantasy side-scrolling game",
+          "visualStyle": "cohesive, production-ready 2D fantasy game art with colorful forest-inspired clothing, clean readable shapes, polished linework, and vibrant shading",
+          "composition": "full-body character centered in frame, facing right, captured mid-stride with an agile silhouette; all clothing, limbs, gear, and accessories fully visible within the canvas",
+          "dimensions": "square high-resolution sprite canvas",
+          "background": "transparent background",
+          "positiveConstraints": [
+            "single still sprite",
+            "side-scroller-compatible profile view",
+            "strong silhouette readable at gameplay scale",
+            "consistent lighting and polished game-ready finish",
+            "forest-adventurer theme",
+            "walking action conveyed in one static pose"
+          ],
+          "negativeConstraints": [
+            "no environment or scenery",
+            "no text or UI",
+            "no sprite sheet",
+            "no multiple poses",
+            "no cropped body parts",
+            "no photorealism",
+            "no motion blur"
+          ],
+          "referenceAssets": [],
+          "assumptions": [
+            "Brankz has no predefined appearance, so the design may establish an original forest-adventurer look.",
+            "The sprite faces right as a standard side-scrolling orientation."
+          ],
+          "assetSettings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          },
+          "userRequest": "Create a character sprite for brankz. Additional art direction: Project brief: A cohesive, production-ready 2D game.\nAsset request: A nimble forest adventurer walking through a colorful side-scrolling fantasy game.",
+          "referenceGuidance": [
+            {
+              "id": "kenney-platformer-characters-1-adventurer-adventurer-action-d71ac2e4",
+              "title": "Platformer Characters 1 · Adventurer Adventurer Action",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "action",
+                "adventurer",
+                "character",
+                "platformer",
+                "pose",
+                "sprite"
+              ]
+            },
+            {
+              "id": "kenney-platformer-characters-1-adventurer-adventurer-walk-40936ad8",
+              "title": "Platformer Characters 1 · Adventurer Adventurer Walk",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "walk"
+              ]
+            },
+            {
+              "id": "kenney-platformer-characters-1-female-female-walk-533df5f1",
+              "title": "Platformer Characters 1 · Female Female Walk",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "female"
+              ]
+            }
+          ]
+        },
+        "refinedParser": null,
+        "generationDurationMs": 13390.179,
+        "failureReason": null,
+        "refinementMode": "deterministic-merge"
+      }
+    },
+    {
+      "id": "002",
+      "category": "character",
+      "originalPrompt": "A brave female explorer climbing a cliff in a bright 2D platformer.",
+      "configFingerprint": "d0757d76f832db52e29a90f83e7a23edfab0a1d568641814f750c16251509661",
+      "baseline": {
+        "status": "success",
+        "inputPrompt": "A brave female explorer climbing a cliff in a bright 2D platformer.",
+        "outputPath": "evaluation/baseline/002.png",
+        "durationMs": 13622.699,
+        "model": "gpt-image-1.5",
+        "settings": {
+          "model": "gpt-image-1.5",
+          "size": "1024x1024",
+          "quality": "low",
+          "outputFormat": "png",
+          "background": "transparent",
+          "count": 1
+        },
+        "failureReason": null
+      },
+      "atlas": {
+        "status": "success",
+        "outputPath": "evaluation/atlas/002.png",
+        "durationMs": 18203.598,
+        "model": "gpt-image-1.5",
+        "settings": {
+          "model": "gpt-image-1.5",
+          "size": "1024x1024",
+          "quality": "low",
+          "outputFormat": "png",
+          "background": "transparent",
+          "count": 1
+        },
+        "draftStatus": "success",
+        "draftDurationMs": 5797.435,
+        "draftStyleSpec": {
+          "assetKind": "2D game character sprite",
+          "visualSubject": "Brankz, a brave female explorer climbing a cliff",
+          "visualStyle": "Bright, cohesive, production-ready 2D platformer art with clear shapes and readable character design",
+          "composition": "Single full-body side-view climbing pose, gripping a rocky cliff face with hands and feet; silhouette remains clear at gameplay scale",
+          "dimensions": "Sprite-sized transparent canvas; exact pixel dimensions unspecified",
+          "background": "Transparent background, with only a minimal cliff-edge contact surface if needed to communicate the climbing pose",
+          "positiveConstraints": [
+            "Female explorer character",
+            "Brave, determined expression",
+            "Climbing pose suitable for a 2D platformer",
+            "Bright color palette",
+            "Clean silhouette and readable details",
+            "Consistent production-ready game-art finish"
+          ],
+          "negativeConstraints": [
+            "No animation or sprite sheet",
+            "No multiple poses",
+            "No full environment scene",
+            "No photorealism",
+            "No dark or horror styling",
+            "No text, logo, or UI"
+          ],
+          "referenceAssets": [],
+          "assumptions": [
+            "Brankz is the character's name",
+            "Costume and equipment may use classic explorer motifs such as sturdy boots, gloves, a utility belt, and a compact backpack"
+          ],
+          "assetSettings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          },
+          "userRequest": "Create a character sprite for brankz. Additional art direction: Project brief: A cohesive, production-ready 2D game.\nAsset request: A brave female explorer climbing a cliff in a bright 2D platformer.",
+          "referenceGuidance": []
+        },
+        "draftParser": {
+          "model": "gpt-5.6-sol",
+          "usage": {
+            "inputTokens": 237,
+            "outputTokens": 244,
+            "totalTokens": 481,
+            "estimatedCostUsd": 0.008505
+          }
+        },
+        "retrievalStatus": "success",
+        "retrievalDurationMs": 295.822,
+        "retrievalMode": "semantic",
+        "retrievalQuery": {
+          "projectBrief": "A cohesive, production-ready 2D game. Bright, cohesive, production-ready 2D platformer art with clear shapes and readable character design Single full-body side-view climbing pose, gripping a rocky cliff face with hands and feet; silhouette remains clear at gameplay scale Transparent background, with only a minimal cliff-edge contact surface if needed to communicate the climbing pose Female explorer character Brave, determined expression Climbing pose suitable for a 2D platformer Bright color palette Clean silhouette and readable details Consistent production-ready game-art finish",
+          "assetRequest": "A brave female explorer climbing a cliff in a bright 2D platformer. Brankz, a brave female explorer climbing a cliff 2D game character sprite",
+          "assetType": "CHARACTER_SPRITE",
+          "settings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          }
+        },
+        "retrievedReferences": [
+          {
+            "id": "kenney-platformer-characters-1-female-female-climb-d88548a5",
+            "title": "Platformer Characters 1 · Female Female Climb",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "climb",
+              "female",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "score": 67.912
+          },
+          {
+            "id": "kenney-platformer-characters-1-female-female-action-21d5f2a1",
+            "title": "Platformer Characters 1 · Female Female Action",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "action",
+              "character",
+              "female",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "score": 64.146
+          },
+          {
+            "id": "kenney-platformer-characters-1-female-female-cheer-107b86a7",
+            "title": "Platformer Characters 1 · Female Female Cheer",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "cheer",
+              "female",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "score": 63.718
+          },
+          {
+            "id": "kenney-platformer-characters-1-female-female-hold-a253373a",
+            "title": "Platformer Characters 1 · Female Female Hold",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "female",
+              "hold",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "score": 62.723
+          },
+          {
+            "id": "kenney-platformer-characters-1-player-player-climb-4a65544b",
+            "title": "Platformer Characters 1 · Player Player Climb",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "climb",
+              "platformer",
+              "player",
+              "pose",
+              "sprite"
+            ],
+            "score": 62.638
+          },
+          {
+            "id": "kenney-platformer-characters-1-adventurer-adventurer-climb-8d95f657",
+            "title": "Platformer Characters 1 · Adventurer Adventurer Climb",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "adventurer",
+              "character",
+              "climb",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "score": 61.679
+          }
+        ],
+        "selectedReferences": [
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-female-female-climb-d88548a5",
+            "title": "Platformer Characters 1 · Female Female Climb",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-female-female-climb-d88548a5",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "climb",
+              "female",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          },
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-female-female-action-21d5f2a1",
+            "title": "Platformer Characters 1 · Female Female Action",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-female-female-action-21d5f2a1",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "action",
+              "character",
+              "female",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          },
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-female-female-cheer-107b86a7",
+            "title": "Platformer Characters 1 · Female Female Cheer",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-female-female-cheer-107b86a7",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "cheer",
+              "female",
+              "platformer",
+              "pose",
+              "sprite"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          }
+        ],
+        "refinementMode": "deterministic-merge",
+        "refinedStatus": "success",
+        "refinedDurationMs": 26.324,
+        "refinedStyleSpec": {
+          "assetKind": "2D game character sprite",
+          "visualSubject": "Brankz, a brave female explorer climbing a cliff",
+          "visualStyle": "Bright, cohesive, production-ready 2D platformer art with clear shapes and readable character design",
+          "composition": "Single full-body side-view climbing pose, gripping a rocky cliff face with hands and feet; silhouette remains clear at gameplay scale",
+          "dimensions": "Sprite-sized transparent canvas; exact pixel dimensions unspecified",
+          "background": "Transparent background, with only a minimal cliff-edge contact surface if needed to communicate the climbing pose",
+          "positiveConstraints": [
+            "Female explorer character",
+            "Brave, determined expression",
+            "Climbing pose suitable for a 2D platformer",
+            "Bright color palette",
+            "Clean silhouette and readable details",
+            "Consistent production-ready game-art finish"
+          ],
+          "negativeConstraints": [
+            "No animation or sprite sheet",
+            "No multiple poses",
+            "No full environment scene",
+            "No photorealism",
+            "No dark or horror styling",
+            "No text, logo, or UI"
+          ],
+          "referenceAssets": [],
+          "assumptions": [
+            "Brankz is the character's name",
+            "Costume and equipment may use classic explorer motifs such as sturdy boots, gloves, a utility belt, and a compact backpack"
+          ],
+          "assetSettings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          },
+          "userRequest": "Create a character sprite for brankz. Additional art direction: Project brief: A cohesive, production-ready 2D game.\nAsset request: A brave female explorer climbing a cliff in a bright 2D platformer.",
+          "referenceGuidance": [
+            {
+              "id": "kenney-platformer-characters-1-female-female-action-21d5f2a1",
+              "title": "Platformer Characters 1 · Female Female Action",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "action",
+                "character",
+                "female",
+                "platformer",
+                "pose",
+                "sprite"
+              ]
+            },
+            {
+              "id": "kenney-platformer-characters-1-female-female-cheer-107b86a7",
+              "title": "Platformer Characters 1 · Female Female Cheer",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "cheer"
+              ]
+            },
+            {
+              "id": "kenney-platformer-characters-1-female-female-climb-d88548a5",
+              "title": "Platformer Characters 1 · Female Female Climb",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "climb"
+              ]
+            }
+          ]
+        },
+        "refinedParser": null,
+        "generationDurationMs": 12081.382,
+        "failureReason": null
+      }
+    },
+    {
+      "id": "003",
+      "category": "character",
+      "originalPrompt": "A cartoon zombie carrying a supply crate in a side-view action game.",
+      "configFingerprint": "d0757d76f832db52e29a90f83e7a23edfab0a1d568641814f750c16251509661",
+      "baseline": {
+        "status": "success",
+        "inputPrompt": "A cartoon zombie carrying a supply crate in a side-view action game.",
+        "outputPath": "evaluation/baseline/003.png",
+        "durationMs": 12858.958,
+        "model": "gpt-image-1.5",
+        "settings": {
+          "model": "gpt-image-1.5",
+          "size": "1024x1024",
+          "quality": "low",
+          "outputFormat": "png",
+          "background": "transparent",
+          "count": 1
+        },
+        "failureReason": null
+      },
+      "atlas": {
+        "status": "success",
+        "outputPath": "evaluation/atlas/003.png",
+        "durationMs": 20746.045,
+        "model": "gpt-image-1.5",
+        "settings": {
+          "model": "gpt-image-1.5",
+          "size": "1024x1024",
+          "quality": "low",
+          "outputFormat": "png",
+          "background": "transparent",
+          "count": 1
+        },
+        "draftStatus": "success",
+        "draftDurationMs": 8711.917,
+        "draftStyleSpec": {
+          "assetKind": "2D game character sprite",
+          "visualSubject": "Brankz, a cartoon zombie carrying a supply crate for a side-view action game",
+          "visualStyle": "Cohesive, production-ready cartoon game art with clear shapes, readable silhouette, and polished detailing",
+          "composition": "Full-body side-profile character, centered and fully visible, holding or carrying a clearly recognizable supply crate; action-ready pose suitable for side-view gameplay",
+          "dimensions": "Sprite-scale image with enough resolution for clean downscaling",
+          "background": "Transparent background",
+          "positiveConstraints": [
+            "Single zombie character",
+            "Supply crate clearly visible",
+            "Strict side-view readability",
+            "Distinct silhouette at gameplay scale",
+            "Consistent lighting and clean outlines",
+            "Character and crate fully contained within the canvas"
+          ],
+          "negativeConstraints": [
+            "No environment or scenery",
+            "No additional characters",
+            "No text, logo, HUD, or interface elements",
+            "No cropped limbs or crate",
+            "No photorealism",
+            "No perspective that obscures the side-view silhouette"
+          ],
+          "referenceAssets": [],
+          "assumptions": [
+            "Brankz is the character's name",
+            "Exact costume, color palette, and crate design are open to interpretation within a cartoon zombie theme"
+          ],
+          "assetSettings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          },
+          "userRequest": "Create a character sprite for brankz. Additional art direction: Project brief: A cohesive, production-ready 2D game.\nAsset request: A cartoon zombie carrying a supply crate in a side-view action game.",
+          "referenceGuidance": []
+        },
+        "draftParser": {
+          "model": "gpt-5.6-sol",
+          "usage": {
+            "inputTokens": 235,
+            "outputTokens": 238,
+            "totalTokens": 473,
+            "estimatedCostUsd": 0.008315
+          }
+        },
+        "retrievalStatus": "success",
+        "retrievalDurationMs": 550.644,
+        "retrievalMode": "semantic",
+        "retrievalQuery": {
+          "projectBrief": "A cohesive, production-ready 2D game. Cohesive, production-ready cartoon game art with clear shapes, readable silhouette, and polished detailing Full-body side-profile character, centered and fully visible, holding or carrying a clearly recognizable supply crate; action-ready pose suitable for side-view gameplay Transparent background Single zombie character Supply crate clearly visible Strict side-view readability Distinct silhouette at gameplay scale Consistent lighting and clean outlines Character and crate fully contained within the canvas",
+          "assetRequest": "A cartoon zombie carrying a supply crate in a side-view action game. Brankz, a cartoon zombie carrying a supply crate for a side-view action game 2D game character sprite",
+          "assetType": "CHARACTER_SPRITE",
+          "settings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          }
+        },
+        "retrievedReferences": [
+          {
+            "id": "kenney-platformer-characters-1-zombie-zombie-cheer-67b5543f",
+            "title": "Platformer Characters 1 · Zombie Zombie Cheer",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "cheer",
+              "platformer",
+              "pose",
+              "sprite",
+              "zombie"
+            ],
+            "score": 65.555
+          },
+          {
+            "id": "kenney-platformer-characters-1-zombie-zombie-action-d497ea4a",
+            "title": "Platformer Characters 1 · Zombie Zombie Action",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "action",
+              "character",
+              "platformer",
+              "pose",
+              "sprite",
+              "zombie"
+            ],
+            "score": 65.475
+          },
+          {
+            "id": "kenney-platformer-characters-1-zombie-zombie-hold-690d6968",
+            "title": "Platformer Characters 1 · Zombie Zombie Hold",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "hold",
+              "platformer",
+              "pose",
+              "sprite",
+              "zombie"
+            ],
+            "score": 65.133
+          },
+          {
+            "id": "kenney-platformer-characters-1-zombie-zombie-walk-c86976b5",
+            "title": "Platformer Characters 1 · Zombie Zombie Walk",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "platformer",
+              "pose",
+              "sprite",
+              "walk",
+              "zombie"
+            ],
+            "score": 63.983
+          },
+          {
+            "id": "kenney-platformer-characters-1-zombie-zombie-climb-8ea00a4d",
+            "title": "Platformer Characters 1 · Zombie Zombie Climb",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "climb",
+              "platformer",
+              "pose",
+              "sprite",
+              "zombie"
+            ],
+            "score": 63.558
+          },
+          {
+            "id": "kenney-platformer-characters-1-zombie-zombie-swim-80133ef0",
+            "title": "Platformer Characters 1 · Zombie Zombie Swim",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "platformer",
+              "pose",
+              "sprite",
+              "swim",
+              "zombie"
+            ],
+            "score": 62.333
+          }
+        ],
+        "selectedReferences": [
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-zombie-zombie-cheer-67b5543f",
+            "title": "Platformer Characters 1 · Zombie Zombie Cheer",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-zombie-zombie-cheer-67b5543f",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "cheer",
+              "platformer",
+              "pose",
+              "sprite",
+              "zombie"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          },
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-zombie-zombie-action-d497ea4a",
+            "title": "Platformer Characters 1 · Zombie Zombie Action",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-zombie-zombie-action-d497ea4a",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "action",
+              "character",
+              "platformer",
+              "pose",
+              "sprite",
+              "zombie"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          },
+          {
+            "kind": "kenney-family",
+            "id": "kenney-platformer-characters-1-zombie-zombie-hold-690d6968",
+            "title": "Platformer Characters 1 · Zombie Zombie Hold",
+            "previewUrl": "/api/references/image?id=kenney-platformer-characters-1-zombie-zombie-hold-690d6968",
+            "pack": "Platformer Characters 1",
+            "category": "characters",
+            "tags": [
+              "character",
+              "hold",
+              "platformer",
+              "pose",
+              "sprite",
+              "zombie"
+            ],
+            "source": "Kenney",
+            "author": "Kenney",
+            "license": "CC0-1.0"
+          }
+        ],
+        "refinementMode": "deterministic-merge",
+        "refinedStatus": "success",
+        "refinedDurationMs": 18.838,
+        "refinedStyleSpec": {
+          "assetKind": "2D game character sprite",
+          "visualSubject": "Brankz, a cartoon zombie carrying a supply crate for a side-view action game",
+          "visualStyle": "Cohesive, production-ready cartoon game art with clear shapes, readable silhouette, and polished detailing",
+          "composition": "Full-body side-profile character, centered and fully visible, holding or carrying a clearly recognizable supply crate; action-ready pose suitable for side-view gameplay",
+          "dimensions": "Sprite-scale image with enough resolution for clean downscaling",
+          "background": "Transparent background",
+          "positiveConstraints": [
+            "Single zombie character",
+            "Supply crate clearly visible",
+            "Strict side-view readability",
+            "Distinct silhouette at gameplay scale",
+            "Consistent lighting and clean outlines",
+            "Character and crate fully contained within the canvas"
+          ],
+          "negativeConstraints": [
+            "No environment or scenery",
+            "No additional characters",
+            "No text, logo, HUD, or interface elements",
+            "No cropped limbs or crate",
+            "No photorealism",
+            "No perspective that obscures the side-view silhouette"
+          ],
+          "referenceAssets": [],
+          "assumptions": [
+            "Brankz is the character's name",
+            "Exact costume, color palette, and crate design are open to interpretation within a cartoon zombie theme"
+          ],
+          "assetSettings": {
+            "visualStyle": "ILLUSTRATION",
+            "viewAngle": "UNSPECIFIED",
+            "background": "TRANSPARENT",
+            "pixelDetail": "MEDIUM",
+            "groundShadow": "NONE"
+          },
+          "userRequest": "Create a character sprite for brankz. Additional art direction: Project brief: A cohesive, production-ready 2D game.\nAsset request: A cartoon zombie carrying a supply crate in a side-view action game.",
+          "referenceGuidance": [
+            {
+              "id": "kenney-platformer-characters-1-zombie-zombie-action-d497ea4a",
+              "title": "Platformer Characters 1 · Zombie Zombie Action",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "action",
+                "character",
+                "platformer",
+                "pose",
+                "sprite",
+                "zombie"
+              ]
+            },
+            {
+              "id": "kenney-platformer-characters-1-zombie-zombie-cheer-67b5543f",
+              "title": "Platformer Characters 1 · Zombie Zombie Cheer",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "cheer"
+              ]
+            },
+            {
+              "id": "kenney-platformer-characters-1-zombie-zombie-hold-690d6968",
+              "title": "Platformer Characters 1 · Zombie Zombie Hold",
+              "pack": "Platformer Characters 1",
+              "category": "characters",
+              "tags": [
+                "hold"
+              ]
+            }
+          ]
+        },
+        "refinedParser": null,
+        "generationDurationMs": 11461.497,
+        "failureReason": null
+      }
+    }
+  ]
 }

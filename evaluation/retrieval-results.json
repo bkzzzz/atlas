@@ -1,6 +1,2124 @@
 {
-  "templateVersion": 1,
-  "status": "pending",
+  "schemaVersion": 1,
+  "status": "complete",
   "datasetHash": "7edabb2490a78451a692ab8043f29f2a0bfcf7deb1b16fb689217120a4b40ec2",
-  "message": "Run npm run evaluation:retrieval while the local Atlas development server is running."
+  "baseUrl": "http://localhost:3000",
+  "gitCommit": "8da5ededfe9a283eac55b8abd840d013902142d5",
+  "startedAt": "2026-07-29T21:24:57.337Z",
+  "completedAt": "2026-07-29T21:25:04.216Z",
+  "methodology": {
+    "metricScope": "human-labeled expected-pack proxy",
+    "projectBrief": "A cohesive, production-ready 2D game.",
+    "resultLimit": 6,
+    "retrievalModeSource": "reference-shape discriminator"
+  },
+  "records": [
+    {
+      "id": "001",
+      "category": "character",
+      "prompt": "A nimble forest adventurer walking through a colorful side-scrolling fantasy game.",
+      "mode": "semantic",
+      "latencyMs": 1515.466,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-platformer-characters-1-adventurer-adventurer-walk-40936ad8",
+          "title": "Platformer Characters 1 · Adventurer Adventurer Walk",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "adventurer",
+            "character",
+            "platformer",
+            "pose",
+            "sprite",
+            "walk"
+          ],
+          "score": 57.325
+        },
+        {
+          "id": "kenney-platformer-characters-1-adventurer-adventurer-action-d71ac2e4",
+          "title": "Platformer Characters 1 · Adventurer Adventurer Action",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "action",
+            "adventurer",
+            "character",
+            "platformer",
+            "pose",
+            "sprite"
+          ],
+          "score": 56.515
+        },
+        {
+          "id": "kenney-platformer-characters-1-adventurer-adventurer-hold-fddb240e",
+          "title": "Platformer Characters 1 · Adventurer Adventurer Hold",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "adventurer",
+            "character",
+            "hold",
+            "platformer",
+            "pose",
+            "sprite"
+          ],
+          "score": 56.213
+        },
+        {
+          "id": "kenney-platformer-characters-1-adventurer-adventurer-cheer-93ffc7d6",
+          "title": "Platformer Characters 1 · Adventurer Adventurer Cheer",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "adventurer",
+            "character",
+            "cheer",
+            "platformer",
+            "pose",
+            "sprite"
+          ],
+          "score": 56.177
+        },
+        {
+          "id": "kenney-platformer-characters-1-female-female-walk-533df5f1",
+          "title": "Platformer Characters 1 · Female Female Walk",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "female",
+            "platformer",
+            "pose",
+            "sprite",
+            "walk"
+          ],
+          "score": 56.174
+        },
+        {
+          "id": "kenney-platformer-characters-1-player-player-walk-6d8f4e13",
+          "title": "Platformer Characters 1 · Player Player Walk",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "platformer",
+            "player",
+            "pose",
+            "sprite",
+            "walk"
+          ],
+          "score": 56.066
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "002",
+      "category": "character",
+      "prompt": "A brave female explorer climbing a cliff in a bright 2D platformer.",
+      "mode": "semantic",
+      "latencyMs": 577.733,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-platformer-characters-1-female-female-climb-d88548a5",
+          "title": "Platformer Characters 1 · Female Female Climb",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "climb",
+            "female",
+            "platformer",
+            "pose",
+            "sprite"
+          ],
+          "score": 64.526
+        },
+        {
+          "id": "kenney-platformer-characters-1-female-female-action-21d5f2a1",
+          "title": "Platformer Characters 1 · Female Female Action",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "action",
+            "character",
+            "female",
+            "platformer",
+            "pose",
+            "sprite"
+          ],
+          "score": 63.669
+        },
+        {
+          "id": "kenney-platformer-characters-1-female-female-cheer-107b86a7",
+          "title": "Platformer Characters 1 · Female Female Cheer",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "cheer",
+            "female",
+            "platformer",
+            "pose",
+            "sprite"
+          ],
+          "score": 62.289
+        },
+        {
+          "id": "kenney-platformer-characters-1-female-female-hold-a253373a",
+          "title": "Platformer Characters 1 · Female Female Hold",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "female",
+            "hold",
+            "platformer",
+            "pose",
+            "sprite"
+          ],
+          "score": 61.647
+        },
+        {
+          "id": "kenney-platformer-characters-1-female-female-walk-533df5f1",
+          "title": "Platformer Characters 1 · Female Female Walk",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "female",
+            "platformer",
+            "pose",
+            "sprite",
+            "walk"
+          ],
+          "score": 59.717
+        },
+        {
+          "id": "kenney-platformer-characters-1-player-player-climb-4a65544b",
+          "title": "Platformer Characters 1 · Player Player Climb",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "climb",
+            "platformer",
+            "player",
+            "pose",
+            "sprite"
+          ],
+          "score": 58.946
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "003",
+      "category": "character",
+      "prompt": "A cartoon zombie carrying a supply crate in a side-view action game.",
+      "mode": "semantic",
+      "latencyMs": 388.226,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-platformer-characters-1-zombie-zombie-action-d497ea4a",
+          "title": "Platformer Characters 1 · Zombie Zombie Action",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "action",
+            "character",
+            "platformer",
+            "pose",
+            "sprite",
+            "zombie"
+          ],
+          "score": 64.919
+        },
+        {
+          "id": "kenney-platformer-characters-1-zombie-zombie-cheer-67b5543f",
+          "title": "Platformer Characters 1 · Zombie Zombie Cheer",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "cheer",
+            "platformer",
+            "pose",
+            "sprite",
+            "zombie"
+          ],
+          "score": 64.192
+        },
+        {
+          "id": "kenney-platformer-characters-1-zombie-zombie-hold-690d6968",
+          "title": "Platformer Characters 1 · Zombie Zombie Hold",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "hold",
+            "platformer",
+            "pose",
+            "sprite",
+            "zombie"
+          ],
+          "score": 63.436
+        },
+        {
+          "id": "kenney-platformer-characters-1-zombie-zombie-walk-c86976b5",
+          "title": "Platformer Characters 1 · Zombie Zombie Walk",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "platformer",
+            "pose",
+            "sprite",
+            "walk",
+            "zombie"
+          ],
+          "score": 63.076
+        },
+        {
+          "id": "kenney-platformer-characters-1-zombie-zombie-climb-8ea00a4d",
+          "title": "Platformer Characters 1 · Zombie Zombie Climb",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "climb",
+            "platformer",
+            "pose",
+            "sprite",
+            "zombie"
+          ],
+          "score": 62.242
+        },
+        {
+          "id": "kenney-platformer-characters-1-zombie-zombie-swim-80133ef0",
+          "title": "Platformer Characters 1 · Zombie Zombie Swim",
+          "pack": "Platformer Characters 1",
+          "category": "characters",
+          "tags": [
+            "character",
+            "platformer",
+            "pose",
+            "sprite",
+            "swim",
+            "zombie"
+          ],
+          "score": 60.895
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "004",
+      "category": "prop",
+      "prompt": "A weathered deck cannon for a whimsical pirate game.",
+      "mode": "semantic",
+      "latencyMs": 319.609,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-pirate-pack-ship-parts-cannon-fab08bad",
+          "title": "Pirate Pack · Ship Parts Cannon",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "cannon",
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 58.811
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-cannon-mobile-2b3bbee9",
+          "title": "Pirate Pack · Ship Parts Cannon Mobile",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "cannon",
+            "fantasy",
+            "mobile",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 58.808
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-cannon-ball-63346ac9",
+          "title": "Pirate Pack · Ship Parts Cannon Ball",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "ball",
+            "cannon",
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 58.324
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-cannon-loose-f62af0a2",
+          "title": "Pirate Pack · Ship Parts Cannon Loose",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "cannon",
+            "fantasy",
+            "loose",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 57.812
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-hull-f2a12bba",
+          "title": "Pirate Pack · Ship Parts Hull",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "hull",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 57.177
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-wood-bd0dc2f1",
+          "title": "Pirate Pack · Ship Parts Wood",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship",
+            "wood"
+          ],
+          "score": 56.366
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "005",
+      "category": "prop",
+      "prompt": "A small wooden pirate dinghy with a patched sail.",
+      "mode": "semantic",
+      "latencyMs": 165.382,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-pirate-pack-ships-dinghy-84fcb2f4",
+          "title": "Pirate Pack · Ships Dinghy",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "dinghy",
+            "fantasy",
+            "pirate",
+            "prop",
+            "ship",
+            "ships"
+          ],
+          "score": 63.447
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-wood-bd0dc2f1",
+          "title": "Pirate Pack · Ship Parts Wood",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship",
+            "wood"
+          ],
+          "score": 61.716
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-hull-f2a12bba",
+          "title": "Pirate Pack · Ship Parts Hull",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "hull",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 61.645
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-sail-9a32aa19",
+          "title": "Pirate Pack · Ship Parts Sail",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "sail",
+            "ship"
+          ],
+          "score": 59.633
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-crew-b70768fa",
+          "title": "Pirate Pack · Ship Parts Crew",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "crew",
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 59.033
+        },
+        {
+          "id": "kenney-pirate-pack-ships-ship-99b671b0",
+          "title": "Pirate Pack · Ships Ship",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "pirate",
+            "prop",
+            "ship",
+            "ships"
+          ],
+          "score": 58.54
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "006",
+      "category": "prop",
+      "prompt": "A wooden ship mast with a patched sail and bold pirate flag.",
+      "mode": "semantic",
+      "latencyMs": 201.912,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-pirate-pack-ship-parts-wood-bd0dc2f1",
+          "title": "Pirate Pack · Ship Parts Wood",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship",
+            "wood"
+          ],
+          "score": 61.972
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-hull-f2a12bba",
+          "title": "Pirate Pack · Ship Parts Hull",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "hull",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 61.957
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-flag-18b0a639",
+          "title": "Pirate Pack · Ship Parts Flag",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "flag",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 60.901
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-sail-9a32aa19",
+          "title": "Pirate Pack · Ship Parts Sail",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "sail",
+            "ship"
+          ],
+          "score": 60.4
+        },
+        {
+          "id": "kenney-pirate-pack-ships-ship-99b671b0",
+          "title": "Pirate Pack · Ships Ship",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "fantasy",
+            "pirate",
+            "prop",
+            "ship",
+            "ships"
+          ],
+          "score": 59.852
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-crew-b70768fa",
+          "title": "Pirate Pack · Ship Parts Crew",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "crew",
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 59.662
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "007",
+      "category": "building",
+      "prompt": "A cozy side-view village house with a mossy roof for a platform game.",
+      "mode": "semantic",
+      "latencyMs": 433.602,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-platformer-assets-buildings-rock-moss-7c4f63fa",
+          "title": "Platformer Assets Buildings · Rock Moss",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "moss",
+            "platformer",
+            "prop",
+            "rock"
+          ],
+          "score": 63.045
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-house-4d1126c2",
+          "title": "Platformer Assets Buildings · House",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "house",
+            "platformer",
+            "prop"
+          ],
+          "score": 60.503
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-window-low-593b3a56",
+          "title": "Platformer Assets Buildings · Window Low",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "low",
+            "platformer",
+            "prop",
+            "window"
+          ],
+          "score": 60.066
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-window-high-af92fc01",
+          "title": "Platformer Assets Buildings · Window High",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "high",
+            "platformer",
+            "prop",
+            "window"
+          ],
+          "score": 59.376
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-roof-8f990371",
+          "title": "Platformer Assets Buildings · Roof",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "platformer",
+            "prop",
+            "roof"
+          ],
+          "score": 58.255
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-awning-26121ce3",
+          "title": "Platformer Assets Buildings · Awning",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "awning",
+            "building",
+            "platformer",
+            "prop"
+          ],
+          "score": 58.211
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "008",
+      "category": "building",
+      "prompt": "A colorful platformer shopfront with an awning, open door, and hanging sign.",
+      "mode": "semantic",
+      "latencyMs": 184.308,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-platformer-assets-buildings-sign-hanging-dfff3f19",
+          "title": "Platformer Assets Buildings · Sign Hanging",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "hanging",
+            "platformer",
+            "prop",
+            "sign"
+          ],
+          "score": 62.838
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-window-low-593b3a56",
+          "title": "Platformer Assets Buildings · Window Low",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "low",
+            "platformer",
+            "prop",
+            "window"
+          ],
+          "score": 61.095
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-window-high-af92fc01",
+          "title": "Platformer Assets Buildings · Window High",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "high",
+            "platformer",
+            "prop",
+            "window"
+          ],
+          "score": 60.937
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-awning-26121ce3",
+          "title": "Platformer Assets Buildings · Awning",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "awning",
+            "building",
+            "platformer",
+            "prop"
+          ],
+          "score": 60.758
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-door-open-34f38ffb",
+          "title": "Platformer Assets Buildings · Door Open",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "door",
+            "open",
+            "platformer",
+            "prop"
+          ],
+          "score": 59.222
+        },
+        {
+          "id": "kenney-platformer-assets-buildings-house-4d1126c2",
+          "title": "Platformer Assets Buildings · House",
+          "pack": "Platformer Assets Buildings",
+          "category": "buildings",
+          "tags": [
+            "architecture",
+            "building",
+            "house",
+            "platformer",
+            "prop"
+          ],
+          "score": 57.233
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "009",
+      "category": "building",
+      "prompt": "An isometric medieval town gate with stone walls and a round wooden door.",
+      "mode": "semantic",
+      "latencyMs": 252.701,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-isometric-medieval-town-border-wall-c4fddc6e",
+          "title": "Isometric Medieval Town · Border Wall",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "border",
+            "building",
+            "environment",
+            "fantasy",
+            "medieval",
+            "wall"
+          ],
+          "score": 60.76
+        },
+        {
+          "id": "kenney-isometric-medieval-town-door-round-7f77892f",
+          "title": "Isometric Medieval Town · Door Round",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "building",
+            "door",
+            "environment",
+            "fantasy",
+            "medieval",
+            "round"
+          ],
+          "score": 60.65
+        },
+        {
+          "id": "kenney-isometric-medieval-town-door-square-d20d804f",
+          "title": "Isometric Medieval Town · Door Square",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "building",
+            "door",
+            "environment",
+            "fantasy",
+            "medieval",
+            "square"
+          ],
+          "score": 60.229
+        },
+        {
+          "id": "kenney-isometric-medieval-town-wood-wall-bda0afcc",
+          "title": "Isometric Medieval Town · Wood Wall",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "building",
+            "environment",
+            "fantasy",
+            "medieval",
+            "wall",
+            "wood"
+          ],
+          "score": 60.172
+        },
+        {
+          "id": "kenney-isometric-medieval-town-wall-9f80e996",
+          "title": "Isometric Medieval Town · Wall",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "building",
+            "environment",
+            "fantasy",
+            "medieval",
+            "wall"
+          ],
+          "score": 59.712
+        },
+        {
+          "id": "kenney-isometric-medieval-town-wood-window-round-ae0988a5",
+          "title": "Isometric Medieval Town · Wood Window Round",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "building",
+            "environment",
+            "fantasy",
+            "medieval",
+            "round",
+            "window",
+            "wood"
+          ],
+          "score": 59.552
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "010",
+      "category": "environment",
+      "prompt": "A damaged isometric fantasy castle wall beside a paved town road.",
+      "mode": "semantic",
+      "latencyMs": 220.898,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-isometric-medieval-town-broken-wall-de301f57",
+          "title": "Isometric Medieval Town · Broken Wall",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "broken",
+            "building",
+            "environment",
+            "fantasy",
+            "medieval",
+            "wall"
+          ],
+          "score": 62.552
+        },
+        {
+          "id": "kenney-isometric-medieval-town-castle-wall-5f1a4b16",
+          "title": "Isometric Medieval Town · Castle Wall",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "building",
+            "castle",
+            "environment",
+            "fantasy",
+            "medieval",
+            "wall"
+          ],
+          "score": 61.393
+        },
+        {
+          "id": "kenney-background-elements-remastered-castle-wall-3def3e09",
+          "title": "Background Elements Remastered · Castle Wall",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "castle",
+            "environment",
+            "landscape",
+            "platformer",
+            "wall"
+          ],
+          "score": 60.128
+        },
+        {
+          "id": "kenney-isometric-medieval-town-border-wall-c4fddc6e",
+          "title": "Isometric Medieval Town · Border Wall",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "border",
+            "building",
+            "environment",
+            "fantasy",
+            "medieval",
+            "wall"
+          ],
+          "score": 59.677
+        },
+        {
+          "id": "kenney-isometric-medieval-town-wall-9f80e996",
+          "title": "Isometric Medieval Town · Wall",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "building",
+            "environment",
+            "fantasy",
+            "medieval",
+            "wall"
+          ],
+          "score": 58.899
+        },
+        {
+          "id": "kenney-isometric-medieval-town-wood-wall-bda0afcc",
+          "title": "Isometric Medieval Town · Wood Wall",
+          "pack": "Isometric Medieval Town",
+          "category": "environment",
+          "tags": [
+            "building",
+            "environment",
+            "fantasy",
+            "medieval",
+            "wall",
+            "wood"
+          ],
+          "score": 58.433
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 5,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "011",
+      "category": "environment",
+      "prompt": "A moonlit desert platformer backdrop with pyramids, cactus silhouettes, and clouds.",
+      "mode": "semantic",
+      "latencyMs": 181.363,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-background-elements-remastered-pyramid-952808e4",
+          "title": "Background Elements Remastered · Pyramid",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "landscape",
+            "platformer",
+            "pyramid"
+          ],
+          "score": 61.939
+        },
+        {
+          "id": "kenney-background-elements-remastered-pyramid-mayan-e8df4eee",
+          "title": "Background Elements Remastered · Pyramid Mayan",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "landscape",
+            "mayan",
+            "platformer",
+            "pyramid"
+          ],
+          "score": 61.776
+        },
+        {
+          "id": "kenney-background-elements-remastered-moon-94933128",
+          "title": "Background Elements Remastered · Moon",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "landscape",
+            "moon",
+            "platformer"
+          ],
+          "score": 61.142
+        },
+        {
+          "id": "kenney-background-elements-remastered-moon-full-1c814df3",
+          "title": "Background Elements Remastered · Moon Full",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "full",
+            "landscape",
+            "moon",
+            "platformer"
+          ],
+          "score": 60.227
+        },
+        {
+          "id": "kenney-background-elements-remastered-cactus-dfd29b43",
+          "title": "Background Elements Remastered · Cactus",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "cactus",
+            "environment",
+            "landscape",
+            "platformer"
+          ],
+          "score": 58.285
+        },
+        {
+          "id": "kenney-background-elements-remastered-cloud-d3ce3929",
+          "title": "Background Elements Remastered · Cloud",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "cloud",
+            "environment",
+            "landscape",
+            "platformer"
+          ],
+          "score": 57.669
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "012",
+      "category": "environment",
+      "prompt": "A layered woodland game background with pine trees, distant hills, and a wooden fence.",
+      "mode": "semantic",
+      "latencyMs": 212.417,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-background-elements-remastered-tree-pine-85735ecc",
+          "title": "Background Elements Remastered · Tree Pine",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "landscape",
+            "pine",
+            "platformer",
+            "tree"
+          ],
+          "score": 62.829
+        },
+        {
+          "id": "kenney-background-elements-remastered-tree-af22c4ec",
+          "title": "Background Elements Remastered · Tree",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "landscape",
+            "platformer",
+            "tree"
+          ],
+          "score": 59.963
+        },
+        {
+          "id": "kenney-background-elements-remastered-tree-long-983327bd",
+          "title": "Background Elements Remastered · Tree Long",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "landscape",
+            "long",
+            "platformer",
+            "tree"
+          ],
+          "score": 59.186
+        },
+        {
+          "id": "kenney-background-elements-remastered-fence-66a57f5f",
+          "title": "Background Elements Remastered · Fence",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "fence",
+            "landscape",
+            "platformer"
+          ],
+          "score": 58.249
+        },
+        {
+          "id": "kenney-background-elements-remastered-fence-iron-dc2a3627",
+          "title": "Background Elements Remastered · Fence Iron",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "fence",
+            "iron",
+            "landscape",
+            "platformer"
+          ],
+          "score": 56.111
+        },
+        {
+          "id": "kenney-background-elements-remastered-tower-0afc249e",
+          "title": "Background Elements Remastered · Tower",
+          "pack": "Background Elements Remastered",
+          "category": "environment",
+          "tags": [
+            "background",
+            "environment",
+            "landscape",
+            "platformer",
+            "tower"
+          ],
+          "score": 56.095
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "013",
+      "category": "fantasy-ui",
+      "prompt": "An ornate fantasy inventory panel with bolted corners and a subtle diagonal pattern.",
+      "mode": "semantic",
+      "latencyMs": 706.95,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-ui-pack-adventure-panel-bolts-detail-876a5211",
+          "title": "UI Pack - Adventure · Panel Bolts Detail",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "bolts",
+            "detail",
+            "fantasy",
+            "interface",
+            "panel",
+            "ui"
+          ],
+          "score": 63.165
+        },
+        {
+          "id": "kenney-ui-pack-adventure-panel-border-detail-775753f7",
+          "title": "UI Pack - Adventure · Panel Border Detail",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "border",
+            "detail",
+            "fantasy",
+            "interface",
+            "panel",
+            "ui"
+          ],
+          "score": 61.545
+        },
+        {
+          "id": "kenney-ui-pack-adventure-panel-bolts-3e5b8ad3",
+          "title": "UI Pack - Adventure · Panel Bolts",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "bolts",
+            "fantasy",
+            "interface",
+            "panel",
+            "ui"
+          ],
+          "score": 61.459
+        },
+        {
+          "id": "kenney-ui-pack-adventure-panel-arrows-detail-b2540420",
+          "title": "UI Pack - Adventure · Panel Arrows Detail",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "arrows",
+            "detail",
+            "fantasy",
+            "interface",
+            "panel",
+            "ui"
+          ],
+          "score": 60.901
+        },
+        {
+          "id": "kenney-ui-pack-adventure-scrollbar-future-transparent-d93184c7",
+          "title": "UI Pack - Adventure · Scrollbar Future Transparent",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "fantasy",
+            "future",
+            "interface",
+            "scrollbar",
+            "transparent",
+            "ui"
+          ],
+          "score": 60.458
+        },
+        {
+          "id": "kenney-ui-pack-adventure-panel-border-aff3d56e",
+          "title": "UI Pack - Adventure · Panel Border",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "border",
+            "fantasy",
+            "interface",
+            "panel",
+            "ui"
+          ],
+          "score": 60.309
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "014",
+      "category": "fantasy-ui",
+      "prompt": "A circular adventure minimap frame with compass markings and jewel quest markers.",
+      "mode": "semantic",
+      "latencyMs": 302.603,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-ui-pack-adventure-minimap-compass-future-e8e8abb0",
+          "title": "UI Pack - Adventure · Minimap Compass Future",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "compass",
+            "fantasy",
+            "future",
+            "interface",
+            "minimap",
+            "ui"
+          ],
+          "score": 64.421
+        },
+        {
+          "id": "kenney-ui-pack-adventure-minimap-compass-toon-ebb6f0e6",
+          "title": "UI Pack - Adventure · Minimap Compass Toon",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "compass",
+            "fantasy",
+            "interface",
+            "minimap",
+            "toon",
+            "ui"
+          ],
+          "score": 62.644
+        },
+        {
+          "id": "kenney-ui-pack-adventure-minimap-icon-jewel-53463abd",
+          "title": "UI Pack - Adventure · Minimap Icon Jewel",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "fantasy",
+            "icon",
+            "interface",
+            "jewel",
+            "minimap",
+            "ui"
+          ],
+          "score": 61.78
+        },
+        {
+          "id": "kenney-ui-pack-adventure-round-detailed-f6f99834",
+          "title": "UI Pack - Adventure · Round Detailed",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "detailed",
+            "fantasy",
+            "interface",
+            "round",
+            "ui"
+          ],
+          "score": 61.405
+        },
+        {
+          "id": "kenney-ui-pack-adventure-progress-border-c311e0ce",
+          "title": "UI Pack - Adventure · Progress Border",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "border",
+            "fantasy",
+            "interface",
+            "progress",
+            "ui"
+          ],
+          "score": 60.657
+        },
+        {
+          "id": "kenney-ui-pack-adventure-minimap-ring-detail-3e955854",
+          "title": "UI Pack - Adventure · Minimap Ring Detail",
+          "pack": "UI Pack - Adventure",
+          "category": "ui",
+          "tags": [
+            "adventure",
+            "detail",
+            "fantasy",
+            "interface",
+            "minimap",
+            "ring",
+            "ui"
+          ],
+          "score": 59.91
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "015",
+      "category": "icon",
+      "prompt": "A clear audio mute toggle icon for a game settings menu.",
+      "mode": "semantic",
+      "latencyMs": 196.643,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-game-icons-audio-off-38dc47f2",
+          "title": "Game Icons · Audio Off",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "audio",
+            "game",
+            "icon",
+            "off",
+            "symbol",
+            "ui"
+          ],
+          "score": 64.892
+        },
+        {
+          "id": "kenney-game-icons-audio-on-cf1cf097",
+          "title": "Game Icons · Audio On",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "audio",
+            "game",
+            "icon",
+            "on",
+            "symbol",
+            "ui"
+          ],
+          "score": 64.087
+        },
+        {
+          "id": "kenney-game-icons-contrast-4c73b80d",
+          "title": "Game Icons · Contrast",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "contrast",
+            "game",
+            "icon",
+            "symbol",
+            "ui"
+          ],
+          "score": 59.244
+        },
+        {
+          "id": "kenney-game-icons-button-select-9d6d8d90",
+          "title": "Game Icons · Button Select",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "button",
+            "game",
+            "icon",
+            "select",
+            "symbol",
+            "ui"
+          ],
+          "score": 58.607
+        },
+        {
+          "id": "kenney-game-icons-information-bacfa724",
+          "title": "Game Icons · Information",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "game",
+            "icon",
+            "information",
+            "symbol",
+            "ui"
+          ],
+          "score": 57.98
+        },
+        {
+          "id": "kenney-game-icons-menu-list-2279b80e",
+          "title": "Game Icons · Menu List",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "game",
+            "icon",
+            "list",
+            "menu",
+            "symbol",
+            "ui"
+          ],
+          "score": 57.447
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "016",
+      "category": "icon",
+      "prompt": "A simple multiplayer leaderboard medal icon for a game menu.",
+      "mode": "semantic",
+      "latencyMs": 315.017,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-game-icons-leaderboards-simple-d72dcd54",
+          "title": "Game Icons · Leaderboards Simple",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "game",
+            "icon",
+            "leaderboards",
+            "simple",
+            "symbol",
+            "ui"
+          ],
+          "score": 64.811
+        },
+        {
+          "id": "kenney-game-icons-leaderboards-complex-033e071f",
+          "title": "Game Icons · Leaderboards Complex",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "complex",
+            "game",
+            "icon",
+            "leaderboards",
+            "symbol",
+            "ui"
+          ],
+          "score": 63.959
+        },
+        {
+          "id": "kenney-game-icons-massive-multiplayer-c2fdc53d",
+          "title": "Game Icons · Massive Multiplayer",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "game",
+            "icon",
+            "massive",
+            "multiplayer",
+            "symbol",
+            "ui"
+          ],
+          "score": 61.775
+        },
+        {
+          "id": "kenney-game-icons-medal-b79efc2a",
+          "title": "Game Icons · Medal",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "game",
+            "icon",
+            "medal",
+            "symbol",
+            "ui"
+          ],
+          "score": 60.943
+        },
+        {
+          "id": "kenney-game-icons-bars-horizontal-edb4b910",
+          "title": "Game Icons · Bars Horizontal",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "bars",
+            "game",
+            "horizontal",
+            "icon",
+            "symbol",
+            "ui"
+          ],
+          "score": 58.73
+        },
+        {
+          "id": "kenney-game-icons-contrast-4c73b80d",
+          "title": "Game Icons · Contrast",
+          "pack": "Game Icons",
+          "category": "icons",
+          "tags": [
+            "contrast",
+            "game",
+            "icon",
+            "symbol",
+            "ui"
+          ],
+          "score": 58.718
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "017",
+      "category": "sci-fi-ship",
+      "prompt": "A compact player starfighter for a bright arcade space shooter.",
+      "mode": "semantic",
+      "latencyMs": 177.781,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-space-shooter-remastered-effects-star-2ae30a45",
+          "title": "Space Shooter Remastered · Effects Star",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "effects",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space",
+            "star"
+          ],
+          "score": 57.698
+        },
+        {
+          "id": "kenney-space-shooter-remastered-ui-player-life-9978b6ed",
+          "title": "Space Shooter Remastered · Ui Player Life",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "life",
+            "player",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space",
+            "ui"
+          ],
+          "score": 57.63
+        },
+        {
+          "id": "kenney-space-shooter-remastered-ui-button-ebd95fab",
+          "title": "Space Shooter Remastered · Ui Button",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "button",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space",
+            "ui"
+          ],
+          "score": 57.186
+        },
+        {
+          "id": "kenney-space-shooter-remastered-ui-numeral-291903ef",
+          "title": "Space Shooter Remastered · Ui Numeral",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "numeral",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space",
+            "ui"
+          ],
+          "score": 56.41
+        },
+        {
+          "id": "kenney-space-shooter-remastered-enemies-enemy-1c8a4841",
+          "title": "Space Shooter Remastered · Enemies Enemy",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "enemies",
+            "enemy",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space"
+          ],
+          "score": 56.14
+        },
+        {
+          "id": "kenney-space-shooter-remastered-effects-shield-8b97cf4b",
+          "title": "Space Shooter Remastered · Effects Shield",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "effects",
+            "prop",
+            "sci-fi",
+            "shield",
+            "ship",
+            "space"
+          ],
+          "score": 55.633
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "018",
+      "category": "sci-fi-ship",
+      "prompt": "A hostile alien fighter ship for an energetic arcade space battle.",
+      "mode": "semantic",
+      "latencyMs": 174.421,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-space-shooter-remastered-enemies-enemy-1c8a4841",
+          "title": "Space Shooter Remastered · Enemies Enemy",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "enemies",
+            "enemy",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space"
+          ],
+          "score": 59.932
+        },
+        {
+          "id": "kenney-space-shooter-remastered-ui-button-ebd95fab",
+          "title": "Space Shooter Remastered · Ui Button",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "button",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space",
+            "ui"
+          ],
+          "score": 57.644
+        },
+        {
+          "id": "kenney-space-shooter-remastered-damage-player-ship-1a95dd9f",
+          "title": "Space Shooter Remastered · Damage Player Ship",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "damage",
+            "player",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space"
+          ],
+          "score": 57.09
+        },
+        {
+          "id": "kenney-space-shooter-remastered-ui-player-life-9978b6ed",
+          "title": "Space Shooter Remastered · Ui Player Life",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "life",
+            "player",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space",
+            "ui"
+          ],
+          "score": 56.99
+        },
+        {
+          "id": "kenney-space-shooter-remastered-effects-shield-8b97cf4b",
+          "title": "Space Shooter Remastered · Effects Shield",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "effects",
+            "prop",
+            "sci-fi",
+            "shield",
+            "ship",
+            "space"
+          ],
+          "score": 56.665
+        },
+        {
+          "id": "kenney-space-shooter-remastered-ui-numeral-291903ef",
+          "title": "Space Shooter Remastered · Ui Numeral",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "numeral",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space",
+            "ui"
+          ],
+          "score": 56.345
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "019",
+      "category": "visual-effect",
+      "prompt": "A bright laser impact and protective energy shield effect for a sci-fi ship.",
+      "mode": "semantic",
+      "latencyMs": 161.352,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-space-shooter-remastered-effects-shield-8b97cf4b",
+          "title": "Space Shooter Remastered · Effects Shield",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "effects",
+            "prop",
+            "sci-fi",
+            "shield",
+            "ship",
+            "space"
+          ],
+          "score": 61.367
+        },
+        {
+          "id": "kenney-space-shooter-remastered-damage-player-ship-1a95dd9f",
+          "title": "Space Shooter Remastered · Damage Player Ship",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "damage",
+            "player",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space"
+          ],
+          "score": 56.687
+        },
+        {
+          "id": "kenney-space-shooter-remastered-effects-star-2ae30a45",
+          "title": "Space Shooter Remastered · Effects Star",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "effects",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space",
+            "star"
+          ],
+          "score": 56.582
+        },
+        {
+          "id": "kenney-space-shooter-remastered-effects-fire-4882a44d",
+          "title": "Space Shooter Remastered · Effects Fire",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "effects",
+            "fire",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space"
+          ],
+          "score": 56.276
+        },
+        {
+          "id": "kenney-space-shooter-remastered-lasers-laser-9e01c414",
+          "title": "Space Shooter Remastered · Lasers Laser",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "laser",
+            "lasers",
+            "prop",
+            "sci-fi",
+            "ship",
+            "space"
+          ],
+          "score": 56.091
+        },
+        {
+          "id": "kenney-space-shooter-remastered-power-ups-shield-58075caa",
+          "title": "Space Shooter Remastered · Power Ups Shield",
+          "pack": "Space Shooter Remastered",
+          "category": "sci-fi",
+          "tags": [
+            "power",
+            "prop",
+            "sci-fi",
+            "shield",
+            "ship",
+            "space",
+            "ups"
+          ],
+          "score": 54.982
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    },
+    {
+      "id": "020",
+      "category": "visual-effect",
+      "prompt": "A stylized cannon blast with fire and smoke for a pirate ship battle.",
+      "mode": "semantic",
+      "latencyMs": 169.449,
+      "status": "success",
+      "results": [
+        {
+          "id": "kenney-pirate-pack-ship-parts-cannon-mobile-2b3bbee9",
+          "title": "Pirate Pack · Ship Parts Cannon Mobile",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "cannon",
+            "fantasy",
+            "mobile",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 60.87
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-cannon-fab08bad",
+          "title": "Pirate Pack · Ship Parts Cannon",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "cannon",
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 60.626
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-cannon-ball-63346ac9",
+          "title": "Pirate Pack · Ship Parts Cannon Ball",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "ball",
+            "cannon",
+            "fantasy",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 59.963
+        },
+        {
+          "id": "kenney-pirate-pack-ship-parts-cannon-loose-f62af0a2",
+          "title": "Pirate Pack · Ship Parts Cannon Loose",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "cannon",
+            "fantasy",
+            "loose",
+            "parts",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 58.514
+        },
+        {
+          "id": "kenney-pirate-pack-effects-explosion-2781448f",
+          "title": "Pirate Pack · Effects Explosion",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "effects",
+            "explosion",
+            "fantasy",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 57.841
+        },
+        {
+          "id": "kenney-pirate-pack-effects-fire-c97b3ed1",
+          "title": "Pirate Pack · Effects Fire",
+          "pack": "Pirate Pack",
+          "category": "props",
+          "tags": [
+            "effects",
+            "fantasy",
+            "fire",
+            "pirate",
+            "prop",
+            "ship"
+          ],
+          "score": 57.503
+        }
+      ],
+      "top1ExpectedPackMatch": true,
+      "expectedPackHitsAt6": 6,
+      "hasExpectedPackAt6": true,
+      "irrelevantMatches": [],
+      "failureReason": null
+    }
+  ],
+  "metrics": {
+    "expectedPackTop1MatchRate": 1,
+    "expectedPackPrecisionAt6": 0.9916666666666667,
+    "expectedPackHitAt6": 1,
+    "averageLatencyMs": 342.8916499999999,
+    "medianLatencyMs": 216.6575,
+    "fallbackCount": 0,
+    "failureCount": 0
+  }
 }

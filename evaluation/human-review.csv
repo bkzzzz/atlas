@@ -1,7 +1,7 @@
 id,category,prompt,left_image,right_image,prompt_fit_winner,game_asset_usability_winner,style_coherence_winner,notes
-001,character,A nimble forest adventurer walking through a colorful side-scrolling fantasy game.,,,,,,
-002,character,A brave female explorer climbing a cliff in a bright 2D platformer.,,,,,,
-003,character,A cartoon zombie carrying a supply crate in a side-view action game.,,,,,,
+001,character,A nimble forest adventurer walking through a colorful side-scrolling fantasy game.,review/001-left.png,review/001-right.png,,,,
+002,character,A brave female explorer climbing a cliff in a bright 2D platformer.,review/002-left.png,review/002-right.png,,,,
+003,character,A cartoon zombie carrying a supply crate in a side-view action game.,review/003-left.png,review/003-right.png,,,,
 004,prop,A weathered deck cannon for a whimsical pirate game.,,,,,,
 005,prop,A small wooden pirate dinghy with a patched sail.,,,,,,
 006,prop,A wooden ship mast with a patched sail and bold pirate flag.,,,,,,

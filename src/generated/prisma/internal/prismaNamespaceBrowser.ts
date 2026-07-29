@@ -53,7 +53,11 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Character: 'Character',
   ImageAsset: 'ImageAsset',
-  CharacterMemory: 'CharacterMemory'
+  CharacterMemory: 'CharacterMemory',
+  WorkspaceDocument: 'WorkspaceDocument',
+  WorkspaceAsset: 'WorkspaceAsset',
+  WorkspaceNode: 'WorkspaceNode',
+  WorkspaceMessage: 'WorkspaceMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -110,6 +114,64 @@ export const CharacterMemoryScalarFieldEnum = {
 } as const
 
 export type CharacterMemoryScalarFieldEnum = (typeof CharacterMemoryScalarFieldEnum)[keyof typeof CharacterMemoryScalarFieldEnum]
+
+
+export const WorkspaceDocumentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkspaceDocumentScalarFieldEnum = (typeof WorkspaceDocumentScalarFieldEnum)[keyof typeof WorkspaceDocumentScalarFieldEnum]
+
+
+export const WorkspaceAssetScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  name: 'name',
+  mimeType: 'mimeType',
+  bytes: 'bytes',
+  source: 'source',
+  prompt: 'prompt',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkspaceAssetScalarFieldEnum = (typeof WorkspaceAssetScalarFieldEnum)[keyof typeof WorkspaceAssetScalarFieldEnum]
+
+
+export const WorkspaceNodeScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  assetId: 'assetId',
+  kind: 'kind',
+  name: 'name',
+  x: 'x',
+  y: 'y',
+  width: 'width',
+  height: 'height',
+  rotation: 'rotation',
+  opacity: 'opacity',
+  color: 'color',
+  zIndex: 'zIndex',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkspaceNodeScalarFieldEnum = (typeof WorkspaceNodeScalarFieldEnum)[keyof typeof WorkspaceNodeScalarFieldEnum]
+
+
+export const WorkspaceMessageScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  assetId: 'assetId',
+  nodeId: 'nodeId',
+  role: 'role',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkspaceMessageScalarFieldEnum = (typeof WorkspaceMessageScalarFieldEnum)[keyof typeof WorkspaceMessageScalarFieldEnum]
 
 
 export const SortOrder = {

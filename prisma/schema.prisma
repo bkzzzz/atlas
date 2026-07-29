@@ -9,12 +9,12 @@ datasource db {
 
 // This model is the first persistent data owned by Atlas.
 model Character {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
   description String
   personality String
   species     String
-  createdAt   DateTime @default(now())
+  createdAt   DateTime         @default(now())
   assets      ImageAsset[]
   memory      CharacterMemory?
 }
@@ -48,4 +48,73 @@ model CharacterMemory {
   rejectedSummary String?
   preferredPrompt String?
   lastUpdated     DateTime  @updatedAt
+}
+
+// Atlas currently exposes one durable workspace. Keeping the document explicit
+// makes the canvas data ready for multiple projects without presenting an
+// unimplemented project switcher in the product.
+model WorkspaceDocument {
+  id        String             @id
+  name      String
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  assets    WorkspaceAsset[]
+  messages  WorkspaceMessage[]
+  nodes     WorkspaceNode[]
+}
+
+// Workspace images are stored as binary data instead of temporary browser URLs,
+// so uploads and generated assets survive reloads.
+model WorkspaceAsset {
+  id         String             @id @default(cuid())
+  documentId String
+  document   WorkspaceDocument  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  name       String
+  mimeType   String
+  bytes      Bytes
+  source     String
+  prompt     String?
+  createdAt  DateTime           @default(now())
+  messages   WorkspaceMessage[]
+  nodes      WorkspaceNode[]
+
+  @@index([documentId])
+}
+
+model WorkspaceNode {
+  id         String             @id @default(cuid())
+  documentId String
+  document   WorkspaceDocument  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  assetId    String?
+  asset      WorkspaceAsset?    @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  kind       String
+  name       String
+  x          Float
+  y          Float
+  width      Float
+  height     Float
+  rotation   Float              @default(0)
+  opacity    Float              @default(1)
+  color      String             @default("#ffffff")
+  zIndex     Int
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  messages   WorkspaceMessage[]
+
+  @@index([documentId, zIndex])
+}
+
+model WorkspaceMessage {
+  id         String            @id @default(cuid())
+  documentId String
+  document   WorkspaceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  assetId    String?
+  asset      WorkspaceAsset?   @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  nodeId     String?
+  node       WorkspaceNode?    @relation(fields: [nodeId], references: [id], onDelete: SetNull)
+  role       String
+  content    String
+  createdAt  DateTime          @default(now())
+
+  @@index([documentId, createdAt])
 }

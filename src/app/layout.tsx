@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Atlas — Game Asset Studio",
+  title: "Atlas — AI Game Asset Workspace",
   description:
-    "Direct a reference, style, and camera view into a production-ready 2D game asset.",
+    "A persistent canvas for generating, arranging, and editing game assets.",
 };
 
 export const viewport: Viewport = {

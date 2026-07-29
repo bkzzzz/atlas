@@ -1,5 +1,8 @@
-import { ForgeStudio } from "@/components/forge-studio";
+import { Workspace } from "@/components/workspace";
+import { readWorkspace } from "@/lib/workspace-server";
 
-export default function Home() {
-  return <ForgeStudio />;
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  return <Workspace initialWorkspace={await readWorkspace()} />;
 }

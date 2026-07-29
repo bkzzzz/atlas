@@ -11,4 +11,8 @@
 export type * from './models/Character'
 export type * from './models/ImageAsset'
 export type * from './models/CharacterMemory'
+export type * from './models/WorkspaceDocument'
+export type * from './models/WorkspaceAsset'
+export type * from './models/WorkspaceNode'
+export type * from './models/WorkspaceMessage'
 export type * from './commonInputTypes'

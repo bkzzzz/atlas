@@ -1,21 +1,25 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import {
   ASSET_TYPES,
-  ASSET_WORKFLOWS,
-  OUTPUT_FORMATS,
-  buildProductArtRequest,
-  runProductGeneration,
+  generateCompiledProduct,
+  runProductParse,
   type AssetType,
   type GeneratedImage,
   type ParseTaskResult,
   type ProductGenerationInput,
 } from "@/lib/asset-generation-flow";
 import {
+  retrieveReferences,
+  type CuratedReference,
+  type RetrievalResult,
+} from "@/lib/reference-retrieval";
+import {
   DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
   GROUND_SHADOW_OPTIONS,
+  MAX_NATURAL_LANGUAGE_REQUEST_LENGTH,
   PIXEL_ART_DETAILS,
   STATIC_IMAGE_BACKGROUNDS,
   STATIC_IMAGE_VIEW_ANGLES,
@@ -25,7 +29,7 @@ import {
 
 const VISUAL_STYLE_LABELS: Record<StaticImageAssetSettings["visualStyle"], string> = {
   PIXEL_ART: "Pixel art",
-  VECTOR_STYLE: "Flat Illustration",
+  VECTOR_STYLE: "Flat illustration",
   ILLUSTRATION: "Illustration",
 };
 const VIEW_ANGLE_LABELS: Record<StaticImageAssetSettings["viewAngle"], string> = {
@@ -34,18 +38,18 @@ const VIEW_ANGLE_LABELS: Record<StaticImageAssetSettings["viewAngle"], string> =
   TOP_DOWN: "Top-down",
   ISOMETRIC: "Isometric",
   THREE_QUARTER: "Three-quarter",
-  UNSPECIFIED: "Unspecified",
+  UNSPECIFIED: "Art director decides",
 };
 const BACKGROUND_LABELS: Record<StaticImageAssetSettings["background"], string> = {
   TRANSPARENT: "Transparent",
   WHITE: "White",
   SIMPLE_SOLID: "Simple solid",
-  UNSPECIFIED: "Unspecified",
+  UNSPECIFIED: "Art director decides",
 };
 const PIXEL_DETAIL_LABELS: Record<StaticImageAssetSettings["pixelDetail"], string> = {
-  LOW: "Low detail",
-  MEDIUM: "Medium detail",
-  HIGH: "High detail",
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
 };
 const GROUND_SHADOW_LABELS: Record<StaticImageAssetSettings["groundShadow"], string> = {
   ALLOW: "Allow",
@@ -55,46 +59,40 @@ const GROUND_SHADOW_LABELS: Record<StaticImageAssetSettings["groundShadow"], str
 type Props = {
   characterId: string;
   characterName: string;
-  developerMode?: boolean;
-  styleCharacters?: Array<{ id: string; name: string }>;
 };
 
-export function LlmTaskParser({
-  characterId,
-  characterName,
-  developerMode = false,
-  styleCharacters = [],
-}: Props) {
+export function LlmTaskParser({ characterId, characterName }: Props) {
+  const [projectBrief, setProjectBrief] = useState("");
+  const [assetRequest, setAssetRequest] = useState("");
   const [assetType, setAssetType] = useState<AssetType>("CHARACTER_SPRITE");
-  const [artDirection, setArtDirection] = useState("");
-  const [styleSourceMode, setStyleSourceMode] = useState<"NEW" | "INHERIT">("NEW");
-  const [styleSourceCharacterId, setStyleSourceCharacterId] = useState(
-    styleCharacters[0]?.id ?? "",
-  );
   const [assetSettings, setAssetSettings] = useState<StaticImageAssetSettings>(
     DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
   );
-  const [result, setResult] = useState<ParseTaskResult | null>(null);
+  const [draftSpec, setDraftSpec] = useState<ParseTaskResult | null>(null);
+  const [referenceResults, setReferenceResults] = useState<RetrievalResult[]>([]);
+  const [selectedReferenceIds, setSelectedReferenceIds] = useState<string[]>([]);
+  const [refinedSpec, setRefinedSpec] = useState<ParseTaskResult | null>(null);
   const [image, setImage] = useState<GeneratedImage | null>(null);
+  const [busyStep, setBusyStep] = useState<"draft" | "refine" | "generate" | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [copyLabel, setCopyLabel] = useState("Copy prompt");
 
-  const input: ProductGenerationInput = {
-    characterId,
-    characterName,
-    assetType,
-    artDirection,
-    assetSettings,
-    styleSourceCharacterId:
-      styleSourceMode === "INHERIT" ? styleSourceCharacterId : null,
-  };
+  const selectedReferences = selectedReferenceIds
+    .map((id) => referenceResults.find(({ reference }) => reference.id === id)?.reference)
+    .filter((reference): reference is CuratedReference => Boolean(reference));
 
-  function clearCompiledState() {
-    setResult(null);
+  function clearAfterBrief() {
+    setDraftSpec(null);
+    setReferenceResults([]);
+    setSelectedReferenceIds([]);
+    setRefinedSpec(null);
     setImage(null);
     setError(null);
-    setCopyLabel("Copy prompt");
+  }
+
+  function clearAfterReferenceSelection() {
+    setRefinedSpec(null);
+    setImage(null);
+    setError(null);
   }
 
   function updateAssetSetting<Key extends keyof StaticImageAssetSettings>(
@@ -102,7 +100,26 @@ export function LlmTaskParser({
     value: StaticImageAssetSettings[Key],
   ) {
     setAssetSettings((current) => ({ ...current, [field]: value }));
-    clearCompiledState();
+    clearAfterBrief();
+  }
+
+  function artDirection() {
+    return [
+      `Project brief: ${projectBrief.trim()}`,
+      `Asset request: ${assetRequest.trim()}`,
+    ].join("\n");
+  }
+
+  function productInput(references: readonly CuratedReference[]): ProductGenerationInput {
+    return {
+      characterId,
+      characterName,
+      assetType,
+      artDirection: artDirection(),
+      assetSettings,
+      styleSourceCharacterId: null,
+      selectedReferences: references,
+    };
   }
 
   async function requestJson(url: string, body: unknown) {
@@ -115,411 +132,456 @@ export function LlmTaskParser({
     try {
       payload = await response.json();
     } catch {
-      throw new Error(response.ok
-        ? "Atlas returned an invalid JSON response."
-        : "Atlas could not complete the asset request.");
+      throw new Error("Atlas returned an unreadable response.");
     }
     if (!response.ok) {
-      const message = payload && typeof payload === "object" && "error" in payload
-        ? (payload as { error?: unknown }).error
-        : null;
-      throw new Error(typeof message === "string" ? message : "Atlas could not complete the asset request.");
+      const message =
+        payload && typeof payload === "object" && "error" in payload
+          ? (payload as { error?: unknown }).error
+          : null;
+      throw new Error(
+        typeof message === "string" ? message : "Atlas could not complete this step.",
+      );
     }
     return payload;
   }
 
-  async function generate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function generateDraft() {
+    if (!projectBrief.trim() || !assetRequest.trim()) {
+      setError("Add a project brief and an asset request first.");
+      return;
+    }
     try {
-      setIsGenerating(true);
-      clearCompiledState();
-      const generated = await runProductGeneration(input, requestJson);
-      setResult(generated.parseResult);
-      setImage(generated.image);
+      setBusyStep("draft");
+      clearAfterBrief();
+      const result = await runProductParse(productInput([]), requestJson);
+      setDraftSpec({ ...result, generationToken: null });
+    } catch (draftError) {
+      setError(messageFrom(draftError, "Could not create the draft StyleSpec."));
+    } finally {
+      setBusyStep(null);
+    }
+  }
+
+  function retrieveFromDraft() {
+    if (!draftSpec) return;
+    const task = draftSpec.parsedTask;
+    const results = retrieveReferences({
+      projectBrief: [
+        projectBrief,
+        task.visualStyle,
+        task.composition,
+        task.background,
+        ...task.positiveConstraints,
+      ].join(" "),
+      assetRequest: [assetRequest, task.visualSubject, task.assetKind].join(" "),
+      assetType,
+      settings: assetSettings,
+    });
+    setReferenceResults(results);
+    setSelectedReferenceIds([]);
+    setRefinedSpec(null);
+    setImage(null);
+    setError(
+      results.length ? null : "No curated references matched this direction. Try a more specific brief.",
+    );
+  }
+
+  function toggleReference(id: string) {
+    if (!selectedReferenceIds.includes(id) && selectedReferenceIds.length === 3) {
+      setError("Choose up to three references.");
+      return;
+    }
+    setSelectedReferenceIds((current) => {
+      if (current.includes(id)) return current.filter((item) => item !== id);
+      return [...current, id];
+    });
+    clearAfterReferenceSelection();
+  }
+
+  async function refineStyleSpec() {
+    if (selectedReferences.length < 1 || selectedReferences.length > 3) {
+      setError("Choose one to three references first.");
+      return;
+    }
+    try {
+      setBusyStep("refine");
+      setRefinedSpec(null);
+      setImage(null);
+      setError(null);
+      const result = await runProductParse(productInput(selectedReferences), requestJson);
+      if (!result.generationToken) {
+        throw new Error("Atlas could not approve this StyleSpec for generation.");
+      }
+      setRefinedSpec(result);
+    } catch (refineError) {
+      setError(messageFrom(refineError, "Could not refine the StyleSpec."));
+    } finally {
+      setBusyStep(null);
+    }
+  }
+
+  async function generateAsset() {
+    const generationToken = refinedSpec?.generationToken;
+    if (!generationToken) return;
+    try {
+      setBusyStep("generate");
+      setImage(null);
+      setError(null);
+      setRefinedSpec((current) =>
+        current ? { ...current, generationToken: null } : current,
+      );
+      setImage(await generateCompiledProduct(generationToken, requestJson));
     } catch (generationError) {
       setError(
-        generationError instanceof Error
-          ? generationError.message
-          : "Could not generate the image.",
+        `${messageFrom(generationError, "Could not generate the image.")} Rebuild the refined StyleSpec to try again.`,
       );
-      setResult((current) => current ? { ...current, generationToken: null } : current);
     } finally {
-      setIsGenerating(false);
+      setBusyStep(null);
     }
   }
 
-  async function copyPrompt() {
-    if (!result) return;
-    try {
-      await navigator.clipboard.writeText(result.compiledPrompt);
-      setCopyLabel("Copied");
-    } catch {
-      setError("Could not copy the prompt. Please copy it manually.");
-    }
-  }
+  const inputLength = artDirection().length + characterName.length + 140;
+  const inputTooLong = inputLength > MAX_NATURAL_LANGUAGE_REQUEST_LENGTH;
+  const disabled = busyStep !== null;
 
   return (
-    <section className="mt-10 max-w-4xl border-t border-white/10 pt-10">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">
-          Asset production
+    <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="mb-8 max-w-2xl">
+        <p className="text-xs font-semibold uppercase tracking-[.2em] text-violet-300">
+          Art direction workflow
         </p>
-        <h2 className="mt-1 text-xl font-semibold">Create game asset</h2>
-        <p className="mt-1 text-sm text-slate-400">
-          Atlas prepares the art direction and production prompt for you.
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Direct one coherent game asset.
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-slate-400">
+          Shape the direction, choose visual references, then generate one production-ready PNG.
         </p>
       </div>
-
-      <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Asset workflow">
-        {ASSET_WORKFLOWS.map((workflow) => (
-          <div
-            aria-current={workflow.executable ? "true" : undefined}
-            aria-disabled={!workflow.executable}
-            className={`rounded-lg border px-3 py-3 text-left text-sm ${
-              workflow.executable
-                ? "border-violet-400/50 bg-violet-500/10 text-violet-100"
-                : "border-white/10 text-slate-500"
-            }`}
-            key={workflow.value}
-          >
-            <span className="block font-medium">{workflow.label}</span>
-            <span className="mt-1 block text-xs">
-              {workflow.executable ? "Available" : "Experimental · unavailable"}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <form
-        className="mt-4 rounded-xl border border-white/10 bg-white/[.03] p-5"
-        onSubmit={generate}
-      >
-        <div className="grid gap-4 sm:grid-cols-3">
-          <label className="block text-sm font-medium">
-            Character
-            <input
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/30 px-3 py-2.5 text-slate-300"
-              readOnly
-              value={characterName}
-            />
-          </label>
-          <label className="block text-sm font-medium">
-            Asset type
-            <select
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
-              disabled={isGenerating}
-              onChange={(event) => {
-                setAssetType(event.target.value as AssetType);
-                clearCompiledState();
-              }}
-              value={assetType}
-            >
-              {ASSET_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>{type.label}</option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-sm font-medium">
-            Output format
-            <select
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
-              disabled={isGenerating}
-              value="PNG"
-              onChange={() => undefined}
-            >
-              {OUTPUT_FORMATS.map((format) => (
-                <option disabled={!format.executable} key={format.value} value={format.value}>
-                  {format.label}{format.executable ? "" : " · unavailable"}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <label className="mt-5 block text-sm font-medium">
-          Optional art direction
-          <textarea
-            className="mt-2 min-h-24 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none placeholder:text-slate-600 focus:border-violet-400"
-            onChange={(event) => {
-              setArtDirection(event.target.value);
-              clearCompiledState();
-            }}
-            placeholder="For example: make the character look exhausted, more mysterious, or add snow on the shoulders."
-            value={artDirection}
-          />
-        </label>
-
-        <fieldset className="mt-5 rounded-xl border border-white/10 bg-white/[.025] p-4">
-          <legend className="px-1 text-sm font-semibold text-slate-200">
-            Style source
-          </legend>
-          <p className="mt-1 text-xs text-slate-500">
-            Create a fresh style or borrow another character&apos;s established theme.
-            Visual style remains independent.
-          </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <StyleSourceOption
-              checked={styleSourceMode === "NEW"}
-              disabled={isGenerating}
-              description="Use the visual style selected below without inheriting another character."
-              label="Create a new style"
-              onChange={() => {
-                setStyleSourceMode("NEW");
-                clearCompiledState();
-              }}
-              value="NEW"
-            />
-            <StyleSourceOption
-              checked={styleSourceMode === "INHERIT"}
-              disabled={isGenerating || styleCharacters.length === 0}
-              description={
-                styleCharacters.length
-                  ? "Use another character's style memory and approved references."
-                  : "Create another character first to use style inheritance."
-              }
-              label="Inherit another character's style/theme"
-              onChange={() => {
-                setStyleSourceMode("INHERIT");
-                clearCompiledState();
-              }}
-              value="INHERIT"
-            />
-          </div>
-          {styleSourceMode === "INHERIT" && styleCharacters.length > 0 && (
-            <label className="mt-4 block text-sm font-medium">
-              Style character
-              <select
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
-                disabled={isGenerating}
-                onChange={(event) => {
-                  setStyleSourceCharacterId(event.target.value);
-                  clearCompiledState();
-                }}
-                value={styleSourceCharacterId}
-              >
-                {styleCharacters.map((character) => (
-                  <option key={character.id} value={character.id}>
-                    {character.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </fieldset>
-
-        <details className="mt-5 rounded-xl border border-white/10 bg-white/[.025] p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-slate-200">
-            Advanced controls
-          </summary>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <AssetSettingSelect
-              label="Visual style"
-              disabled={isGenerating}
-              onChange={(value) => updateAssetSetting("visualStyle", value)}
-              options={STATIC_IMAGE_VISUAL_STYLES}
-              labels={VISUAL_STYLE_LABELS}
-              value={assetSettings.visualStyle}
-            />
-            <AssetSettingSelect
-              label="Camera / view"
-              disabled={isGenerating}
-              onChange={(value) => updateAssetSetting("viewAngle", value)}
-              options={STATIC_IMAGE_VIEW_ANGLES}
-              labels={VIEW_ANGLE_LABELS}
-              value={assetSettings.viewAngle}
-            />
-            <AssetSettingSelect
-              label="Background"
-              disabled={isGenerating}
-              onChange={(value) => updateAssetSetting("background", value)}
-              options={STATIC_IMAGE_BACKGROUNDS}
-              labels={BACKGROUND_LABELS}
-              value={assetSettings.background}
-            />
-            {assetSettings.visualStyle === "PIXEL_ART" && (
-              <AssetSettingSelect
-                label="Pixel detail"
-                disabled={isGenerating}
-                onChange={(value) => updateAssetSetting("pixelDetail", value)}
-                options={PIXEL_ART_DETAILS}
-                labels={PIXEL_DETAIL_LABELS}
-                value={assetSettings.pixelDetail}
-              />
-            )}
-            <AssetSettingSelect
-              label="Ground shadow"
-              disabled={isGenerating}
-              onChange={(value) => updateAssetSetting("groundShadow", value)}
-              options={GROUND_SHADOW_OPTIONS}
-              labels={GROUND_SHADOW_LABELS}
-              value={assetSettings.groundShadow}
-            />
-          </div>
-          <p className="mt-4 text-xs text-slate-500">
-            Flat Illustration produces a raster PNG. True SVG export is not available yet.
-          </p>
-        </details>
-
-        <div className="mt-5 flex items-center justify-between gap-4">
-          <p className="text-xs text-slate-500">
-            Transparent background and no ground shadow are the game-asset defaults.
-          </p>
-          <button
-            className="rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={
-              isGenerating ||
-              (styleSourceMode === "INHERIT" && !styleSourceCharacterId)
-            }
-          >
-            {isGenerating ? "Generating…" : "Generate"}
-          </button>
-        </div>
-      </form>
 
       {error && (
-        <p className="mt-4 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">
+        <p className="mb-5 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100" role="alert">
           {error}
         </p>
       )}
 
-      {developerMode && (
-        <details className="mt-5 rounded-xl border border-amber-400/20 bg-amber-500/[.04] p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-amber-100">
-            Developer details
-          </summary>
-          <p className="mt-2 text-xs text-slate-500">
-            Product request: {buildProductArtRequest(input)}
-          </p>
+      <div className="grid gap-5">
+        <WorkflowSection number="01" title="Project brief" active>
+          <div className="grid gap-4 lg:grid-cols-[1fr_1fr_220px]">
+            <label className="block text-sm font-medium text-slate-200">
+              Project brief
+              <textarea
+                className="mt-2 min-h-28 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm leading-6 outline-none placeholder:text-slate-600 focus:border-violet-400"
+                disabled={disabled}
+                maxLength={3600}
+                onChange={(event) => {
+                  setProjectBrief(event.target.value);
+                  clearAfterBrief();
+                }}
+                placeholder="A cozy woodland RPG with warm, handcrafted pixel art and gentle folklore."
+                value={projectBrief}
+              />
+            </label>
+            <label className="block text-sm font-medium text-slate-200">
+              Asset request
+              <textarea
+                className="mt-2 min-h-28 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm leading-6 outline-none placeholder:text-slate-600 focus:border-violet-400"
+                disabled={disabled}
+                maxLength={3600}
+                onChange={(event) => {
+                  setAssetRequest(event.target.value);
+                  clearAfterBrief();
+                }}
+                placeholder="A full-body mushroom merchant carrying a tiny lantern."
+                value={assetRequest}
+              />
+            </label>
+            <label className="block text-sm font-medium text-slate-200">
+              Asset type
+              <select
+                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm outline-none focus:border-violet-400"
+                disabled={disabled}
+                onChange={(event) => {
+                  setAssetType(event.target.value as AssetType);
+                  clearAfterBrief();
+                }}
+                value={assetType}
+              >
+                {ASSET_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
+              </select>
+            </label>
+          </div>
 
-          {result && (
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              <section>
-                <h3 className="text-sm font-semibold">Parsed task</h3>
-                <pre className="mt-2 max-h-96 overflow-auto rounded-lg bg-slate-950/50 p-4 text-xs leading-5 text-slate-300">
-                  {JSON.stringify(result.parsedTask, null, 2)}
-                </pre>
-              </section>
-              <section>
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-sm font-semibold">Compiled prompt</h3>
-                  <button
-                    className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-200"
-                    onClick={() => void copyPrompt()}
-                    type="button"
-                  >
-                    {copyLabel}
-                  </button>
-                </div>
-                <p className="mt-2 text-xs text-slate-500">
-                  Parser provider model: {result.parser?.model ?? "not reported"}
-                </p>
-                {result.parser && <p className="mt-1 text-xs text-slate-500">
-                  Parser tokens: {result.parser.usage.totalTokens}
-                </p>}
-                <pre className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950/50 p-4 text-xs leading-5 text-slate-300">
-                  {result.compiledPrompt}
-                </pre>
-              </section>
+          <details className="mt-4 rounded-xl border border-white/10 bg-black/10 px-4 py-3">
+            <summary className="cursor-pointer text-sm font-medium text-slate-300">
+              Advanced
+            </summary>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              <AssetSettingSelect label="Visual style" disabled={disabled} value={assetSettings.visualStyle} options={STATIC_IMAGE_VISUAL_STYLES} labels={VISUAL_STYLE_LABELS} onChange={(value) => updateAssetSetting("visualStyle", value)} />
+              <AssetSettingSelect label="View" disabled={disabled} value={assetSettings.viewAngle} options={STATIC_IMAGE_VIEW_ANGLES} labels={VIEW_ANGLE_LABELS} onChange={(value) => updateAssetSetting("viewAngle", value)} />
+              <AssetSettingSelect label="Background" disabled={disabled} value={assetSettings.background} options={STATIC_IMAGE_BACKGROUNDS} labels={BACKGROUND_LABELS} onChange={(value) => updateAssetSetting("background", value)} />
+              {assetSettings.visualStyle === "PIXEL_ART" && (
+                <AssetSettingSelect label="Pixel detail" disabled={disabled} value={assetSettings.pixelDetail} options={PIXEL_ART_DETAILS} labels={PIXEL_DETAIL_LABELS} onChange={(value) => updateAssetSetting("pixelDetail", value)} />
+              )}
+              <AssetSettingSelect label="Ground shadow" disabled={disabled} value={assetSettings.groundShadow} options={GROUND_SHADOW_OPTIONS} labels={GROUND_SHADOW_LABELS} onChange={(value) => updateAssetSetting("groundShadow", value)} />
             </div>
-          )}
-          {image && (
-            <p className="mt-4 text-xs text-slate-500">
-              Image provider model: {image.model}
+          </details>
+
+          {inputTooLong && (
+            <p className="mt-3 text-xs text-amber-300">
+              Shorten the brief or request before creating the StyleSpec.
             </p>
           )}
-        </details>
-      )}
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            <PrimaryButton
+              disabled={disabled || inputTooLong || !projectBrief.trim() || !assetRequest.trim()}
+              onClick={() => void generateDraft()}
+            >
+              {busyStep === "draft" ? "Directing…" : draftSpec ? "Regenerate draft" : "Generate draft StyleSpec"}
+            </PrimaryButton>
+            {draftSpec && <span className="text-sm text-emerald-300">Draft direction ready</span>}
+          </div>
+          {draftSpec && <StyleSpecSummary result={draftSpec} label="Draft direction" />}
+        </WorkflowSection>
 
-      {image && (
-        <section className="mt-5 rounded-xl border border-white/10 bg-white/[.03] p-5">
-          <h3 className="font-semibold">Generated asset</h3>
-          <Image
-            unoptimized
-            width={1024}
-            height={1024}
-            className="mt-4 aspect-square w-full max-w-lg rounded-lg border border-white/10 bg-slate-950/50 object-contain"
-            src={image.imageUrl}
-            alt={`Generated ${ASSET_TYPES.find(({ value }) => value === assetType)?.label.toLowerCase() ?? "game asset"} for ${characterName}`}
-          />
-          <p className="mt-4 text-sm text-slate-400">
-            Generated {new Date(image.createdAt).toLocaleString()}
-          </p>
-          <p className="mt-2 text-xs text-slate-500">
-            Temporary browser-only preview. It is not saved to Atlas.
-          </p>
-        </section>
-      )}
+        <WorkflowSection number="02" title="Curated references" active={Boolean(draftSpec)}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="max-w-2xl text-sm leading-6 text-slate-400">
+              Atlas ranks a small local collection using the draft StyleSpec. Thumbnails are previews; selected references guide generation through metadata, not visual input.
+            </p>
+            <SecondaryButton disabled={!draftSpec || disabled} onClick={retrieveFromDraft}>
+              {referenceResults.length ? "Rank again" : "Find references"}
+            </SecondaryButton>
+          </div>
+          {referenceResults.length ? (
+            <>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {referenceResults.map(({ reference, score, matchedFields }) => {
+                  const selected = selectedReferenceIds.includes(reference.id);
+                  return (
+                    <button
+                      aria-pressed={selected}
+                      className={`overflow-hidden rounded-xl border text-left transition ${
+                        selected
+                          ? "border-violet-400 bg-violet-500/10 ring-1 ring-violet-400"
+                          : "border-white/10 bg-slate-950/30 hover:border-white/25"
+                      }`}
+                      disabled={disabled}
+                      key={reference.id}
+                      onClick={() => toggleReference(reference.id)}
+                      type="button"
+                    >
+                      <Image alt="" className="h-36 w-full object-cover" height={288} src={reference.imagePath} width={480} />
+                      <span className="block p-3">
+                        <span className="flex items-center justify-between gap-3">
+                          <span className="font-medium text-slate-100">{reference.title}</span>
+                          <span className="text-xs text-slate-500">{Math.round(score)} match</span>
+                        </span>
+                        <span className="mt-1 block text-xs capitalize text-slate-400">
+                          {reference.medium[0]} · {reference.mood[0]} · {reference.detailDensity} detail
+                        </span>
+                        <span className="mt-2 block text-[11px] text-slate-500">
+                          Matched {matchedFields.slice(0, 3).map(humanizeField).join(", ")}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-xs text-slate-500">
+                {selectedReferenceIds.length}/3 selected
+              </p>
+            </>
+          ) : (
+            <LockedHint>{draftSpec ? "Find references to compare the strongest directions." : "Create a draft StyleSpec to unlock reference ranking."}</LockedHint>
+          )}
+        </WorkflowSection>
+
+        <WorkflowSection number="03" title="Refined StyleSpec" active={selectedReferences.length > 0}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="max-w-2xl text-sm leading-6 text-slate-400">
+              Selected metadata is folded back into the art direction before generation.
+            </p>
+            <SecondaryButton disabled={disabled || selectedReferences.length === 0} onClick={() => void refineStyleSpec()}>
+              {busyStep === "refine" ? "Refining…" : refinedSpec ? "Rebuild StyleSpec" : "Refine StyleSpec"}
+            </SecondaryButton>
+          </div>
+          {refinedSpec ? (
+            <StyleSpecSummary result={refinedSpec} label="Final direction" references={selectedReferences} />
+          ) : (
+            <LockedHint>Select one to three references, then refine the StyleSpec.</LockedHint>
+          )}
+        </WorkflowSection>
+
+        <WorkflowSection number="04" title="Generation result" active={Boolean(refinedSpec)}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="max-w-2xl text-sm leading-6 text-slate-400">
+              Generate one PNG from the approved direction.
+            </p>
+            <PrimaryButton disabled={disabled || !refinedSpec?.generationToken} onClick={() => void generateAsset()}>
+              {busyStep === "generate" ? "Generating…" : image ? "Generated" : "Generate asset"}
+            </PrimaryButton>
+          </div>
+          {image ? (
+            <div className="mt-5 grid gap-5 sm:grid-cols-[minmax(0,420px)_1fr] sm:items-end">
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(45deg,#151a2b_25%,transparent_25%),linear-gradient(-45deg,#151a2b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#151a2b_75%),linear-gradient(-45deg,transparent_75%,#151a2b_75%)] bg-[length:24px_24px]">
+                <Image alt={`Generated ${ASSET_TYPES.find(({ value }) => value === assetType)?.label.toLowerCase()}`} className="aspect-square h-auto w-full object-contain" height={1024} src={image.imageUrl} unoptimized width={1024} />
+              </div>
+              <div>
+                <p className="text-lg font-medium text-white">Your asset is ready.</p>
+                <p className="mt-1 text-sm text-slate-400">PNG · one generated asset</p>
+                <a className="mt-5 inline-flex rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-violet-100" download={`${slugify(characterName)}-${assetType.toLowerCase()}.png`} href={image.imageUrl}>
+                  Download PNG
+                </a>
+              </div>
+            </div>
+          ) : (
+            <LockedHint>{refinedSpec ? "The direction is approved. Generate when you are ready." : "Refine the StyleSpec to unlock generation."}</LockedHint>
+          )}
+        </WorkflowSection>
+      </div>
+    </div>
+  );
+}
+
+function WorkflowSection({
+  number,
+  title,
+  active,
+  children,
+}: {
+  number: string;
+  title: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className={`rounded-2xl border p-5 transition sm:p-6 ${active ? "border-white/15 bg-white/[.035]" : "border-white/[.07] bg-white/[.015]"}`}>
+      <div className="mb-5 flex items-center gap-3">
+        <span className={`grid h-7 w-7 place-items-center rounded-full text-[11px] font-semibold ${active ? "bg-violet-500 text-white" : "bg-white/5 text-slate-600"}`}>
+          {number}
+        </span>
+        <h2 className={`font-semibold ${active ? "text-white" : "text-slate-500"}`}>{title}</h2>
+      </div>
+      {children}
     </section>
   );
 }
 
-function StyleSourceOption({
-  checked,
-  description,
-  disabled,
+function StyleSpecSummary({
+  result,
   label,
-  onChange,
-  value,
+  references = [],
 }: {
-  checked: boolean;
-  description: string;
-  disabled: boolean;
+  result: ParseTaskResult;
   label: string;
-  onChange: () => void;
-  value: "NEW" | "INHERIT";
+  references?: readonly CuratedReference[];
+}) {
+  const task = result.parsedTask;
+  const constraints = task.positiveConstraints.slice(0, 4);
+  return (
+    <div className="mt-5 rounded-xl border border-violet-400/20 bg-violet-500/[.06] p-4">
+      <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-300">{label}</p>
+      <div className="mt-3 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+        <SpecItem label="Subject" value={task.visualSubject} />
+        <SpecItem label="Style" value={task.visualStyle} />
+        <SpecItem label="Composition" value={task.composition} />
+        <SpecItem label="Background" value={task.background} />
+      </div>
+      {(constraints.length > 0 || references.length > 0) && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {constraints.map((constraint) => <Chip key={constraint}>{constraint}</Chip>)}
+          {references.map((reference) => <Chip key={reference.id}>{reference.title}</Chip>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SpecItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[11px] uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="mt-1 line-clamp-3 leading-5 text-slate-200">{value}</p>
+    </div>
+  );
+}
+
+function Chip({ children }: { children: React.ReactNode }) {
+  return <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-slate-300">{children}</span>;
+}
+
+function LockedHint({ children }: { children: React.ReactNode }) {
+  return <p className="mt-5 rounded-xl border border-dashed border-white/10 px-4 py-5 text-center text-sm text-slate-500">{children}</p>;
+}
+
+function PrimaryButton({
+  children,
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  disabled: boolean;
+  onClick: () => void;
 }) {
   return (
-    <label className={`rounded-lg border p-3 ${
-      checked
-        ? "border-violet-400/60 bg-violet-500/10"
-        : "border-white/10"
-    } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
-      <span className="flex items-center gap-2 text-sm font-medium">
-        <input
-          checked={checked}
-          disabled={disabled}
-          name="style-source"
-          onChange={onChange}
-          type="radio"
-          value={value}
-        />
-        {label}
-      </span>
-      <span className="mt-1 block pl-6 text-xs leading-5 text-slate-500">
-        {description}
-      </span>
+    <button className="rounded-xl bg-violet-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-40" disabled={disabled} onClick={onClick} type="button">
+      {children}
+    </button>
+  );
+}
+
+function SecondaryButton({
+  children,
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-violet-400/60 hover:bg-violet-500/10 disabled:cursor-not-allowed disabled:opacity-35" disabled={disabled} onClick={onClick} type="button">
+      {children}
+    </button>
+  );
+}
+
+function AssetSettingSelect<Option extends string>({
+  label,
+  disabled,
+  value,
+  options,
+  labels,
+  onChange,
+}: {
+  label: string;
+  disabled: boolean;
+  value: Option;
+  options: readonly Option[];
+  labels: Record<Option, string>;
+  onChange: (value: Option) => void;
+}) {
+  return (
+    <label className="text-xs font-medium text-slate-400">
+      {label}
+      <select className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-violet-400" disabled={disabled} onChange={(event) => onChange(event.target.value as Option)} value={value}>
+        {options.map((option) => <option key={option} value={option}>{labels[option]}</option>)}
+      </select>
     </label>
   );
 }
 
-function AssetSettingSelect<T extends string>({
-  disabled = false,
-  label,
-  labels,
-  onChange,
-  options,
-  value,
-}: {
-  disabled?: boolean;
-  label: string;
-  labels: Record<T, string>;
-  onChange: (value: T) => void;
-  options: readonly T[];
-  value: T;
-}) {
-  return (
-    <label className="block text-sm font-medium">
-      {label}
-      <select
-        className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value as T)}
-        value={value}
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>{labels[option]}</option>
-        ))}
-      </select>
-    </label>
-  );
+function humanizeField(value: string) {
+  return value.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
+}
+
+function messageFrom(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+function slugify(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "atlas";
 }

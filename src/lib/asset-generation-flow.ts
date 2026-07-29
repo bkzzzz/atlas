@@ -1,5 +1,12 @@
 import type { ParsedStaticImageTask } from "@/lib/task-schema";
-import type { StaticImageAssetSettings } from "@/lib/task-mode";
+import {
+  MAX_NATURAL_LANGUAGE_REQUEST_LENGTH,
+  type StaticImageAssetSettings,
+} from "@/lib/task-mode";
+import {
+  formatReferenceContext,
+  type CuratedReference,
+} from "@/lib/reference-retrieval";
 
 export const ASSET_TYPES = [
   { value: "CHARACTER_SPRITE", label: "Character sprite", phrase: "a character sprite" },
@@ -58,6 +65,7 @@ export type ProductGenerationInput = {
   artDirection: string;
   assetSettings: StaticImageAssetSettings;
   styleSourceCharacterId: string | null;
+  selectedReferences: readonly CuratedReference[];
 };
 
 export type JsonRequester = (url: string, body: unknown) => Promise<unknown>;
@@ -66,13 +74,24 @@ export function buildProductArtRequest({
   characterName,
   assetType,
   artDirection,
-}: Pick<ProductGenerationInput, "characterName" | "assetType" | "artDirection">) {
+  selectedReferences = [],
+}: Pick<ProductGenerationInput, "characterName" | "assetType" | "artDirection"> &
+  Partial<Pick<ProductGenerationInput, "selectedReferences">>) {
   const asset = ASSET_TYPES.find(({ value }) => value === assetType);
   if (!asset) throw new Error("Choose a valid asset type.");
 
   const direction = artDirection.trim();
   const base = `Create ${asset.phrase} for ${characterName.trim()}.`;
-  return direction ? `${base} Additional art direction: ${direction}` : base;
+  const request = direction
+    ? `${base} Additional art direction: ${direction}`
+    : base;
+  const compiledRequest = selectedReferences.length
+    ? `${request}\n\n${formatReferenceContext(selectedReferences)}`
+    : request;
+  if (compiledRequest.length > MAX_NATURAL_LANGUAGE_REQUEST_LENGTH) {
+    throw new Error("Shorten the project brief or asset request before continuing.");
+  }
+  return compiledRequest;
 }
 
 export async function runProductGeneration(

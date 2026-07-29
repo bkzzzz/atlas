@@ -4,76 +4,33 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LlmTaskParser } from "../src/components/llm-task-parser";
 import {
-  ASSET_WORKFLOWS,
   buildProductArtRequest,
   runProductGeneration,
 } from "../src/lib/asset-generation-flow";
+import { REFERENCE_LIBRARY } from "../src/lib/reference-retrieval";
 import { DEFAULT_STATIC_IMAGE_ASSET_SETTINGS } from "../src/lib/task-mode";
 
-test("the default product form exposes only executable product choices", () => {
+test("the product form presents the staged art-direction workflow without diagnostics", () => {
   const html = renderToStaticMarkup(
     React.createElement(LlmTaskParser, {
       characterId: "character-1",
       characterName: "Mira",
-      developerMode: false,
-      styleCharacters: [{ id: "character-2", name: "Nova" }],
     }),
   );
 
-  assert.match(html, /Create game asset/);
-  assert.match(html, />Character</);
-  assert.match(html, /Mira/);
-  assert.match(html, />Asset type</);
-  assert.match(html, />Output format</);
-  assert.match(html, />Generate</);
-  assert.match(html, /Optional art direction/);
-  assert.match(html, /Create a new style/);
-  assert.match(html, /Inherit another character&#x27;s style\/theme/);
-  assert.match(html, /Advanced controls/);
+  assert.match(html, /Project brief/);
+  assert.match(html, /Asset request/);
+  assert.match(html, /Generate draft StyleSpec/);
+  assert.match(html, /Curated references/);
+  assert.match(html, /Refined StyleSpec/);
+  assert.match(html, /Generation result/);
+  assert.match(html, /Advanced/);
   assert.match(html, /Pixel art/);
-  assert.match(html, /Flat Illustration/);
-  assert.doesNotMatch(html, /Inherit character style/);
-  assert.doesNotMatch(html, />Vector style</);
-  assert.doesNotMatch(html, /Parse and compile/);
   assert.doesNotMatch(html, /Developer details/);
-});
-
-test("developer mode keeps diagnostics read-only behind a disclosure", () => {
-  const html = renderToStaticMarkup(
-    React.createElement(LlmTaskParser, {
-      characterId: "character-1",
-      characterName: "Mira",
-      developerMode: true,
-    }),
-  );
-
-  assert.match(html, /Developer details/);
-  assert.doesNotMatch(html, /Parse and compile/);
-  assert.doesNotMatch(html, /Generate compiled image/);
-  assert.doesNotMatch(html, /one-time-token/);
-});
-
-test("future workflows are explicit and cannot silently use static generation", () => {
-  assert.deepEqual(
-    ASSET_WORKFLOWS.map(({ label, executable }) => [label, executable]),
-    [
-      ["Static image", true],
-      ["Vector asset", false],
-      ["Idle animation", false],
-      ["Walk animation", false],
-    ],
-  );
-
-  const html = renderToStaticMarkup(
-    React.createElement(LlmTaskParser, {
-      characterId: "character-1",
-      characterName: "Mira",
-      developerMode: false,
-    }),
-  );
-  assert.match(html, /Static image<\/span><span[^>]*>Available/);
-  assert.equal((html.match(/Experimental · unavailable/g) ?? []).length, 3);
-  assert.doesNotMatch(html, /<button[^>]*>[^<]*(?:Vector asset|Idle animation|Walk animation)/);
+  assert.doesNotMatch(html, /Output format/);
+  assert.doesNotMatch(html, /Experimental · unavailable/);
+  assert.doesNotMatch(html, /compiled prompt/i);
+  assert.doesNotMatch(html, /token/i);
 });
 
 test("Generate performs parse, compile, then token-backed generation exactly once", async () => {
@@ -115,6 +72,7 @@ test("Generate performs parse, compile, then token-backed generation exactly onc
       artDirection: "  a confident stance  ",
       assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
       styleSourceCharacterId: "character-2",
+      selectedReferences: [],
     },
     requestJson,
   );
@@ -147,4 +105,19 @@ test("product requests remain valid without optional prompt-oriented input", () 
     }),
     "Create an icon for Mira.",
   );
+});
+
+test("selected references influence the existing request through metadata only", () => {
+  const request = buildProductArtRequest({
+    characterName: "Mira",
+    assetType: "ICON",
+    artDirection: "A forest inventory icon.",
+    selectedReferences: [REFERENCE_LIBRARY[0]],
+  });
+
+  assert.match(request, /Selected curated reference metadata/);
+  assert.match(request, /Metadata guidance only; reference images are not visual inputs/);
+  assert.match(request, new RegExp(REFERENCE_LIBRARY[0].title));
+  assert.doesNotMatch(request, /\/references\//);
+  assert.doesNotMatch(request, new RegExp(REFERENCE_LIBRARY[0].id));
 });

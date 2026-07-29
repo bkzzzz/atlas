@@ -1,0 +1,162 @@
+[
+  {
+    "id": "001",
+    "category": "character",
+    "prompt": "A nimble forest adventurer walking through a colorful side-scrolling fantasy game.",
+    "expectedPacks": ["Platformer Characters 1"],
+    "expectedTerms": ["character", "adventurer", "walk", "sprite"],
+    "irrelevantTerms": ["space", "interface", "pirate"]
+  },
+  {
+    "id": "002",
+    "category": "character",
+    "prompt": "A brave female explorer climbing a cliff in a bright 2D platformer.",
+    "expectedPacks": ["Platformer Characters 1"],
+    "expectedTerms": ["female", "explorer", "climb", "platformer"],
+    "irrelevantTerms": ["space", "interface", "ship"]
+  },
+  {
+    "id": "003",
+    "category": "character",
+    "prompt": "A cartoon zombie carrying a supply crate in a side-view action game.",
+    "expectedPacks": ["Platformer Characters 1"],
+    "expectedTerms": ["zombie", "character", "hold", "sprite"],
+    "irrelevantTerms": ["minimap", "building", "meteor"]
+  },
+  {
+    "id": "004",
+    "category": "prop",
+    "prompt": "A weathered deck cannon for a whimsical pirate game.",
+    "expectedPacks": ["Pirate Pack"],
+    "expectedTerms": ["pirate", "cannon", "ship", "prop"],
+    "irrelevantTerms": ["space", "interface", "zombie"]
+  },
+  {
+    "id": "005",
+    "category": "prop",
+    "prompt": "A small wooden pirate dinghy with a patched sail.",
+    "expectedPacks": ["Pirate Pack"],
+    "expectedTerms": ["pirate", "dinghy", "wood", "sail"],
+    "irrelevantTerms": ["space", "interface", "medieval"]
+  },
+  {
+    "id": "006",
+    "category": "prop",
+    "prompt": "A wooden ship mast with a patched sail and bold pirate flag.",
+    "expectedPacks": ["Pirate Pack"],
+    "expectedTerms": ["pirate", "mast", "sail", "flag"],
+    "irrelevantTerms": ["space", "zombie", "minimap"]
+  },
+  {
+    "id": "007",
+    "category": "building",
+    "prompt": "A cozy side-view village house with a mossy roof for a platform game.",
+    "expectedPacks": ["Platformer Assets Buildings"],
+    "expectedTerms": ["house", "roof", "moss", "platformer"],
+    "irrelevantTerms": ["space", "pirate", "interface"]
+  },
+  {
+    "id": "008",
+    "category": "building",
+    "prompt": "A colorful platformer shopfront with an awning, open door, and hanging sign.",
+    "expectedPacks": ["Platformer Assets Buildings"],
+    "expectedTerms": ["building", "awning", "door", "sign"],
+    "irrelevantTerms": ["space", "zombie", "minimap"]
+  },
+  {
+    "id": "009",
+    "category": "building",
+    "prompt": "An isometric medieval town gate with stone walls and a round wooden door.",
+    "expectedPacks": ["Isometric Medieval Town"],
+    "expectedTerms": ["isometric", "medieval", "wall", "door"],
+    "irrelevantTerms": ["space", "pirate", "interface"]
+  },
+  {
+    "id": "010",
+    "category": "environment",
+    "prompt": "A damaged isometric fantasy castle wall beside a paved town road.",
+    "expectedPacks": ["Isometric Medieval Town"],
+    "expectedTerms": ["castle", "wall", "road", "medieval"],
+    "irrelevantTerms": ["space", "character", "interface"]
+  },
+  {
+    "id": "011",
+    "category": "environment",
+    "prompt": "A moonlit desert platformer backdrop with pyramids, cactus silhouettes, and clouds.",
+    "expectedPacks": ["Background Elements Remastered"],
+    "expectedTerms": ["background", "pyramid", "cactus", "cloud"],
+    "irrelevantTerms": ["interface", "character", "ship"]
+  },
+  {
+    "id": "012",
+    "category": "environment",
+    "prompt": "A layered woodland game background with pine trees, distant hills, and a wooden fence.",
+    "expectedPacks": ["Background Elements Remastered"],
+    "expectedTerms": ["background", "tree", "hills", "fence"],
+    "irrelevantTerms": ["interface", "ship", "zombie"]
+  },
+  {
+    "id": "013",
+    "category": "fantasy-ui",
+    "prompt": "An ornate fantasy inventory panel with bolted corners and a subtle diagonal pattern.",
+    "expectedPacks": ["UI Pack - Adventure"],
+    "expectedTerms": ["fantasy", "interface", "panel", "bolts"],
+    "irrelevantTerms": ["space", "character", "cannon"]
+  },
+  {
+    "id": "014",
+    "category": "fantasy-ui",
+    "prompt": "A circular adventure minimap frame with compass markings and jewel quest markers.",
+    "expectedPacks": ["UI Pack - Adventure"],
+    "expectedTerms": ["minimap", "compass", "jewel", "interface"],
+    "irrelevantTerms": ["zombie", "cannon", "house"]
+  },
+  {
+    "id": "015",
+    "category": "icon",
+    "prompt": "A clear audio mute toggle icon for a game settings menu.",
+    "expectedPacks": ["Game Icons"],
+    "expectedTerms": ["audio", "icon", "button", "ui"],
+    "irrelevantTerms": ["pirate", "medieval", "zombie"]
+  },
+  {
+    "id": "016",
+    "category": "icon",
+    "prompt": "A simple multiplayer leaderboard medal icon for a game menu.",
+    "expectedPacks": ["Game Icons"],
+    "expectedTerms": ["multiplayer", "leaderboard", "medal", "icon"],
+    "irrelevantTerms": ["pirate", "house", "meteor"]
+  },
+  {
+    "id": "017",
+    "category": "sci-fi-ship",
+    "prompt": "A compact player starfighter for a bright arcade space shooter.",
+    "expectedPacks": ["Space Shooter Remastered"],
+    "expectedTerms": ["player", "ship", "space", "sci-fi"],
+    "irrelevantTerms": ["medieval", "pirate", "interface"]
+  },
+  {
+    "id": "018",
+    "category": "sci-fi-ship",
+    "prompt": "A hostile alien fighter ship for an energetic arcade space battle.",
+    "expectedPacks": ["Space Shooter Remastered"],
+    "expectedTerms": ["enemy", "ship", "space", "sci-fi"],
+    "irrelevantTerms": ["medieval", "pirate", "character"]
+  },
+  {
+    "id": "019",
+    "category": "visual-effect",
+    "prompt": "A bright laser impact and protective energy shield effect for a sci-fi ship.",
+    "expectedPacks": ["Space Shooter Remastered"],
+    "expectedTerms": ["laser", "shield", "effect", "sci-fi"],
+    "irrelevantTerms": ["medieval", "pirate", "interface"]
+  },
+  {
+    "id": "020",
+    "category": "visual-effect",
+    "prompt": "A stylized cannon blast with fire and smoke for a pirate ship battle.",
+    "expectedPacks": ["Pirate Pack"],
+    "expectedTerms": ["cannon", "explosion", "fire", "pirate"],
+    "irrelevantTerms": ["space", "interface", "zombie"]
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "templateVersion": 1,
+  "status": "pending",
+  "datasetHash": "7edabb2490a78451a692ab8043f29f2a0bfcf7deb1b16fb689217120a4b40ec2",
+  "message": "Run npm run evaluation:generate -- --limit 3 --confirm-generation after reviewing the retrieval pilot.",
+  "records": []
+}

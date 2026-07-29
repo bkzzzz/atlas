@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test tests/**/*.test.ts",
+    "evaluation:retrieval": "tsx --env-file-if-exists=.env.local scripts/evaluation/retrieval.ts",
+    "evaluation:generate": "tsx --env-file-if-exists=.env.local scripts/evaluation/generate.ts",
+    "evaluation:report": "tsx scripts/evaluation/report.ts",
     "references:families": "tsx scripts/reference-families/build.ts",
     "references:embed": "tsx --env-file-if-exists=.env.local scripts/reference-families/embed.ts"
   },

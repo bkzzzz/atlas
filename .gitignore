@@ -62,3 +62,6 @@ data/thumbnails/
 
 # Future embedding cache
 data/embeddings/
+
+# Hidden local evaluation mapping
+/evaluation/review-key.json

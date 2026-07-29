@@ -10,6 +10,7 @@ import {
 import {
   cosineSimilarity,
   rankReferenceFamilies,
+  rankReferenceFamiliesByKeywords,
   retrieveReferenceFamiliesWithFallback,
 } from "../src/lib/reference-family-retrieval";
 import type { ReferenceQuery } from "../src/lib/reference-retrieval";
@@ -64,62 +65,145 @@ test("equal cosine scores use deterministic family ID ordering and Top 6", () =>
   assert.deepEqual(first, second);
 });
 
-test("a missing API key uses the supplied deterministic keyword fallback", async () => {
-  const fallback = [{ id: "fallback-reference" }];
+test("a missing API key ranks only families from the trusted family index", async () => {
+  const families = [
+    family("kenney-space-pilot", {
+      title: "Space Pilot",
+      pack: "Space Shooter",
+      category: "characters",
+      tags: ["pilot", "space"],
+    }),
+    family("kenney-stone-tower", {
+      title: "Stone Tower",
+      pack: "Medieval RTS",
+      category: "buildings",
+      tags: ["medieval", "stone", "tower"],
+    }),
+  ];
   const outcome = await retrieveReferenceFamiliesWithFallback(query, {
     loadIndexes: async () => {
-      const families = [family("kenney-a")];
       return {
         families: index(families),
         embeddings: createReferenceEmbeddingIndex(families, [
-          embedding("kenney-a", [1, 0]),
+          embedding("kenney-space-pilot", [1, 0]),
+          embedding("kenney-stone-tower", [0, 1]),
         ]),
       };
     },
+    loadFamilyIndex: async () => index(families),
     embedQuery: async () => {
       throw new Error("OPENAI_API_KEY is missing");
     },
-    keywordFallback: () => fallback,
   });
 
-  assert.deepEqual(outcome, { mode: "keyword", results: fallback });
+  assert.equal(outcome.mode, "keyword");
+  assert.deepEqual(
+    outcome.results.map(({ family: item }) => item.id),
+    ["kenney-stone-tower", "kenney-space-pilot"],
+  );
 });
 
-test("embedding request failure uses keyword fallback", async () => {
+test("embedding request failure uses objective trusted-family metadata", async () => {
+  const families = [
+    family("kenney-tower", {
+      title: "Stone Tower",
+      category: "buildings",
+      tags: ["tower"],
+    }),
+  ];
   const outcome = await retrieveReferenceFamiliesWithFallback(query, {
     loadIndexes: async () => {
-      const families = [family("kenney-a")];
       return {
         families: index(families),
         embeddings: createReferenceEmbeddingIndex(families, [
-          embedding("kenney-a", [1, 0]),
+          embedding("kenney-tower", [1, 0]),
         ]),
       };
     },
+    loadFamilyIndex: async () => index(families),
     embedQuery: async () => {
       throw new Error("upstream unavailable");
     },
-    keywordFallback: () => ["keyword"],
   });
 
-  assert.deepEqual(outcome, { mode: "keyword", results: ["keyword"] });
+  assert.equal(outcome.mode, "keyword");
+  assert.deepEqual(
+    outcome.results.map(({ family: item, matchedFields }) => ({
+      id: item.id,
+      matchedFields,
+    })),
+    [
+      {
+        id: "kenney-tower",
+        matchedFields: ["title", "tags"],
+      },
+    ],
+  );
 });
 
-test("a missing embedding index uses keyword fallback", async () => {
-  let fallbackCalls = 0;
+test("a missing embedding index loads the trusted family index for keyword fallback", async () => {
+  const families = [
+    family("kenney-tower", {
+      title: "Stone Tower",
+      category: "buildings",
+      tags: ["tower"],
+    }),
+  ];
+  let familyIndexLoads = 0;
   const outcome = await retrieveReferenceFamiliesWithFallback(query, {
     loadIndexes: async () => {
       throw new Error("ENOENT");
     },
-    embedQuery: async () => vector([1, 0]),
-    keywordFallback: () => {
-      fallbackCalls += 1;
-      return ["keyword"];
+    loadFamilyIndex: async () => {
+      familyIndexLoads += 1;
+      return index(families);
     },
+    embedQuery: async () => vector([1, 0]),
   });
 
-  assert.equal(fallbackCalls, 1);
-  assert.deepEqual(outcome, { mode: "keyword", results: ["keyword"] });
+  assert.equal(familyIndexLoads, 1);
+  assert.equal(outcome.mode, "keyword");
+  assert.deepEqual(
+    outcome.results.map(({ family: item }) => item.id),
+    ["kenney-tower"],
+  );
+});
+
+test("keyword ranking uses stable family ID ties and never returns more than six", () => {
+  const families = Array.from({ length: 8 }, (_, index) =>
+    family(`kenney-${String.fromCharCode(104 - index)}`, {
+      title: "Stone Tower",
+      category: "buildings",
+      tags: ["stone", "tower"],
+    }),
+  );
+
+  const first = rankReferenceFamiliesByKeywords(index(families), query);
+  const second = rankReferenceFamiliesByKeywords(
+    index([...families].reverse()),
+    query,
+  );
+
+  assert.deepEqual(
+    first.map(({ family: item }) => item.id),
+    ["kenney-a", "kenney-b", "kenney-c", "kenney-d", "kenney-e", "kenney-f"],
+  );
+  assert.deepEqual(first, second);
+});
+
+test("keyword fallback fails when the trusted family index is unavailable", async () => {
+  await assert.rejects(
+    retrieveReferenceFamiliesWithFallback(query, {
+      loadIndexes: async () => {
+        throw new Error("embedding index missing");
+      },
+      loadFamilyIndex: async () => {
+        throw new Error("family index missing");
+      },
+      embedQuery: async () => vector([1, 0]),
+    }),
+    /family index missing/,
+  );
 });
 
 test("family fingerprints and embedding index output are deterministic", () => {
@@ -137,7 +221,10 @@ test("family fingerprints and embedding index output are deterministic", () => {
   assert.equal(JSON.stringify(first), JSON.stringify(second));
 });
 
-function family(id: string): ReferenceFamily {
+function family(
+  id: string,
+  overrides: Partial<ReferenceFamily> = {},
+): ReferenceFamily {
   return {
     id,
     title: id,
@@ -150,6 +237,7 @@ function family(id: string): ReferenceFamily {
     representativeImagePath: `Icons/${id}.png`,
     memberImagePaths: [`Icons/${id}.png`, `Icons/${id}-variant.png`],
     embeddingText: `${id} icon`,
+    ...overrides,
   };
 }
 

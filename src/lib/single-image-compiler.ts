@@ -127,6 +127,27 @@ function referenceGuidance(
 ) {
   const guidance: string[] = [];
 
+  if (task.referenceGuidance.length) {
+    const titles = listSentence(
+      "Selected reference families:",
+      task.referenceGuidance.map((reference) => reference.title),
+    );
+    const categories = listSentence(
+      "Categories:",
+      task.referenceGuidance.map((reference) => reference.category),
+    );
+    const tags = listSentence(
+      "Objective tags:",
+      task.referenceGuidance.flatMap((reference) => reference.tags),
+    );
+    if (titles) guidance.push(titles);
+    if (categories) guidance.push(categories);
+    if (tags) guidance.push(tags);
+    guidance.push(
+      "Use these as supporting visual direction only, without copying identity or assuming unlisted traits",
+      "Preserve the requested subject, composition, dimensions, background, asset settings, and explicit constraints",
+    );
+  }
   if (metadata.approvedAssets.length) {
     guidance.push(
       `Use ${metadata.approvedAssets.map((asset) => asset.name).join(", ")} to inform visual style, palette, costume language, shape language, and theme without copying another character's identity`,

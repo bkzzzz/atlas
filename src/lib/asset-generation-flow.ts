@@ -4,7 +4,6 @@ import {
   type StaticImageAssetSettings,
 } from "@/lib/task-mode";
 import {
-  formatReferenceContext,
   type SelectableReference,
 } from "@/lib/reference-retrieval";
 
@@ -35,6 +34,14 @@ export type ParseTaskResult = {
   compilerInstructions: string[];
   compiledPrompt: string;
   generationToken: string | null;
+  refinementMode?: "deterministic-merge";
+  referenceProvenance?: Array<{
+    id: string;
+    pack: string;
+    source: "Kenney";
+    author: "Kenney";
+    license: "CC0-1.0";
+  }>;
   parser?: {
     model: string;
     usage: {
@@ -68,13 +75,19 @@ export type ProductGenerationInput = {
   selectedReferences: readonly SelectableReference[];
 };
 
+export type ProductCompilationInput = {
+  characterId: string;
+  draftStyleSpec: ParsedStaticImageTask;
+  referenceIds: readonly string[];
+  styleSourceCharacterId: string | null;
+};
+
 export type JsonRequester = (url: string, body: unknown) => Promise<unknown>;
 
 export function buildProductArtRequest({
   characterName,
   assetType,
   artDirection,
-  selectedReferences = [],
 }: Pick<ProductGenerationInput, "characterName" | "assetType" | "artDirection"> &
   Partial<Pick<ProductGenerationInput, "selectedReferences">>) {
   const asset = ASSET_TYPES.find(({ value }) => value === assetType);
@@ -85,20 +98,26 @@ export function buildProductArtRequest({
   const request = direction
     ? `${base} Additional art direction: ${direction}`
     : base;
-  const compiledRequest = selectedReferences.length
-    ? `${request}\n\n${formatReferenceContext(selectedReferences)}`
-    : request;
-  if (compiledRequest.length > MAX_NATURAL_LANGUAGE_REQUEST_LENGTH) {
+  if (request.length > MAX_NATURAL_LANGUAGE_REQUEST_LENGTH) {
     throw new Error("Shorten the project brief or asset request before continuing.");
   }
-  return compiledRequest;
+  return request;
 }
 
 export async function runProductGeneration(
   input: ProductGenerationInput,
   requestJson: JsonRequester,
 ): Promise<ProductGenerationResult> {
-  const parseResult = await runProductParse(input, requestJson);
+  const draft = await runProductParse(input, requestJson);
+  const parseResult = await runProductCompile(
+    {
+      characterId: input.characterId,
+      draftStyleSpec: draft.parsedTask,
+      referenceIds: input.selectedReferences.map(({ id }) => id),
+      styleSourceCharacterId: input.styleSourceCharacterId,
+    },
+    requestJson,
+  );
 
   if (!parseResult.generationToken) {
     throw new Error("The compiled request did not include a generation token.");
@@ -122,6 +141,20 @@ export async function runProductParse(
       selectedMode: "STATIC_IMAGE",
       request: buildProductArtRequest(input),
       assetSettings: input.assetSettings,
+      styleSourceCharacterId: input.styleSourceCharacterId,
+    },
+  )) as ParseTaskResult;
+}
+
+export async function runProductCompile(
+  input: ProductCompilationInput,
+  requestJson: JsonRequester,
+): Promise<ParseTaskResult> {
+  return (await requestJson(
+    `/api/characters/${input.characterId}/compile-task`,
+    {
+      draftStyleSpec: input.draftStyleSpec,
+      referenceIds: [...input.referenceIds],
       styleSourceCharacterId: input.styleSourceCharacterId,
     },
   )) as ParseTaskResult;

@@ -1,12 +1,12 @@
 import { createReferenceRetrievalHandler } from "@/lib/reference-retrieval-handler";
 import {
   embedReferenceQuery,
+  loadReferenceFamilyIndex,
   loadReferenceIndexes,
 } from "@/lib/reference-index-server";
-import { retrieveReferences } from "@/lib/reference-retrieval";
 
 export const POST = createReferenceRetrievalHandler({
   loadIndexes: loadReferenceIndexes,
+  loadFamilyIndex: loadReferenceFamilyIndex,
   embedQuery: embedReferenceQuery,
-  keywordFallback: retrieveReferences,
 });

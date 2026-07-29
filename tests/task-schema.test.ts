@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateParsedStaticImageTask } from "../src/lib/task-schema";
+import {
+  staticImageTaskSchema,
+  validateDraftStaticImageTask,
+  validateParsedStaticImageTask,
+} from "../src/lib/task-schema";
 import { DEFAULT_STATIC_IMAGE_ASSET_SETTINGS } from "../src/lib/task-mode";
 
 const staticImage = {
@@ -27,7 +31,21 @@ test("accepts a strict static-image task and retains the original request locall
     ...staticImage,
     assetSettings: { ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, visualStyle: "PIXEL_ART", pixelDetail: "LOW" },
     userRequest: "Create a floating eye with a rotating golden outer ring.",
+    referenceGuidance: [],
   });
+});
+
+test("keeps reference guidance outside the strict model Structured Outputs schema", () => {
+  assert.equal("referenceGuidance" in staticImageTaskSchema.properties, false);
+  assert.equal(staticImageTaskSchema.required.includes("referenceGuidance" as never), false);
+  assert.equal(
+    validateParsedStaticImageTask(
+      { ...staticImage, referenceGuidance: [] },
+      "x",
+      DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+    ),
+    null,
+  );
 });
 
 test("rejects extra, missing, and malformed static-image fields", () => {
@@ -38,4 +56,32 @@ test("rejects extra, missing, and malformed static-image fields", () => {
   delete withoutBackground.background;
   assert.equal(validateParsedStaticImageTask(withoutBackground, "x", DEFAULT_STATIC_IMAGE_ASSET_SETTINGS), null);
   assert.equal(validateParsedStaticImageTask(staticImage, "x", { ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, background: "PHOTO" }), null);
+});
+
+test("accepts only an exact validated Draft StyleSpec with empty reference guidance", () => {
+  const draft = {
+    ...staticImage,
+    assetSettings: DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
+    userRequest: "Create a floating eye.",
+    referenceGuidance: [],
+  };
+
+  assert.deepEqual(validateDraftStaticImageTask(draft), draft);
+  assert.equal(
+    validateDraftStaticImageTask({
+      ...draft,
+      referenceGuidance: [{
+        id: "kenney-untrusted",
+        title: "Untrusted",
+        pack: "Untrusted",
+        category: "Untrusted",
+        tags: [],
+      }],
+    }),
+    null,
+  );
+  assert.equal(validateDraftStaticImageTask({ ...draft, extra: true }), null);
+  const missingRequest: Record<string, unknown> = { ...draft };
+  delete missingRequest.userRequest;
+  assert.equal(validateDraftStaticImageTask(missingRequest), null);
 });

@@ -13,17 +13,26 @@ export type RankedReferenceFamily = Readonly<{
   similarity: number;
 }>;
 
-export type ReferenceRetrievalOutcome<FallbackResult> =
-  | Readonly<{ mode: "semantic"; results: readonly RankedReferenceFamily[] }>
-  | Readonly<{ mode: "keyword"; results: readonly FallbackResult[] }>;
+export type KeywordRankedReferenceFamily = Readonly<{
+  family: ReferenceFamily;
+  score: number;
+  matchedFields: readonly ("title" | "pack" | "category" | "tags")[];
+}>;
 
-export type SemanticRetrievalDependencies<FallbackResult> = Readonly<{
+export type ReferenceRetrievalOutcome =
+  | Readonly<{ mode: "semantic"; results: readonly RankedReferenceFamily[] }>
+  | Readonly<{
+      mode: "keyword";
+      results: readonly KeywordRankedReferenceFamily[];
+    }>;
+
+export type SemanticRetrievalDependencies = Readonly<{
   loadIndexes: () => Promise<{
     families: ReferenceFamilyIndex;
     embeddings: ReferenceEmbeddingIndex;
   }>;
+  loadFamilyIndex: () => Promise<ReferenceFamilyIndex>;
   embedQuery: (text: string) => Promise<readonly number[]>;
-  keywordFallback: (query: ReferenceQuery) => readonly FallbackResult[];
 }>;
 
 export function compileReferenceQueryText(query: ReferenceQuery) {
@@ -41,13 +50,15 @@ export function compileReferenceQueryText(query: ReferenceQuery) {
     .join("\n");
 }
 
-export async function retrieveReferenceFamiliesWithFallback<FallbackResult>(
+export async function retrieveReferenceFamiliesWithFallback(
   query: ReferenceQuery,
-  dependencies: SemanticRetrievalDependencies<FallbackResult>,
+  dependencies: SemanticRetrievalDependencies,
   topK = 6,
-): Promise<ReferenceRetrievalOutcome<FallbackResult>> {
+): Promise<ReferenceRetrievalOutcome> {
+  let trustedFamilies: ReferenceFamilyIndex | undefined;
   try {
     const { families, embeddings } = await dependencies.loadIndexes();
+    trustedFamilies = families;
     const queryVector = await dependencies.embedQuery(
       compileReferenceQueryText(query),
     );
@@ -56,11 +67,29 @@ export async function retrieveReferenceFamiliesWithFallback<FallbackResult>(
       results: rankReferenceFamilies(families, embeddings, queryVector, topK),
     };
   } catch {
+    const families =
+      trustedFamilies ?? (await dependencies.loadFamilyIndex());
     return {
       mode: "keyword",
-      results: dependencies.keywordFallback(query),
+      results: rankReferenceFamiliesByKeywords(families, query, topK),
     };
   }
+}
+
+export function rankReferenceFamiliesByKeywords(
+  familyIndex: ReferenceFamilyIndex,
+  query: ReferenceQuery,
+  topK = 6,
+): KeywordRankedReferenceFamily[] {
+  const queryWeights = weightedQueryTokens(query);
+  return familyIndex.families
+    .map((family) => scoreFamilyKeywords(family, queryWeights))
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        compareText(left.family.id, right.family.id),
+    )
+    .slice(0, Math.max(0, Math.min(Math.floor(topK), 6)));
 }
 
 export function rankReferenceFamilies(
@@ -153,4 +182,91 @@ function validateCompatibleIndexes(
 
 function compareText(left: string, right: string) {
   return left < right ? -1 : left > right ? 1 : 0;
+}
+
+const KEYWORD_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "asset",
+  "for",
+  "game",
+  "in",
+  "of",
+  "on",
+  "the",
+  "to",
+  "with",
+]);
+
+const FAMILY_FIELD_WEIGHTS = {
+  title: 4,
+  pack: 1,
+  category: 3,
+  tags: 5,
+} as const;
+
+function weightedQueryTokens(query: ReferenceQuery) {
+  const weighted = new Map<string, number>();
+  addWeightedTokens(weighted, query.projectBrief, 1);
+  addWeightedTokens(weighted, query.assetRequest, 3);
+  addWeightedTokens(weighted, query.assetType, 2);
+  if (query.settings) {
+    for (const value of Object.values(query.settings)) {
+      if (typeof value === "string") addWeightedTokens(weighted, value, 2);
+    }
+  }
+  return weighted;
+}
+
+function addWeightedTokens(
+  destination: Map<string, number>,
+  value: string,
+  weight: number,
+) {
+  for (const token of normalizedTokens(value)) {
+    destination.set(token, Math.max(destination.get(token) ?? 0, weight));
+  }
+}
+
+function scoreFamilyKeywords(
+  family: ReferenceFamily,
+  queryWeights: ReadonlyMap<string, number>,
+): KeywordRankedReferenceFamily {
+  let rawScore = 0;
+  const matchedFields: KeywordRankedReferenceFamily["matchedFields"][number][] =
+    [];
+  const fields = {
+    title: [family.title],
+    pack: [family.pack],
+    category: [family.category],
+    tags: family.tags,
+  } as const;
+
+  for (const field of Object.keys(fields) as (keyof typeof fields)[]) {
+    const tokens = new Set(fields[field].flatMap(normalizedTokens));
+    let fieldScore = 0;
+    for (const token of tokens) {
+      fieldScore += queryWeights.get(token) ?? 0;
+    }
+    if (fieldScore > 0) {
+      matchedFields.push(field);
+      rawScore += fieldScore * FAMILY_FIELD_WEIGHTS[field];
+    }
+  }
+
+  return {
+    family,
+    score: Math.round(Math.min(100, rawScore) * 1_000) / 1_000,
+    matchedFields,
+  };
+}
+
+function normalizedTokens(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/\p{M}+/gu, "")
+    .toLocaleLowerCase("en-US")
+    .split(/[^\p{L}\p{N}]+/gu)
+    .filter((token) => token && !KEYWORD_STOP_WORDS.has(token));
 }

@@ -114,7 +114,7 @@ test("irrelevant-term flags use normalized whole words and phrases", () => {
   );
 });
 
-test("generation planning skips completed outputs and --force restores all paid stages", () => {
+test("generation planning treats deterministic refinement as a non-paid token-minting stage", () => {
   const prompts = [
     evaluationPrompt("001"),
     evaluationPrompt("002"),
@@ -143,9 +143,9 @@ test("generation planning skips completed outputs and --force restores all paid 
   });
   assert.deepEqual(resumed.calls, {
     image: 1,
-    styleSpec: 1,
+    styleSpec: 0,
     embedding: 0,
-    total: 2,
+    total: 1,
   });
   assert.equal(resumed.items[0].skipPair, true);
   assert.deepEqual(resumed.items[1].stages, {
@@ -162,11 +162,31 @@ test("generation planning skips completed outputs and --force restores all paid 
   });
   assert.deepEqual(forced.calls, {
     image: 4,
-    styleSpec: 4,
+    styleSpec: 2,
     embedding: 2,
-    total: 10,
+    total: 8,
   });
   assert.ok(forced.items.every(({ skipPair }) => !skipPair));
+
+  const currentPilotResume = buildGenerationPlan(
+    prompts,
+    {
+      "001": {
+        baseline: true,
+        draft: true,
+        retrieval: true,
+        refined: false,
+        atlas: false,
+      },
+    },
+    { limit: 3, force: false },
+  );
+  assert.deepEqual(currentPilotResume.calls, {
+    image: 5,
+    styleSpec: 2,
+    embedding: 2,
+    total: 9,
+  });
 });
 
 test("generation CLI arguments are strict and require explicit confirmation state", () => {
@@ -299,7 +319,7 @@ test("report uses expected-pack proxy wording and withholds incomplete human-rev
       metricScope: "human-labeled expected-pack proxy",
       projectBrief: "A cohesive, production-ready 2D game.",
       resultLimit: 6,
-      retrievalModeSource: "reference-shape discriminator",
+      retrievalModeSource: "retrieval response mode",
     },
     records: prompts.map((prompt) => ({
       id: prompt.id,
@@ -350,11 +370,12 @@ test("report uses expected-pack proxy wording and withholds incomplete human-rev
   assert.match(report, /Confirmed keyword-fallback queries: 0/);
   assert.match(report, /human-labeled proxy/i);
   assert.match(report, /Baseline workflow vs complete Atlas workflow/);
+  assert.match(report, /deterministic StyleSpec merge/);
   assert.match(report, /Human review: pending/i);
   assert.match(report, /not a controlled RAG ablation/i);
   assert.doesNotMatch(
     report,
-    /retrieval caused|is an isolated RAG ablation|semantic relevance accuracy|universal retrieval accuracy|quality improved/i,
+    /retrieval caused|is an isolated RAG ablation|semantic relevance accuracy|universal retrieval accuracy|quality improved|→ Refined StyleSpec →/i,
   );
 });
 

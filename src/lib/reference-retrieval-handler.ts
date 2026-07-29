@@ -8,7 +8,6 @@ import {
   type ArtDirectionRetrievalResult,
   type KenneyReferenceSelection,
   type ReferenceQuery,
-  type RetrievalResult,
 } from "@/lib/reference-retrieval";
 import { isStaticImageAssetSettings } from "@/lib/task-mode";
 
@@ -16,7 +15,7 @@ const MAX_REFERENCE_QUERY_FIELD_LENGTH = 8_000;
 const ASSET_TYPE_VALUES = new Set(ASSET_TYPES.map(({ value }) => value));
 
 export type ReferenceRetrievalHandlerDependencies =
-  SemanticRetrievalDependencies<RetrievalResult>;
+  SemanticRetrievalDependencies;
 
 export function createReferenceRetrievalHandler(
   dependencies: ReferenceRetrievalHandlerDependencies,
@@ -32,19 +31,33 @@ export function createReferenceRetrievalHandler(
     const query = validatedQuery(body);
     if (!query) return invalidQueryResponse();
 
-    const outcome = await retrieveReferenceFamiliesWithFallback(
-      query,
-      dependencies,
-    );
-    const results: readonly ArtDirectionRetrievalResult[] =
-      outcome.mode === "semantic"
-        ? outcome.results.map(({ family, similarity }) => ({
-            reference: clientReference(family),
-            score: similarityScore(similarity),
-            matchedFields: [],
-          }))
-        : outcome.results.slice(0, 6);
-    return Response.json({ results });
+    let mode: "semantic" | "keyword";
+    let results: readonly ArtDirectionRetrievalResult[];
+    try {
+      const outcome = await retrieveReferenceFamiliesWithFallback(
+        query,
+        dependencies,
+      );
+      mode = outcome.mode;
+      results =
+        outcome.mode === "semantic"
+          ? outcome.results.map(({ family, similarity }) => ({
+              reference: clientReference(family),
+              score: similarityScore(similarity),
+              matchedFields: [],
+            }))
+          : outcome.results.map(({ family, score, matchedFields }) => ({
+              reference: clientReference(family),
+              score,
+              matchedFields,
+            }));
+    } catch {
+      return Response.json(
+        { error: "The reference library is temporarily unavailable." },
+        { status: 503 },
+      );
+    }
+    return Response.json({ mode, results });
   };
 }
 

@@ -186,6 +186,36 @@ test("approved and requested references receive guidance without copying identit
   assert.match(prompt, /without copying another character's identity/i);
 });
 
+test("compiles selected family metadata once without leaking provenance", () => {
+  const task = parsedTask(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS);
+  task.referenceGuidance = [
+    {
+      id: "secret-family-id-a",
+      title: "Forest Mage",
+      pack: "secret-pack-a",
+      category: "Characters",
+      tags: ["magic", "walk", "forest"],
+    },
+    {
+      id: "secret-family-id-b",
+      title: "forest mage",
+      pack: "secret-pack-b",
+      category: "characters",
+      tags: ["MAGIC", "cloak"],
+    },
+  ];
+
+  const prompt = compileSingleStaticImageTask(task, metadata).compiledPrompt;
+
+  assert.match(
+    prompt,
+    /Reference Guidance:\nSelected reference families: Forest Mage\. Categories: Characters\. Objective tags: magic; walk; forest; cloak\. Use these as supporting visual direction only, without copying identity or assuming unlisted traits\. Preserve the requested subject, composition, dimensions, background, asset settings, and explicit constraints\./,
+  );
+  assert.equal(prompt.match(/Forest Mage/gi)?.length, 1);
+  assert.equal(prompt.match(/\bmagic\b/gi)?.length, 1);
+  assert.doesNotMatch(prompt, /secret-family-id|secret-pack|CC0|representativeImagePath/i);
+});
+
 test("background and ground-shadow selections compile predictably", () => {
   const transparentPrompt = compileSingleStaticImageTask(
     parsedTask({ ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, background: "TRANSPARENT" }),

@@ -1,7 +1,5 @@
 import { buildCharacterMetadata } from "@/lib/metadata-builder";
 import { prisma } from "@/lib/prisma";
-import { createGenerationToken } from "@/lib/generation-session";
-import { compileSingleStaticImageTask } from "@/lib/single-image-compiler";
 import { classifyParserError, parseStaticImageTask } from "@/lib/task-parser";
 import {
   runStaticImageMode,
@@ -25,8 +23,8 @@ function parserErrorStatus(category: ReturnType<typeof classifyParserError>["cat
 }
 
 // The selected mode is the single eligibility gate. Only STATIC_IMAGE enters
-// the parser/compiler/token flow; unsupported modes return before database or
-// LLM work and never acquire a one-time generation token.
+// the Draft parser flow; unsupported modes return before database or LLM work.
+// Compilation and token creation happen later at the structured compile route.
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },
@@ -72,32 +70,16 @@ export async function POST(
           orderBy: { createdAt: "desc" },
         }),
       ]);
-      let styleSourceMetadata = null;
       if (styleSourceCharacterId) {
-        const [styleCharacter, styleMemory, styleAssets] = await Promise.all([
-          prisma.character.findUnique({ where: { id: styleSourceCharacterId } }),
-          prisma.characterMemory.findUnique({
-            where: { characterId: styleSourceCharacterId },
-          }),
-          prisma.imageAsset.findMany({
-            where: {
-              characterId: styleSourceCharacterId,
-              status: { in: ["APPROVED", "REJECTED"] },
-            },
-            orderBy: { createdAt: "desc" },
-          }),
-        ]);
+        const styleCharacter = await prisma.character.findUnique({
+          where: { id: styleSourceCharacterId },
+        });
         if (!styleCharacter) {
           return Response.json(
             { error: "Style source character not found." },
             { status: 404 },
           );
         }
-        styleSourceMetadata = buildCharacterMetadata({
-          character: styleCharacter,
-          memory: styleMemory,
-          assets: styleAssets,
-        });
       }
 
       // Prevent repeated clicks from starting a second parser request while
@@ -119,22 +101,14 @@ export async function POST(
       }
 
       const metadata = buildCharacterMetadata({ character, memory, assets });
-      const compiled = compileSingleStaticImageTask(
-        parsed.parsedTask,
-        metadata,
-        styleSourceMetadata,
-      );
-      const generationToken = createGenerationToken(
-        compiled.compiledPrompt,
-        assetSettings.background === "TRANSPARENT" ? "transparent" : "opaque",
-      );
 
       return Response.json({
         selectedMode,
         parsedTask: parsed.parsedTask,
         metadata,
-        ...compiled,
-        generationToken,
+        compilerInstructions: [],
+        compiledPrompt: "",
+        generationToken: null,
         parser: { model: parsed.model, usage: parsed.usage },
       });
     });

@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   ASSET_TYPES,
   generateCompiledProduct,
+  runProductCompile,
   runProductParse,
   type AssetType,
   type GeneratedImage,
@@ -230,7 +231,11 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
   }
 
   async function refineStyleSpec() {
-    if (selectedReferences.length < 1 || selectedReferences.length > 3) {
+    if (
+      !draftSpec ||
+      selectedReferenceIds.length < 1 ||
+      selectedReferenceIds.length > 3
+    ) {
       setError("Choose one to three references first.");
       return;
     }
@@ -239,7 +244,15 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
       setRefinedSpec(null);
       setImage(null);
       setError(null);
-      const result = await runProductParse(productInput(selectedReferences), requestJson);
+      const result = await runProductCompile(
+        {
+          characterId,
+          draftStyleSpec: draftSpec.parsedTask,
+          referenceIds: selectedReferenceIds,
+          styleSourceCharacterId: null,
+        },
+        requestJson,
+      );
       if (!result.generationToken) {
         throw new Error("Atlas could not approve this StyleSpec for generation.");
       }

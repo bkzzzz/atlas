@@ -17,6 +17,7 @@ import {
   formatReferenceContext,
   type SelectableReference,
 } from "@/lib/reference-retrieval";
+import { validateDraftStaticImageTask } from "@/lib/task-schema";
 import type { StaticImageAssetSettings } from "@/lib/task-mode";
 
 export const APPROVED_REFERENCE_PACKS: ReadonlySet<string> = new Set([
@@ -149,7 +150,7 @@ export type RetrievalResultsDocument = Readonly<{
     metricScope: "human-labeled expected-pack proxy";
     projectBrief: string;
     resultLimit: 6;
-    retrievalModeSource: "reference-shape discriminator";
+    retrievalModeSource: "retrieval response mode";
   }>;
   records: readonly RetrievalEvaluationRecord[];
   metrics: RetrievalMetrics;
@@ -284,6 +285,7 @@ export type AtlasGenerationRecord = {
   retrievalQuery: EvaluationReferenceQuery | null;
   retrievedReferences: NormalizedRetrievalResult[];
   selectedReferences: SelectableReference[];
+  refinementMode: "deterministic-merge";
   refinedStatus: StageStatus;
   refinedDurationMs: number | null;
   refinedStyleSpec: unknown;
@@ -312,6 +314,14 @@ export type AtlasEvaluationClient = RetrievalClient &
         request: string;
         assetSettings: StaticImageAssetSettings;
         styleSourceCharacterId: null;
+      },
+    ) => Promise<unknown>;
+    compileTask: (
+      characterId: string,
+      body: {
+        draftStyleSpec: Record<string, unknown>;
+        referenceIds: string[];
+        styleSourceCharacterId: string | null;
       },
     ) => Promise<unknown>;
     generateImage: (generationToken: string) => Promise<unknown>;
@@ -513,7 +523,8 @@ export function buildGenerationPlan(
     const retrieval =
       !state.atlas && (draft || !state.retrieval);
     // A generation token is deliberately never persisted. Whenever the Atlas
-    // PNG is missing, rerun Refined StyleSpec to mint a fresh one-time token.
+    // PNG is missing, rerun deterministic compilation to mint a fresh one-time
+    // token. This stage is local and does not add a paid StyleSpec call.
     const refined = !state.atlas;
     const stages: GenerationStagePlan = {
       baseline: !state.baseline,
@@ -535,7 +546,7 @@ export function buildGenerationPlan(
   );
   const styleSpec = items.reduce(
     (total, { stages }) =>
-      total + Number(stages.draft) + Number(stages.refined),
+      total + Number(stages.draft),
     0,
   );
   const embedding = items.reduce(
@@ -871,7 +882,6 @@ export async function runPairedGeneration({
             const request = productRequest(
               item.prompt,
               config.character,
-              [],
             );
             const draft = parsedTaskResponse(
               await atlasClient.parseTask(
@@ -900,9 +910,15 @@ export async function runPairedGeneration({
           }
         }
 
-        if (!isRecord(record!.atlas.draftStyleSpec)) {
+        const draftStyleSpec = validatedDraftStyleSpecSnapshot(
+          record!.atlas.draftStyleSpec,
+        );
+        if (!draftStyleSpec) {
           throw new Error("Draft StyleSpec is unavailable.");
         }
+        // Legacy evaluation records predate referenceGuidance. Hydrate the
+        // empty field only after validating the complete stored Draft shape.
+        record!.atlas.draftStyleSpec = draftStyleSpec;
 
         if (item.stages.retrieval) {
           const startedAt = nowMs();
@@ -910,7 +926,7 @@ export async function runPairedGeneration({
           try {
             const query = referenceQueryFromDraft(
               item.prompt,
-              record!.atlas.draftStyleSpec,
+              draftStyleSpec,
             );
             const retrieval = retrievalForGeneration(
               await atlasClient.retrieve(query),
@@ -947,23 +963,19 @@ export async function runPairedGeneration({
 
         const refinedStartedAt = nowMs();
         record!.atlas.refinedStatus = "pending";
+        record!.atlas.refinementMode = "deterministic-merge";
+        record!.atlas.refinedParser = null;
         let generationToken: string;
         try {
-          const request = productRequest(
-            item.prompt,
-            config.character,
-            record!.atlas.selectedReferences,
+          const refined = compiledTaskResponse(
+            await atlasClient.compileTask(config.character.id, {
+              draftStyleSpec,
+              referenceIds: record!.atlas.selectedReferences.map(
+                ({ id }) => id,
+              ),
+              styleSourceCharacterId: null,
+            }),
           );
-          const refined = parsedTaskResponse(
-            await atlasClient.parseTask(
-              config.character.id,
-              parseTaskBody(request),
-            ),
-            "Refined StyleSpec",
-          );
-          if (!refined.generationToken) {
-            throw new Error("Refined StyleSpec omitted its token.");
-          }
           generationToken = refined.generationToken;
           record!.atlas.refinedStatus = "success";
           record!.atlas.refinedDurationMs = elapsedMs(
@@ -971,7 +983,6 @@ export async function runPairedGeneration({
             nowMs(),
           );
           record!.atlas.refinedStyleSpec = refined.parsedTask;
-          record!.atlas.refinedParser = refined.parser;
           record!.atlas.failureReason = null;
           await persist();
         } catch (error) {
@@ -981,7 +992,7 @@ export async function runPairedGeneration({
             nowMs(),
           );
           if (isFatalEvaluationError(error)) throw error;
-          throw new Error("Refined StyleSpec failed.");
+          throw new Error("Deterministic StyleSpec merge failed.");
         }
 
         const generationStartedAt = nowMs();
@@ -1015,7 +1026,7 @@ export async function runPairedGeneration({
             : record!.atlas.retrievalStatus === "failure"
               ? "Reference retrieval failed."
               : record!.atlas.refinedStatus === "failure"
-                ? "Refined StyleSpec failed."
+                ? "Deterministic StyleSpec merge failed."
                 : error instanceof Error &&
                     [
                       "Draft StyleSpec is unavailable.",
@@ -1067,7 +1078,7 @@ export async function inspectGenerationCompletion(
       const atlasPath = `evaluation/atlas/${prompt.id}.png`;
       const draft =
         record.atlas.draftStatus === "success" &&
-        isRecord(record.atlas.draftStyleSpec);
+        validatedDraftStyleSpecSnapshot(record.atlas.draftStyleSpec) !== null;
       const retrieval =
         draft &&
         record.atlas.retrievalStatus === "success" &&
@@ -1410,7 +1421,7 @@ export function renderEvaluationReport({
     "- Retrieval is evaluated with human-labeled proxy metrics based on expected-pack annotations against the eight frozen Kenney packs. These labels are benchmark annotations, not universal measures of semantic relevance.",
     `- The retrieval endpoint returns at most six candidates. Missing positions and failed queries count as non-matches in the fixed ${prompts.length * 6}-slot Precision@6 denominator.`,
     "- Image comparison: **Baseline workflow vs complete Atlas workflow**.",
-    "- Baseline receives only the original prompt. Atlas performs Draft StyleSpec → reference retrieval → deterministic first-three-valid selection → Refined StyleSpec → the existing image pipeline.",
+    "- Baseline receives only the original prompt. Atlas performs Draft StyleSpec → reference retrieval → deterministic first-three-valid selection → deterministic StyleSpec merge → the existing prompt compiler and image pipeline.",
     "- Each workflow produces one image per prompt with matching model, size, quality, format, and background settings. The image model is nondeterministic.",
     "- No LLM judge is used. Reference images are metadata-only guidance and are not image-to-image inputs.",
     "",
@@ -1930,13 +1941,13 @@ export function formatGenerationPreflight(
     `Image settings: ${prepared.config.image.model}, ${prepared.config.image.size}, ${prepared.config.image.quality}, ${prepared.config.image.outputFormat}, ${prepared.config.image.background}, n=${prepared.config.image.count}`,
     `Pending paid calls: ${calls.total} total`,
     `  ${calls.image} image API calls`,
-    `  ${calls.styleSpec} StyleSpec calls`,
+    `  ${calls.styleSpec} Draft StyleSpec calls`,
     `  ${calls.embedding} embedding calls`,
     `Cost estimate: $${cost.estimatedLowUsd.toFixed(2)}–$${(
       Math.ceil(cost.estimatedHighUsd * 100) / 100
     ).toFixed(2)} USD`,
     `  $${cost.imageOutputFloorUsd.toFixed(3)} image-output floor`,
-    "Assumptions: current configured models, approximately 1,500 parser input tokens, 250–500 parser output tokens, and estimated image-prompt lengths.",
+    "Assumptions: current configured models, approximately 1,500 Draft parser input tokens, 250–500 Draft parser output tokens, deterministic merge adds no paid call, and estimated image-prompt lengths.",
     prepared.options.confirmGeneration
       ? "Paid execution explicitly confirmed."
       : "No paid work will run without --confirm-generation.",
@@ -2197,6 +2208,7 @@ function emptyGenerationRecord(
       retrievalQuery: null,
       retrievedReferences: [],
       selectedReferences: [],
+      refinementMode: "deterministic-merge",
       refinedStatus: "pending",
       refinedDurationMs: null,
       refinedStyleSpec: null,
@@ -2210,7 +2222,6 @@ function emptyGenerationRecord(
 function productRequest(
   prompt: EvaluationPrompt,
   character: EvaluationCharacter,
-  selectedReferences: readonly SelectableReference[],
 ) {
   return buildProductArtRequest({
     characterName: character.name,
@@ -2219,7 +2230,7 @@ function productRequest(
       `Project brief: ${EVALUATION_PROJECT_BRIEF}`,
       `Asset request: ${prompt.prompt}`,
     ].join("\n"),
-    selectedReferences,
+    selectedReferences: [],
   });
 }
 
@@ -2258,6 +2269,57 @@ function parsedTaskResponse(value: unknown, label: string) {
     parsedTask: value.parsedTask,
     generationToken: value.generationToken,
     parser: value.parser,
+  };
+}
+
+const STORED_DRAFT_KEYS = [
+  "assetKind",
+  "visualSubject",
+  "visualStyle",
+  "composition",
+  "dimensions",
+  "background",
+  "positiveConstraints",
+  "negativeConstraints",
+  "referenceAssets",
+  "assumptions",
+  "assetSettings",
+  "userRequest",
+] as const;
+
+function validatedDraftStyleSpecSnapshot(
+  value: unknown,
+): Record<string, unknown> | null {
+  if (!isRecord(value)) return null;
+  const keys = Object.keys(value);
+  const legacy =
+    keys.length === STORED_DRAFT_KEYS.length &&
+    keys.every((key) =>
+      (STORED_DRAFT_KEYS as readonly string[]).includes(key),
+    );
+  const candidate = legacy
+    ? { ...value, referenceGuidance: [] }
+    : value;
+  const validated = validateDraftStaticImageTask(candidate);
+  return validated ? { ...validated } : null;
+}
+
+function compiledTaskResponse(value: unknown) {
+  if (
+    !isRecord(value) ||
+    !isRecord(value.parsedTask) ||
+    typeof value.generationToken !== "string" ||
+    !value.generationToken ||
+    typeof value.compiledPrompt !== "string" ||
+    value.refinementMode !== "deterministic-merge"
+  ) {
+    throw new EvaluationContractError(
+      "Deterministic StyleSpec merge response is invalid.",
+    );
+  }
+  return {
+    parsedTask: value.parsedTask,
+    generationToken: value.generationToken,
   };
 }
 
@@ -2519,7 +2581,7 @@ export async function runRetrievalCommand({
       metricScope: "human-labeled expected-pack proxy",
       projectBrief: EVALUATION_PROJECT_BRIEF,
       resultLimit: 6,
-      retrievalModeSource: "reference-shape discriminator",
+      retrievalModeSource: "retrieval response mode",
     },
     records,
     metrics,
@@ -2606,6 +2668,14 @@ export function createAtlasHttpClient(
         body,
         20_000,
       ),
+    compileTask: (characterId, body) =>
+      requestJson(
+        fetchImplementation,
+        origin,
+        `/api/characters/${encodeURIComponent(characterId)}/compile-task`,
+        body,
+        20_000,
+      ),
     generateImage: (generationToken) =>
       requestJson(
         fetchImplementation,
@@ -2636,18 +2706,35 @@ function normalizeRetrievalPayload(value: unknown): {
       isRecord(result.reference) &&
       result.reference.kind === "kenney-family",
   );
-  const semantic = kenneyFlags.every(Boolean);
-  const keyword = kenneyFlags.every((flag) => !flag);
-  if (!semantic && !keyword) {
+  const legacyMode =
+    kenneyFlags.every(Boolean)
+      ? "semantic"
+      : kenneyFlags.every((flag) => !flag)
+        ? "keyword"
+        : null;
+  const explicitMode =
+    value.mode === "semantic" || value.mode === "keyword"
+      ? value.mode
+      : null;
+  if (
+    ("mode" in value && !explicitMode) ||
+    (!explicitMode && !legacyMode)
+  ) {
     throw new EvaluationContractError(
-      "Atlas mixed semantic and fallback result shapes.",
+      "Atlas returned an invalid retrieval mode.",
+    );
+  }
+  const mode = explicitMode ?? legacyMode;
+  if (!mode) {
+    throw new EvaluationContractError(
+      "Atlas returned an invalid retrieval mode.",
     );
   }
 
   return {
-    mode: semantic ? "semantic" : "keyword",
+    mode,
     results: rawResults.map((result, index) =>
-      normalizedResult(result, semantic ? "semantic" : "keyword", index),
+      normalizedResult(result, mode, index),
     ),
   };
 }
@@ -2678,7 +2765,7 @@ function normalizedResult(
     `Atlas retrieval result ${index + 1} title`,
     500,
   );
-  if (mode === "semantic") {
+  if (reference.kind === "kenney-family") {
     const pack = boundedString(
       reference.pack,
       `Atlas retrieval result ${index + 1} pack`,
@@ -2697,6 +2784,11 @@ function normalizedResult(
       tags: optionalStringList(reference.tags),
       score: value.score,
     };
+  }
+  if (mode === "semantic") {
+    throw new EvaluationContractError(
+      `Atlas retrieval result ${index + 1} is not a ReferenceFamily.`,
+    );
   }
   return {
     id,

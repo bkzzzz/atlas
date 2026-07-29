@@ -53,6 +53,10 @@ next-env.d.ts
 # Atlas reference assets (original source files)
 data/reference-source/
 
+# Locally generated reference indexes (review before committing)
+data/reference-index/reference-families.json
+data/reference-index/reference-embeddings.json
+
 # Generated thumbnails (future)
 data/thumbnails/
 

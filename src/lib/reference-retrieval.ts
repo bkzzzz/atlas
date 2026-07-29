@@ -32,6 +32,29 @@ export type RetrievalResult = Readonly<{
   matchedFields: readonly string[];
 }>;
 
+export type KenneyReferenceSelection = Readonly<{
+  kind: "kenney-family";
+  id: string;
+  title: string;
+  previewUrl: string;
+  pack: string;
+  category: string;
+  tags: readonly string[];
+  source: "Kenney";
+  author: "Kenney";
+  license: "CC0-1.0";
+}>;
+
+export type SelectableReference =
+  | CuratedReference
+  | KenneyReferenceSelection;
+
+export type ArtDirectionRetrievalResult = Readonly<{
+  reference: SelectableReference;
+  score: number;
+  matchedFields: readonly string[];
+}>;
+
 type QuerySource = Readonly<{
   desiredText: string;
   desiredTokens: ReadonlySet<string>;
@@ -341,13 +364,23 @@ export function retrieveReferences(
     .slice(0, limit);
 }
 
-function compareReferenceId(left: CuratedReference, right: CuratedReference) {
+export function isKenneyReference(
+  reference: SelectableReference,
+): reference is KenneyReferenceSelection {
+  return "kind" in reference && reference.kind === "kenney-family";
+}
+
+export function referencePreviewUrl(reference: SelectableReference) {
+  return isKenneyReference(reference) ? reference.previewUrl : reference.imagePath;
+}
+
+function compareReferenceId(left: SelectableReference, right: SelectableReference) {
   if (left.id === right.id) return 0;
   return left.id < right.id ? -1 : 1;
 }
 
 export function formatReferenceContext(
-  selected: readonly CuratedReference[],
+  selected: readonly SelectableReference[],
 ) {
   if (selected.length < 1 || selected.length > 3) {
     throw new Error("Choose one to three curated references.");
@@ -356,21 +389,31 @@ export function formatReferenceContext(
     throw new Error("Choose unique curated references.");
   }
 
-  const lines = [...selected].sort(compareReferenceId).map(
-    (item) =>
-      [
+  const lines = [...selected].sort(compareReferenceId).map((item) => {
+    if (isKenneyReference(item)) {
+      return [
         `- ${item.title}`,
-        `medium: ${item.medium.join(", ")}`,
-        `perspective: ${item.perspective.join(", ")}`,
-        `genre: ${item.genre.join(", ")}`,
-        `mood: ${item.mood.join(", ")}`,
-        `palette: ${item.palette.join(", ")}`,
-        `materials: ${item.materials.join(", ")}`,
-        `subjects: ${item.subjectTags.join(", ")}`,
-        `detail density: ${item.detailDensity}`,
-        `Avoid carrying over: ${item.negativeTraits.join(", ")}`,
-      ].join("; "),
-  );
+        `pack: ${item.pack}`,
+        `category: ${item.category}`,
+        `tags: ${item.tags.slice(0, 12).join(", ")}`,
+        `source: ${item.source}`,
+        `author: ${item.author}`,
+        `license: ${item.license}`,
+      ].join("; ");
+    }
+    return [
+      `- ${item.title}`,
+      `medium: ${item.medium.join(", ")}`,
+      `perspective: ${item.perspective.join(", ")}`,
+      `genre: ${item.genre.join(", ")}`,
+      `mood: ${item.mood.join(", ")}`,
+      `palette: ${item.palette.join(", ")}`,
+      `materials: ${item.materials.join(", ")}`,
+      `subjects: ${item.subjectTags.join(", ")}`,
+      `detail density: ${item.detailDensity}`,
+      `Avoid carrying over: ${item.negativeTraits.join(", ")}`,
+    ].join("; ");
+  });
 
   return [
     "Selected curated reference metadata.",

@@ -3,9 +3,12 @@ import { existsSync } from "node:fs";
 import test from "node:test";
 import {
   formatReferenceContext,
+  isKenneyReference,
   REFERENCE_LIBRARY,
+  referencePreviewUrl,
   retrieveReferences,
   type CuratedReference,
+  type KenneyReferenceSelection,
   type ReferenceQuery,
 } from "../src/lib/reference-retrieval";
 
@@ -158,6 +161,36 @@ test("selected metadata is formatted canonically without ids or image paths", ()
   assert.match(context, /materials:/);
   assert.match(context, /Avoid carrying over:/);
   assert.doesNotMatch(context, /moonlit-ink|mossbound-pixel|\/references\//);
+});
+
+test("Kenney family selections compile objective metadata without paths or pixels", () => {
+  const selected: KenneyReferenceSelection = {
+    kind: "kenney-family",
+    id: "kenney-test-tower-secret-id",
+    title: "Medieval Town · Tower",
+    previewUrl: "/api/references/image?id=kenney-test-tower-secret-id",
+    pack: "Isometric Medieval Town",
+    category: "environment",
+    tags: ["building", "tower", "medieval"],
+    source: "Kenney",
+    author: "Kenney",
+    license: "CC0-1.0",
+  };
+
+  const context = formatReferenceContext([selected]);
+
+  assert.equal(isKenneyReference(selected), true);
+  assert.equal(referencePreviewUrl(selected), selected.previewUrl);
+  assert.equal(referencePreviewUrl(REFERENCE_LIBRARY[0]), REFERENCE_LIBRARY[0].imagePath);
+  assert.match(context, /Medieval Town · Tower/);
+  assert.match(context, /pack: Isometric Medieval Town/);
+  assert.match(context, /category: environment/);
+  assert.match(context, /tags: building, tower, medieval/);
+  assert.match(context, /source: Kenney; author: Kenney; license: CC0-1.0/);
+  assert.doesNotMatch(
+    context,
+    /kenney-test-tower-secret-id|\/api\/references\/image|representativeImagePath|memberImagePaths|embeddingText/,
+  );
 });
 
 test("reference context requires one to three unique selections", () => {

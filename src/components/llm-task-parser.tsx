@@ -12,9 +12,10 @@ import {
   type ProductGenerationInput,
 } from "@/lib/asset-generation-flow";
 import {
-  retrieveReferences,
-  type CuratedReference,
-  type RetrievalResult,
+  isKenneyReference,
+  referencePreviewUrl,
+  type ArtDirectionRetrievalResult,
+  type SelectableReference,
 } from "@/lib/reference-retrieval";
 import {
   DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
@@ -69,16 +70,20 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
     DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
   );
   const [draftSpec, setDraftSpec] = useState<ParseTaskResult | null>(null);
-  const [referenceResults, setReferenceResults] = useState<RetrievalResult[]>([]);
+  const [referenceResults, setReferenceResults] = useState<
+    ArtDirectionRetrievalResult[]
+  >([]);
   const [selectedReferenceIds, setSelectedReferenceIds] = useState<string[]>([]);
   const [refinedSpec, setRefinedSpec] = useState<ParseTaskResult | null>(null);
   const [image, setImage] = useState<GeneratedImage | null>(null);
-  const [busyStep, setBusyStep] = useState<"draft" | "refine" | "generate" | null>(null);
+  const [busyStep, setBusyStep] = useState<
+    "draft" | "retrieve" | "refine" | "generate" | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
   const selectedReferences = selectedReferenceIds
     .map((id) => referenceResults.find(({ reference }) => reference.id === id)?.reference)
-    .filter((reference): reference is CuratedReference => Boolean(reference));
+    .filter((reference): reference is SelectableReference => Boolean(reference));
 
   function clearAfterBrief() {
     setDraftSpec(null);
@@ -110,7 +115,9 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
     ].join("\n");
   }
 
-  function productInput(references: readonly CuratedReference[]): ProductGenerationInput {
+  function productInput(
+    references: readonly SelectableReference[],
+  ): ProductGenerationInput {
     return {
       characterId,
       characterName,
@@ -163,28 +170,51 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
     }
   }
 
-  function retrieveFromDraft() {
+  async function retrieveFromDraft() {
     if (!draftSpec) return;
     const task = draftSpec.parsedTask;
-    const results = retrieveReferences({
-      projectBrief: [
-        projectBrief,
-        task.visualStyle,
-        task.composition,
-        task.background,
-        ...task.positiveConstraints,
-      ].join(" "),
-      assetRequest: [assetRequest, task.visualSubject, task.assetKind].join(" "),
-      assetType,
-      settings: assetSettings,
-    });
-    setReferenceResults(results);
-    setSelectedReferenceIds([]);
-    setRefinedSpec(null);
-    setImage(null);
-    setError(
-      results.length ? null : "No curated references matched this direction. Try a more specific brief.",
-    );
+    try {
+      setBusyStep("retrieve");
+      setReferenceResults([]);
+      setSelectedReferenceIds([]);
+      setRefinedSpec(null);
+      setImage(null);
+      setError(null);
+      const payload = (await requestJson("/api/references/retrieve", {
+        query: {
+          projectBrief: [
+            projectBrief,
+            task.visualStyle,
+            task.composition,
+            task.background,
+            ...task.positiveConstraints,
+          ].join(" "),
+          assetRequest: [
+            assetRequest,
+            task.visualSubject,
+            task.assetKind,
+          ].join(" "),
+          assetType,
+          settings: assetSettings,
+        },
+      })) as { results?: unknown };
+      if (!Array.isArray(payload.results)) {
+        throw new Error("Atlas returned invalid reference results.");
+      }
+      const results = payload.results as ArtDirectionRetrievalResult[];
+      setReferenceResults(results);
+      setError(
+        results.length
+          ? null
+          : "No curated references matched this direction. Try a more specific brief.",
+      );
+    } catch (retrievalError) {
+      setError(
+        messageFrom(retrievalError, "Could not retrieve references."),
+      );
+    } finally {
+      setBusyStep(null);
+    }
   }
 
   function toggleReference(id: string) {
@@ -349,10 +379,17 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
         <WorkflowSection number="02" title="Curated references" active={Boolean(draftSpec)}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-2xl text-sm leading-6 text-slate-400">
-              Atlas ranks a small local collection using the draft StyleSpec. Thumbnails are previews; selected references guide generation through metadata, not visual input.
+              Atlas ranks a small local collection using the draft StyleSpec. Reference previews are shown here; selected references guide generation through metadata, not visual input.
             </p>
-            <SecondaryButton disabled={!draftSpec || disabled} onClick={retrieveFromDraft}>
-              {referenceResults.length ? "Rank again" : "Find references"}
+            <SecondaryButton
+              disabled={!draftSpec || disabled}
+              onClick={() => void retrieveFromDraft()}
+            >
+              {busyStep === "retrieve"
+                ? "Finding…"
+                : referenceResults.length
+                  ? "Rank again"
+                  : "Find references"}
             </SecondaryButton>
           </div>
           {referenceResults.length ? (
@@ -373,17 +410,31 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
                       onClick={() => toggleReference(reference.id)}
                       type="button"
                     >
-                      <Image alt="" className="h-36 w-full object-cover" height={288} src={reference.imagePath} width={480} />
+                      <Image
+                        alt=""
+                        className="h-36 w-full object-cover"
+                        height={288}
+                        src={referencePreviewUrl(reference)}
+                        unoptimized={isKenneyReference(reference)}
+                        width={480}
+                      />
                       <span className="block p-3">
                         <span className="flex items-center justify-between gap-3">
                           <span className="font-medium text-slate-100">{reference.title}</span>
                           <span className="text-xs text-slate-500">{Math.round(score)} match</span>
                         </span>
                         <span className="mt-1 block text-xs capitalize text-slate-400">
-                          {reference.medium[0]} · {reference.mood[0]} · {reference.detailDensity} detail
+                          {isKenneyReference(reference)
+                            ? `${reference.category} · ${reference.pack}`
+                            : `${reference.medium[0]} · ${reference.mood[0]} · ${reference.detailDensity} detail`}
                         </span>
                         <span className="mt-2 block text-[11px] text-slate-500">
-                          Matched {matchedFields.slice(0, 3).map(humanizeField).join(", ")}
+                          {matchedFields.length
+                            ? `Matched ${matchedFields
+                                .slice(0, 3)
+                                .map(humanizeField)
+                                .join(", ")}`
+                            : "Semantic match"}
                         </span>
                       </span>
                     </button>
@@ -477,7 +528,7 @@ function StyleSpecSummary({
 }: {
   result: ParseTaskResult;
   label: string;
-  references?: readonly CuratedReference[];
+  references?: readonly SelectableReference[];
 }) {
   const task = result.parsedTask;
   const constraints = task.positiveConstraints.slice(0, 4);

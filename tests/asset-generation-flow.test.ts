@@ -7,7 +7,10 @@ import {
   buildProductArtRequest,
   runProductGeneration,
 } from "../src/lib/asset-generation-flow";
-import { REFERENCE_LIBRARY } from "../src/lib/reference-retrieval";
+import {
+  REFERENCE_LIBRARY,
+  type KenneyReferenceSelection,
+} from "../src/lib/reference-retrieval";
 import { DEFAULT_STATIC_IMAGE_ASSET_SETTINGS } from "../src/lib/task-mode";
 
 test("the product form presents the staged art-direction workflow without diagnostics", () => {
@@ -120,4 +123,33 @@ test("selected references influence the existing request through metadata only",
   assert.match(request, new RegExp(REFERENCE_LIBRARY[0].title));
   assert.doesNotMatch(request, /\/references\//);
   assert.doesNotMatch(request, new RegExp(REFERENCE_LIBRARY[0].id));
+});
+
+test("selected Kenney families refine the existing request through metadata only", () => {
+  const family: KenneyReferenceSelection = {
+    kind: "kenney-family",
+    id: "kenney-space-shooter-laser-private",
+    title: "Space Shooter Remastered · Laser",
+    previewUrl: "/api/references/image?id=kenney-space-shooter-laser-private",
+    pack: "Space Shooter Remastered",
+    category: "sci-fi",
+    tags: ["laser", "sci-fi", "space"],
+    source: "Kenney",
+    author: "Kenney",
+    license: "CC0-1.0",
+  };
+  const request = buildProductArtRequest({
+    characterName: "Mira",
+    assetType: "PROP",
+    artDirection: "A compact sci-fi weapon.",
+    selectedReferences: [family],
+  });
+
+  assert.match(request, /Space Shooter Remastered · Laser/);
+  assert.match(request, /tags: laser, sci-fi, space/);
+  assert.match(request, /Metadata guidance only; reference images are not visual inputs/);
+  assert.doesNotMatch(
+    request,
+    /kenney-space-shooter-laser-private|\/api\/references\/image|image-to-image/,
+  );
 });

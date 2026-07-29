@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test tests/**/*.test.ts"
+    "test": "tsx --test tests/**/*.test.ts",
+    "references:families": "tsx scripts/reference-families/build.ts",
+    "references:embed": "tsx --env-file-if-exists=.env.local scripts/reference-families/embed.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.9.0",

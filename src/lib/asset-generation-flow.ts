@@ -5,7 +5,7 @@ import {
 } from "@/lib/task-mode";
 import {
   formatReferenceContext,
-  type CuratedReference,
+  type SelectableReference,
 } from "@/lib/reference-retrieval";
 
 export const ASSET_TYPES = [
@@ -65,7 +65,7 @@ export type ProductGenerationInput = {
   artDirection: string;
   assetSettings: StaticImageAssetSettings;
   styleSourceCharacterId: string | null;
-  selectedReferences: readonly CuratedReference[];
+  selectedReferences: readonly SelectableReference[];
 };
 
 export type JsonRequester = (url: string, body: unknown) => Promise<unknown>;

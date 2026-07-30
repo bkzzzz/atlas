@@ -19,8 +19,8 @@ const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
   "clientVersion": "7.9.0",
   "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
-  "activeProvider": "sqlite",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n}\n\n// This model is the first persistent data owned by Atlas.\nmodel Character {\n  id          String           @id @default(cuid())\n  name        String\n  description String\n  personality String\n  species     String\n  createdAt   DateTime         @default(now())\n  assets      ImageAsset[]\n  memory      CharacterMemory?\n}\n\n// An asset is a visual reference owned by one character. onDelete: Cascade\n// keeps the database consistent by removing assets with their character.\nmodel ImageAsset {\n  id          String    @id @default(cuid())\n  characterId String\n  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)\n  name        String\n  imageUrl    String\n  type        String\n  provider    String\n  status      String\n  prompt      String?\n  feedback    String?\n  createdAt   DateTime  @default(now())\n}\n\n// One durable memory record stores the human-approved character context.\n// characterId is unique to enforce one memory record per character.\nmodel CharacterMemory {\n  id              String    @id @default(cuid())\n  characterId     String    @unique\n  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)\n  visualStyle     String?\n  lore            String?\n  designRules     String?\n  approvedSummary String?\n  rejectedSummary String?\n  preferredPrompt String?\n  lastUpdated     DateTime  @updatedAt\n}\n",
+  "activeProvider": "postgresql",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\n// This model is the first persistent data owned by Atlas.\nmodel Character {\n  id          String           @id @default(cuid())\n  name        String\n  description String\n  personality String\n  species     String\n  createdAt   DateTime         @default(now())\n  assets      ImageAsset[]\n  memory      CharacterMemory?\n}\n\n// An asset is a visual reference owned by one character. onDelete: Cascade\n// keeps the database consistent by removing assets with their character.\nmodel ImageAsset {\n  id          String    @id @default(cuid())\n  characterId String\n  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)\n  name        String\n  imageUrl    String\n  type        String\n  provider    String\n  status      String\n  prompt      String?\n  feedback    String?\n  createdAt   DateTime  @default(now())\n}\n\n// One durable memory record stores the human-approved character context.\n// characterId is unique to enforce one memory record per character.\nmodel CharacterMemory {\n  id              String    @id @default(cuid())\n  characterId     String    @unique\n  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)\n  visualStyle     String?\n  lore            String?\n  designRules     String?\n  approvedSummary String?\n  rejectedSummary String?\n  preferredPrompt String?\n  lastUpdated     DateTime  @updatedAt\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -45,10 +45,10 @@ async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Modul
 }
 
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.sqlite.mjs"),
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.mjs"),
 
   getQueryCompilerWasmModule: async () => {
-    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.sqlite.wasm-base64.mjs")
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.wasm-base64.mjs")
     return await decodeBase64AsWasm(wasm)
   },
 

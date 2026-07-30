@@ -1238,6 +1238,7 @@ export type CharacterMemoryCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many CharacterMemories.
    */
   data: Prisma.CharacterMemoryCreateManyInput | Prisma.CharacterMemoryCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1256,6 +1257,7 @@ export type CharacterMemoryCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many CharacterMemories.
    */
   data: Prisma.CharacterMemoryCreateManyInput | Prisma.CharacterMemoryCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

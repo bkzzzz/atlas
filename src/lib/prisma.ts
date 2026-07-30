@@ -1,5 +1,5 @@
 import "server-only";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@/generated/prisma/client";
 
 // A single Prisma client is reused during development so hot reloads do not
@@ -12,7 +12,7 @@ if (!databaseUrl) {
   throw new Error("DATABASE_URL is missing. Add it to .env.local.");
 }
 
-const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+const adapter = new PrismaNeon({ connectionString: databaseUrl });
 
 export const prisma =
   globalForPrisma.prisma ?? new PrismaClient({ adapter });

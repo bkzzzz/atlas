@@ -86,7 +86,7 @@ Visual references are optional, but every attached, non-deleted reference is tre
 - [Next.js](https://nextjs.org/) and React
 - TypeScript
 - Tailwind CSS
-- Prisma ORM with SQLite
+- Prisma ORM with Neon PostgreSQL
 - OpenAI API for task parsing and image generation
 - Node.js test runner via `tsx`
 
@@ -98,6 +98,7 @@ The product uses server-side routes for persistence, prompt compilation, short-l
 
 - A current Node.js LTS release
 - npm
+- A Neon PostgreSQL database
 - An OpenAI API key
 
 ### Setup
@@ -117,7 +118,7 @@ The product uses server-side routes for persistence, prompt compilation, short-l
 3. Set the required values in `.env.local`:
 
    ```dotenv
-   DATABASE_URL="file:./prisma/dev.db"
+   DATABASE_URL="your-pooled-neon-postgresql-connection-string"
    OPENAI_API_KEY="your-api-key"
    ```
 
@@ -151,7 +152,7 @@ npm run build
 - Secrets and provider credentials are kept server-side and excluded from version control.
 - Generation requests use short-lived authorization and server-side validation.
 - Uploaded references and generated assets are treated as private project data.
-- Database schema and migrations are versioned without committing local database files.
+- Database schema and migrations are versioned without committing connection strings.
 
 ## Roadmap
 

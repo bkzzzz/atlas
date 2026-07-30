@@ -504,6 +504,7 @@ export type ImageAssetCreateOrConnectWithoutCharacterInput = {
 
 export type ImageAssetCreateManyCharacterInputEnvelope = {
   data: Prisma.ImageAssetCreateManyCharacterInput | Prisma.ImageAssetCreateManyCharacterInput[]
+  skipDuplicates?: boolean
 }
 
 export type ImageAssetUpsertWithWhereUniqueWithoutCharacterInput = {
@@ -1338,6 +1339,7 @@ export type ImageAssetCreateManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data used to create many ImageAssets.
    */
   data: Prisma.ImageAssetCreateManyInput | Prisma.ImageAssetCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1356,6 +1358,7 @@ export type ImageAssetCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many ImageAssets.
    */
   data: Prisma.ImageAssetCreateManyInput | Prisma.ImageAssetCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

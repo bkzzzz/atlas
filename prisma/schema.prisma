@@ -4,17 +4,17 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // This model is the first persistent data owned by Atlas.
 model Character {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
   description String
   personality String
   species     String
-  createdAt   DateTime @default(now())
+  createdAt   DateTime         @default(now())
   assets      ImageAsset[]
   memory      CharacterMemory?
 }

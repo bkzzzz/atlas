@@ -1251,6 +1251,7 @@ export type CharacterCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * The data used to create many Characters.
    */
   data: Prisma.CharacterCreateManyInput | Prisma.CharacterCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1269,6 +1270,7 @@ export type CharacterCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many Characters.
    */
   data: Prisma.CharacterCreateManyInput | Prisma.CharacterCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

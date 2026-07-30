@@ -25,7 +25,7 @@ export function AmbientAssetShowcase() {
                 key={`${bandIndex}-${asset.src}-${assetIndex}`}
               >
                 <div className="atlas-showcase__image">
-                  <ShowcaseImage asset={asset} sizes="200px" />
+                  <ShowcaseImage asset={asset} sizes="265px" />
                 </div>
                 <figcaption>{asset.label}</figcaption>
               </figure>
@@ -34,10 +34,20 @@ export function AmbientAssetShowcase() {
         </div>
       ))}
       <div className="atlas-showcase__archive">
-        {DEMO_SHOWCASE_ARCHIVE.map((asset) => (
-          <figure className="atlas-showcase__archive-item" key={asset.src}>
-            <ShowcaseImage asset={asset} sizes="168px" />
-            <figcaption>{asset.label}</figcaption>
+        <div className="atlas-showcase__archive-heading">
+          <span>Atlas reference archive</span>
+          <span>Visual field notes&nbsp;&nbsp;/&nbsp;&nbsp;01—06</span>
+        </div>
+        {DEMO_SHOWCASE_ARCHIVE.map((asset, assetIndex) => (
+          <figure
+            className="atlas-showcase__archive-item"
+            key={asset.src}
+          >
+            <ShowcaseImage asset={asset} sizes="220px" />
+            <figcaption>
+              <span>{String(assetIndex + 1).padStart(2, "0")}</span>
+              {asset.label}
+            </figcaption>
           </figure>
         ))}
       </div>

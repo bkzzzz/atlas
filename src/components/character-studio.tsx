@@ -141,7 +141,11 @@ export function CharacterStudio() {
       <AmbientAssetShowcase />
       <div className="atlas-shell">
         <aside className="atlas-sidebar">
-          <p className="atlas-brand">Atlas<span>.io</span></p>
+          <p className="atlas-brand">
+            <span aria-hidden="true" className="atlas-brand__mark">A</span>
+            <span className="atlas-brand__name">Atlas</span>
+            <span className="atlas-brand__domain">.io</span>
+          </p>
           <p className="atlas-library-label">Character library</p>
           <div className="atlas-character-list">
             {isLoading && <p className="atlas-status" role="status">Loading characters…</p>}
@@ -163,18 +167,48 @@ export function CharacterStudio() {
         </aside>
 
         <section className="atlas-workspace">
-          <div className="atlas-page-toolbar">
-            <div>
-              <p className="atlas-eyebrow">Character studio</p>
-              <h1 className="atlas-page-title">Your characters</h1>
+          <header className="atlas-hero">
+            <div className="atlas-hero__masthead">
+              <div className="atlas-hero__wordmark">
+                <span aria-hidden="true" className="atlas-hero__mark">A</span>
+                <div>
+                  <p className="atlas-hero__product">Atlas</p>
+                  <p className="atlas-hero__category">
+                    Character production system
+                  </p>
+                </div>
+              </div>
+              <p className="atlas-hero__edition">Private beta&nbsp;&nbsp;/&nbsp;&nbsp;01</p>
             </div>
-            <button
-              className="atlas-button atlas-button--primary"
-              onClick={() => setIsCreating(true)}
-            >
-              New character
-            </button>
-          </div>
+
+            <div className="atlas-hero__body">
+              <div className="atlas-hero__copy">
+                <p className="atlas-eyebrow">Creative continuity, built in</p>
+                <h1 className="atlas-hero__title">
+                  One character.
+                  <span>Every asset.</span>
+                </h1>
+                <p className="atlas-hero__proposition">
+                  Atlas turns character direction and visual references into
+                  consistent, production-ready game assets.
+                </p>
+                <p className="atlas-hero__support">
+                  Build the source of truth once, then carry the look across
+                  every output.
+                </p>
+              </div>
+
+              <div className="atlas-hero__action">
+                <p>Begin with the source</p>
+                <button
+                  className="atlas-button atlas-button--primary"
+                  onClick={() => setIsCreating(true)}
+                >
+                  New character
+                </button>
+              </div>
+            </div>
+          </header>
 
           {error && <p className="atlas-error" role="alert">{error}</p>}
 

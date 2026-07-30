@@ -4,7 +4,10 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AmbientAssetShowcase } from "../src/components/ambient-asset-showcase";
-import { CharacterAssetWorkspace } from "../src/components/character-studio";
+import {
+  CharacterAssetWorkspace,
+  CharacterStudio,
+} from "../src/components/character-studio";
 import { LlmTaskParser } from "../src/components/llm-task-parser";
 import {
   ASSET_WORKFLOWS,
@@ -20,9 +23,27 @@ test("the ambient asset showcase is decorative, local, and non-interactive", () 
   assert.match(html, /aria-hidden="true"/);
   assert.ok((html.match(/atlas-showcase__band/g) ?? []).length >= 4);
   assert.match(html, /atlas-showcase__archive/);
+  assert.match(html, /Atlas reference archive/);
+  assert.match(html, /Visual field notes/);
   assert.ok((decodedHtml.match(/\/references\//g) ?? []).length >= 8);
   assert.doesNotMatch(html, /<(?:a|button)\b/);
   assert.doesNotMatch(html, /https?:\/\//);
+});
+
+test("the opening experience identifies Atlas and its creative purpose", () => {
+  const html = renderToStaticMarkup(React.createElement(CharacterStudio));
+
+  assert.match(html, /<header[^>]*class="atlas-hero"/);
+  assert.match(html, />Atlas</);
+  assert.match(html, /Character production system/);
+  assert.match(html, /One character\./);
+  assert.match(html, /Every asset\./);
+  assert.match(
+    html,
+    /turns character direction and visual references into consistent, production-ready game assets/,
+  );
+  assert.match(html, />New character</);
+  assert.doesNotMatch(html, />Your characters</);
 });
 
 test("ambient motion respects reduced-motion and small-screen preferences", () => {

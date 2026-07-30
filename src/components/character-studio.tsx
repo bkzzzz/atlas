@@ -3,7 +3,6 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { AssetSection } from "@/components/asset-section";
 import { MemorySection } from "@/components/memory-section";
-import { MetadataPreview } from "@/components/metadata-preview";
 import { LlmTaskParser } from "@/components/llm-task-parser";
 import type { Character, CreateCharacterInput } from "@/lib/characters";
 
@@ -16,7 +15,7 @@ const emptyForm: CreateCharacterInput = {
 
 // This Client Component owns browser interaction. It talks only to the API,
 // leaving database access in server-side Route Handlers.
-export function CharacterStudio({ developerMode = false }: { developerMode?: boolean }) {
+export function CharacterStudio() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [selected, setSelected] = useState<Character | null>(null);
   const [form, setForm] = useState<CreateCharacterInput>(emptyForm);
@@ -178,17 +177,10 @@ export function CharacterStudio({ developerMode = false }: { developerMode?: boo
                 <Detail label="Description" value={selected.description} />
               </dl>
               </article>
-              <AssetSection characterId={selected.id} />
-              <MemorySection characterId={selected.id} />
-              <MetadataPreview characterId={selected.id} />
-              <LlmTaskParser
-                characterId={selected.id}
-                characterName={selected.name}
-                developerMode={developerMode}
+              <CharacterAssetWorkspace
+                character={selected}
+                characters={characters}
                 key={selected.id}
-                styleCharacters={characters
-                  .filter((character) => character.id !== selected.id)
-                  .map(({ id, name }) => ({ id, name }))}
               />
             </>
           ) : !isLoading && <div className="mt-10 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">Create your first character to begin.</div>}
@@ -209,6 +201,28 @@ export function CharacterStudio({ developerMode = false }: { developerMode?: boo
         </div>
       )}
     </main>
+  );
+}
+
+export function CharacterAssetWorkspace({
+  character,
+  characters,
+}: {
+  character: Character;
+  characters: Character[];
+}) {
+  return (
+    <>
+      <AssetSection characterId={character.id} />
+      <MemorySection characterId={character.id} />
+      <LlmTaskParser
+        characterId={character.id}
+        characterName={character.name}
+        styleCharacters={characters
+          .filter(({ id }) => id !== character.id)
+          .map(({ id, name }) => ({ id, name }))}
+      />
+    </>
   );
 }
 

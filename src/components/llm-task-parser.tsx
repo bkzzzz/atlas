@@ -5,12 +5,9 @@ import { FormEvent, useState } from "react";
 import {
   ASSET_TYPES,
   ASSET_WORKFLOWS,
-  OUTPUT_FORMATS,
-  buildProductArtRequest,
   runProductGeneration,
   type AssetType,
   type GeneratedImage,
-  type ParseTaskResult,
   type ProductGenerationInput,
 } from "@/lib/asset-generation-flow";
 import {
@@ -55,16 +52,17 @@ const GROUND_SHADOW_LABELS: Record<StaticImageAssetSettings["groundShadow"], str
 type Props = {
   characterId: string;
   characterName: string;
-  developerMode?: boolean;
   styleCharacters?: Array<{ id: string; name: string }>;
 };
 
 export function LlmTaskParser({
   characterId,
   characterName,
-  developerMode = false,
   styleCharacters = [],
 }: Props) {
+  const [assetWorkflow, setAssetWorkflow] = useState<"STATIC_IMAGE" | "VECTOR_ASSET">(
+    "STATIC_IMAGE",
+  );
   const [assetType, setAssetType] = useState<AssetType>("CHARACTER_SPRITE");
   const [artDirection, setArtDirection] = useState("");
   const [styleSourceMode, setStyleSourceMode] = useState<"NEW" | "INHERIT">("NEW");
@@ -74,11 +72,9 @@ export function LlmTaskParser({
   const [assetSettings, setAssetSettings] = useState<StaticImageAssetSettings>(
     DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
   );
-  const [result, setResult] = useState<ParseTaskResult | null>(null);
   const [image, setImage] = useState<GeneratedImage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [copyLabel, setCopyLabel] = useState("Copy prompt");
 
   const input: ProductGenerationInput = {
     characterId,
@@ -91,10 +87,8 @@ export function LlmTaskParser({
   };
 
   function clearCompiledState() {
-    setResult(null);
     setImage(null);
     setError(null);
-    setCopyLabel("Copy prompt");
   }
 
   function updateAssetSetting<Key extends keyof StaticImageAssetSettings>(
@@ -134,7 +128,6 @@ export function LlmTaskParser({
       setIsGenerating(true);
       clearCompiledState();
       const generated = await runProductGeneration(input, requestJson);
-      setResult(generated.parseResult);
       setImage(generated.image);
     } catch (generationError) {
       setError(
@@ -142,24 +135,13 @@ export function LlmTaskParser({
           ? generationError.message
           : "Could not generate the image.",
       );
-      setResult((current) => current ? { ...current, generationToken: null } : current);
     } finally {
       setIsGenerating(false);
     }
   }
 
-  async function copyPrompt() {
-    if (!result) return;
-    try {
-      await navigator.clipboard.writeText(result.compiledPrompt);
-      setCopyLabel("Copied");
-    } catch {
-      setError("Could not copy the prompt. Please copy it manually.");
-    }
-  }
-
   return (
-    <section className="mt-10 max-w-4xl border-t border-white/10 pt-10">
+    <section className="mt-8 max-w-4xl border-t border-white/10 pt-8">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">
           Asset production
@@ -172,29 +154,42 @@ export function LlmTaskParser({
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Asset workflow">
         {ASSET_WORKFLOWS.map((workflow) => (
-          <div
-            aria-current={workflow.executable ? "true" : undefined}
-            aria-disabled={!workflow.executable}
+          <button
+            aria-pressed={workflow.executable ? assetWorkflow === workflow.value : undefined}
             className={`rounded-lg border px-3 py-3 text-left text-sm ${
-              workflow.executable
+              workflow.executable && assetWorkflow === workflow.value
                 ? "border-violet-400/50 bg-violet-500/10 text-violet-100"
-                : "border-white/10 text-slate-500"
+                : workflow.executable
+                  ? "border-white/10 text-slate-300 hover:border-violet-400/40"
+                  : "cursor-not-allowed border-white/10 text-slate-500"
             }`}
+            disabled={!workflow.executable || isGenerating}
             key={workflow.value}
+            onClick={() => {
+              if (workflow.value !== "STATIC_IMAGE" && workflow.value !== "VECTOR_ASSET") return;
+              setAssetWorkflow(workflow.value);
+              if (workflow.value === "VECTOR_ASSET") {
+                updateAssetSetting("visualStyle", "VECTOR_STYLE");
+              } else {
+                updateAssetSetting(
+                  "visualStyle",
+                  DEFAULT_STATIC_IMAGE_ASSET_SETTINGS.visualStyle,
+                );
+              }
+            }}
+            type="button"
           >
             <span className="block font-medium">{workflow.label}</span>
-            <span className="mt-1 block text-xs">
-              {workflow.executable ? "Available" : "Experimental · unavailable"}
-            </span>
-          </div>
+            <span className="mt-1 block text-xs">{workflow.description}</span>
+          </button>
         ))}
       </div>
 
       <form
-        className="mt-4 rounded-xl border border-white/10 bg-white/[.03] p-5"
+        className="mt-4 rounded-xl border border-white/10 bg-white/[.03] p-4"
         onSubmit={generate}
       >
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm font-medium">
             Character
             <input
@@ -219,37 +214,9 @@ export function LlmTaskParser({
               ))}
             </select>
           </label>
-          <label className="block text-sm font-medium">
-            Output format
-            <select
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
-              disabled={isGenerating}
-              value="PNG"
-              onChange={() => undefined}
-            >
-              {OUTPUT_FORMATS.map((format) => (
-                <option disabled={!format.executable} key={format.value} value={format.value}>
-                  {format.label}{format.executable ? "" : " · unavailable"}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
 
-        <label className="mt-5 block text-sm font-medium">
-          Optional art direction
-          <textarea
-            className="mt-2 min-h-24 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none placeholder:text-slate-600 focus:border-violet-400"
-            onChange={(event) => {
-              setArtDirection(event.target.value);
-              clearCompiledState();
-            }}
-            placeholder="For example: make the character look exhausted, more mysterious, or add snow on the shoulders."
-            value={artDirection}
-          />
-        </label>
-
-        <fieldset className="mt-5 rounded-xl border border-white/10 bg-white/[.025] p-4">
+        <fieldset className="mt-4 rounded-xl border border-white/10 bg-white/[.025] p-4">
           <legend className="px-1 text-sm font-semibold text-slate-200">
             Style source
           </legend>
@@ -307,15 +274,16 @@ export function LlmTaskParser({
           )}
         </fieldset>
 
-        <details className="mt-5 rounded-xl border border-white/10 bg-white/[.025] p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-slate-200">
-            Advanced controls
-          </summary>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <AssetSettingSelect
               label="Visual style"
               disabled={isGenerating}
-              onChange={(value) => updateAssetSetting("visualStyle", value)}
+              onChange={(value) => {
+                updateAssetSetting("visualStyle", value);
+                if (assetWorkflow === "VECTOR_ASSET" && value !== "VECTOR_STYLE") {
+                  setAssetWorkflow("STATIC_IMAGE");
+                }
+              }}
               options={STATIC_IMAGE_VISUAL_STYLES}
               labels={VISUAL_STYLE_LABELS}
               value={assetSettings.visualStyle}
@@ -354,13 +322,33 @@ export function LlmTaskParser({
               labels={GROUND_SHADOW_LABELS}
               value={assetSettings.groundShadow}
             />
-          </div>
-          <p className="mt-4 text-xs text-slate-500">
-            Flat Illustration produces a raster PNG. True SVG export is not available yet.
+        </div>
+        <p className="mt-3 text-xs text-slate-500">
+          Flat Illustration produces a raster PNG with vector-style rendering.
+        </p>
+
+        <details className="mt-4 rounded-xl border border-white/10 bg-white/[.025] p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-slate-200">
+            Advanced
+          </summary>
+          <p className="mt-2 text-xs text-slate-500">
+            Add extra creative or production instructions.
           </p>
+          <label className="mt-3 block text-sm font-medium">
+            Optional art direction
+            <textarea
+              className="mt-2 min-h-20 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none placeholder:text-slate-600 focus:border-violet-400"
+              onChange={(event) => {
+                setArtDirection(event.target.value);
+                clearCompiledState();
+              }}
+              placeholder="For example: make the character look exhausted, more mysterious, or add snow on the shoulders."
+              value={artDirection}
+            />
+          </label>
         </details>
 
-        <div className="mt-5 flex items-center justify-between gap-4">
+        <div className="mt-4 flex items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
             Transparent background and no ground shadow are the game-asset defaults.
           </p>
@@ -380,54 +368,6 @@ export function LlmTaskParser({
         <p className="mt-4 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">
           {error}
         </p>
-      )}
-
-      {developerMode && (
-        <details className="mt-5 rounded-xl border border-amber-400/20 bg-amber-500/[.04] p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-amber-100">
-            Developer details
-          </summary>
-          <p className="mt-2 text-xs text-slate-500">
-            Product request: {buildProductArtRequest(input)}
-          </p>
-
-          {result && (
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              <section>
-                <h3 className="text-sm font-semibold">Parsed task</h3>
-                <pre className="mt-2 max-h-96 overflow-auto rounded-lg bg-slate-950/50 p-4 text-xs leading-5 text-slate-300">
-                  {JSON.stringify(result.parsedTask, null, 2)}
-                </pre>
-              </section>
-              <section>
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-sm font-semibold">Compiled prompt</h3>
-                  <button
-                    className="rounded-lg border border-white/10 px-3 py-2 text-xs text-slate-200"
-                    onClick={() => void copyPrompt()}
-                    type="button"
-                  >
-                    {copyLabel}
-                  </button>
-                </div>
-                <p className="mt-2 text-xs text-slate-500">
-                  Parser provider model: {result.parser?.model ?? "not reported"}
-                </p>
-                {result.parser && <p className="mt-1 text-xs text-slate-500">
-                  Parser tokens: {result.parser.usage.totalTokens}
-                </p>}
-                <pre className="mt-2 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950/50 p-4 text-xs leading-5 text-slate-300">
-                  {result.compiledPrompt}
-                </pre>
-              </section>
-            </div>
-          )}
-          {image && (
-            <p className="mt-4 text-xs text-slate-500">
-              Image provider model: {image.model}
-            </p>
-          )}
-        </details>
       )}
 
       {image && (

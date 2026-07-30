@@ -12,15 +12,10 @@ export const ASSET_TYPES = [
 export type AssetType = (typeof ASSET_TYPES)[number]["value"];
 
 export const ASSET_WORKFLOWS = [
-  { value: "STATIC_IMAGE", label: "Static image", executable: true },
-  { value: "VECTOR_ASSET", label: "Vector asset", executable: false },
-  { value: "IDLE_ANIMATION", label: "Idle animation", executable: false },
-  { value: "WALK_ANIMATION", label: "Walk animation", executable: false },
-] as const;
-
-export const OUTPUT_FORMATS = [
-  { value: "PNG", label: "PNG", executable: true },
-  { value: "SVG", label: "SVG", executable: false },
+  { value: "STATIC_IMAGE", label: "Static image", description: "Raster PNG", executable: true },
+  { value: "VECTOR_ASSET", label: "Vector asset", description: "Raster vector-style PNG", executable: true },
+  { value: "IDLE_ANIMATION", label: "Idle animation", description: "Unavailable", executable: false },
+  { value: "WALK_ANIMATION", label: "Walk animation", description: "Unavailable", executable: false },
 ] as const;
 
 export type ParseTaskResult = {

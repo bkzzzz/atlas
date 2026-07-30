@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { CharacterAssetWorkspace } from "../src/components/character-studio";
 import { LlmTaskParser } from "../src/components/llm-task-parser";
 import {
   ASSET_WORKFLOWS,
@@ -10,55 +11,70 @@ import {
 } from "../src/lib/asset-generation-flow";
 import { DEFAULT_STATIC_IMAGE_ASSET_SETTINGS } from "../src/lib/task-mode";
 
-test("the default product form exposes only executable product choices", () => {
+test("the beta character workspace omits metadata and developer previews", () => {
   const html = renderToStaticMarkup(
-    React.createElement(LlmTaskParser, {
-      characterId: "character-1",
-      characterName: "Mira",
-      developerMode: false,
-      styleCharacters: [{ id: "character-2", name: "Nova" }],
+    React.createElement(CharacterAssetWorkspace, {
+      character: {
+        id: "character-1",
+        name: "Mira",
+        description: "A storm scout.",
+        personality: "Resolute",
+        species: "Human",
+        createdAt: "2026-07-25T12:00:00.000Z",
+      },
+      characters: [],
     }),
   );
 
   assert.match(html, /Create game asset/);
-  assert.match(html, />Character</);
-  assert.match(html, /Mira/);
-  assert.match(html, />Asset type</);
-  assert.match(html, />Output format</);
-  assert.match(html, />Generate</);
-  assert.match(html, /Optional art direction/);
-  assert.match(html, /Create a new style/);
-  assert.match(html, /Inherit another character&#x27;s style\/theme/);
-  assert.match(html, /Advanced controls/);
-  assert.match(html, /Pixel art/);
-  assert.match(html, /Flat Illustration/);
-  assert.doesNotMatch(html, /Inherit character style/);
-  assert.doesNotMatch(html, />Vector style</);
-  assert.doesNotMatch(html, /Parse and compile/);
-  assert.doesNotMatch(html, /Developer details/);
+  assert.doesNotMatch(html, /Metadata engine|Metadata preview|Developer details/);
 });
 
-test("developer mode keeps diagnostics read-only behind a disclosure", () => {
+test("the beta asset form presents production controls in order without internal UI", () => {
   const html = renderToStaticMarkup(
     React.createElement(LlmTaskParser, {
       characterId: "character-1",
       characterName: "Mira",
-      developerMode: true,
+      styleCharacters: [{ id: "character-2", name: "Nova" }],
     }),
   );
 
-  assert.match(html, /Developer details/);
-  assert.doesNotMatch(html, /Parse and compile/);
-  assert.doesNotMatch(html, /Generate compiled image/);
-  assert.doesNotMatch(html, /one-time-token/);
+  const expectedOrder = [
+    "Create game asset",
+    "Static image",
+    "Vector asset",
+    "Character",
+    "Asset type",
+    "Style source",
+    "Visual style",
+    "Camera / view",
+    "Background",
+    "Ground shadow",
+    "Advanced",
+    "Optional art direction",
+    "Generate",
+  ];
+  let previous = -1;
+  for (const label of expectedOrder) {
+    const position = html.indexOf(label);
+    assert.ok(position > previous, `${label} should follow the previous section`);
+    previous = position;
+  }
+
+  assert.match(
+    html,
+    /<details[^>]*><summary[^>]*>[\s\S]*?Advanced[\s\S]*?Add extra creative or production instructions\.[\s\S]*?Optional art direction/,
+  );
+  assert.doesNotMatch(html, /<details[^>]*open/);
+  assert.doesNotMatch(html, /Output format|Advanced controls|Developer details/);
 });
 
-test("future workflows are explicit and cannot silently use static generation", () => {
+test("vector-style raster assets are enabled while animation modes remain unavailable", () => {
   assert.deepEqual(
     ASSET_WORKFLOWS.map(({ label, executable }) => [label, executable]),
     [
       ["Static image", true],
-      ["Vector asset", false],
+      ["Vector asset", true],
       ["Idle animation", false],
       ["Walk animation", false],
     ],
@@ -68,12 +84,16 @@ test("future workflows are explicit and cannot silently use static generation", 
     React.createElement(LlmTaskParser, {
       characterId: "character-1",
       characterName: "Mira",
-      developerMode: false,
     }),
   );
-  assert.match(html, /Static image<\/span><span[^>]*>Available/);
-  assert.equal((html.match(/Experimental · unavailable/g) ?? []).length, 3);
-  assert.doesNotMatch(html, /<button[^>]*>[^<]*(?:Vector asset|Idle animation|Walk animation)/);
+  assert.match(html, /Vector asset[\s\S]*?Raster vector-style PNG/);
+  assert.doesNotMatch(html, /Vector asset[\s\S]{0,120}(?:Experimental|unavailable)/i);
+  const vectorCard = html.match(/<button[^>]*>[\s\S]*?Vector asset[\s\S]*?<\/button>/)?.[0];
+  assert.ok(vectorCard);
+  assert.doesNotMatch(vectorCard, /disabled/);
+  assert.equal((html.match(/Unavailable/g) ?? []).length, 2);
+  assert.match(html, /<button[^>]*disabled[^>]*>[\s\S]*?Idle animation/);
+  assert.match(html, /<button[^>]*disabled[^>]*>[\s\S]*?Walk animation/);
 });
 
 test("Generate performs parse, compile, then token-backed generation exactly once", async () => {

@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { LlmTaskParser } from "../src/components/llm-task-parser";
+import {
+  LlmTaskParser,
+  PromptCompilerDebugPanel,
+} from "../src/components/llm-task-parser";
 import {
   buildProductArtRequest,
   runProductCompile,
@@ -36,6 +39,37 @@ test("the product form presents the staged art-direction workflow without diagno
   assert.doesNotMatch(html, /compiled prompt/i);
   assert.doesNotMatch(html, /token/i);
   assert.doesNotMatch(html, /metadata, not visual input/i);
+});
+
+test("compiled prompt debug panel is visible outside production and hidden in production", () => {
+  const mutableEnvironment = process.env as Record<string, string | undefined>;
+  const originalNodeEnv = mutableEnvironment.NODE_ENV;
+  const compiledPrompt =
+    "Create one fantasy tower.\n\nUse a compact silhouette and transparent background.";
+
+  try {
+    mutableEnvironment.NODE_ENV = "development";
+    const developmentHtml = renderToStaticMarkup(
+      React.createElement(PromptCompilerDebugPanel, { compiledPrompt }),
+    );
+
+    assert.match(developmentHtml, /Development · Compiled prompt/);
+    assert.match(developmentHtml, /Create one fantasy tower/);
+    assert.match(developmentHtml, /transparent background/);
+
+    mutableEnvironment.NODE_ENV = "production";
+    const productionHtml = renderToStaticMarkup(
+      React.createElement(PromptCompilerDebugPanel, { compiledPrompt }),
+    );
+
+    assert.equal(productionHtml, "");
+  } finally {
+    if (originalNodeEnv === undefined) {
+      delete mutableEnvironment.NODE_ENV;
+    } else {
+      mutableEnvironment.NODE_ENV = originalNodeEnv;
+    }
+  }
 });
 
 test("Generate performs one Draft parse, deterministic compile, then token-backed generation", async () => {

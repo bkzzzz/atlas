@@ -473,7 +473,10 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
             </SecondaryButton>
           </div>
           {refinedSpec ? (
-            <StyleSpecSummary result={refinedSpec} label="Final direction" references={selectedReferences} />
+            <>
+              <StyleSpecSummary result={refinedSpec} label="Final direction" references={selectedReferences} />
+              <PromptCompilerDebugPanel compiledPrompt={refinedSpec.compiledPrompt} />
+            </>
           ) : (
             <LockedHint>Select one to three references, then refine the StyleSpec.</LockedHint>
           )}
@@ -561,6 +564,27 @@ function StyleSpecSummary({
         </div>
       )}
     </div>
+  );
+}
+
+export function PromptCompilerDebugPanel({
+  compiledPrompt,
+}: {
+  compiledPrompt: string;
+}) {
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+
+  return (
+    <aside className="mt-4 rounded-xl border border-amber-400/25 bg-amber-400/[.05] p-4">
+      <p className="text-xs font-semibold uppercase tracking-[.15em] text-amber-300">
+        Development · Compiled prompt
+      </p>
+      <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words font-mono text-xs leading-5 text-slate-300">
+        {compiledPrompt}
+      </pre>
+    </aside>
   );
 }
 

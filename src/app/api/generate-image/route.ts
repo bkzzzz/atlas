@@ -1,4 +1,6 @@
 import { toFile } from "openai";
+import { betaAccess } from "@/lib/beta-access";
+import { requireBetaAccess } from "@/lib/beta-access-handler";
 import { createGenerateImageHandler } from "@/lib/generate-image-handler";
 import { consumeGenerationToken } from "@/lib/generation-session";
 import { generateCompiledImage } from "@/lib/image-generator";
@@ -31,10 +33,15 @@ const resolveReferenceImageUploads = createReferenceAssetUploadResolver({
     toFile(bytes, filename, { type: mimeType }),
 });
 
-export const POST = createGenerateImageHandler({
+const generateImage = createGenerateImageHandler({
   consumeGenerationToken,
   generateCompiledImage,
   resolveReferenceImageUploads,
   persistGeneratedImage: (image) =>
     persistGeneratedImage(image, putGeneratedImage),
 });
+
+export const POST = requireBetaAccess(
+  generateImage,
+  betaAccess.hasAccess,
+);

@@ -121,6 +121,7 @@ The product uses server-side routes for persistence, prompt compilation, short-l
    ```dotenv
    DATABASE_URL="your-pooled-neon-postgresql-connection-string"
    BLOB_READ_WRITE_TOKEN="your-vercel-blob-read-write-token"
+   BETA_ACCESS_CODE="atlas-beta-2026"
    OPENAI_API_KEY="your-api-key"
    ```
 
@@ -153,6 +154,7 @@ npm run build
 
 - Secrets and provider credentials are kept server-side and excluded from version control.
 - `BLOB_READ_WRITE_TOKEN` is used only by server routes and must never use a `NEXT_PUBLIC_` prefix.
+- `BETA_ACCESS_CODE` is server-only and unlocks AI generation for invited beta testers.
 - Generation requests use short-lived authorization and server-side validation.
 - Uploaded references and generated assets are treated as private project data.
 - Database schema and migrations are versioned without committing connection strings.

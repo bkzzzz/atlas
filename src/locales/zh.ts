@@ -11,6 +11,14 @@ export const zh = {
   "common.edit": "编辑",
   "common.saveChanges": "保存更改",
 
+  "beta.title": "邀请制测试",
+  "beta.description":
+    "Atlas 目前仅向受邀测试者开放。输入 Beta 访问码即可解锁 AI 生成功能。",
+  "beta.accessCode": "访问码",
+  "beta.unlock": "解锁",
+  "beta.unlocking": "正在解锁…",
+  "beta.invalid": "Beta 访问码无效。",
+
   "archive.title": "Atlas 参考档案",
   "archive.notes": "视觉采样  /  01—06",
 

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, useState } from "react";
 import { useLanguage } from "@/components/language-provider";
+import { PrivateBetaModal } from "@/components/private-beta-modal";
 import {
   ASSET_TYPES,
   ASSET_WORKFLOWS,
@@ -99,6 +100,12 @@ export function LlmTaskParser({
   const [image, setImage] = useState<GeneratedImage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isBetaModalOpen, setIsBetaModalOpen] = useState(false);
+  const [betaAccessCode, setBetaAccessCode] = useState("");
+  const [betaAccessError, setBetaAccessError] = useState<string | null>(
+    null,
+  );
+  const [isUnlockingBeta, setIsUnlockingBeta] = useState(false);
 
   const input: ProductGenerationInput = {
     characterId,
@@ -146,8 +153,7 @@ export function LlmTaskParser({
     return payload;
   }
 
-  async function generate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function runGeneration() {
     try {
       setIsGenerating(true);
       clearCompiledState();
@@ -161,6 +167,57 @@ export function LlmTaskParser({
       );
     } finally {
       setIsGenerating(false);
+    }
+  }
+
+  async function hasBetaAccess() {
+    try {
+      const response = await fetch("/api/beta-access", {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+      if (!response.ok) return false;
+      const payload = await response.json() as { unlocked?: unknown };
+      return payload.unlocked === true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function generate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!(await hasBetaAccess())) {
+      setBetaAccessError(null);
+      setIsBetaModalOpen(true);
+      return;
+    }
+    await runGeneration();
+  }
+
+  async function unlockBetaAccess() {
+    try {
+      setIsUnlockingBeta(true);
+      setBetaAccessError(null);
+      const response = await fetch("/api/beta-access", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: betaAccessCode }),
+      });
+      const payload = await response.json() as {
+        success?: unknown;
+      };
+      if (!response.ok || payload.success !== true) {
+        setBetaAccessError(t("beta.invalid"));
+        return;
+      }
+      setIsBetaModalOpen(false);
+      setBetaAccessCode("");
+      await runGeneration();
+    } catch {
+      setBetaAccessError(t("beta.invalid"));
+    } finally {
+      setIsUnlockingBeta(false);
     }
   }
 
@@ -404,6 +461,20 @@ export function LlmTaskParser({
             <span>{t("generation.temporary")}</span>
           </div>
         </section>
+      )}
+      {isBetaModalOpen && (
+        <PrivateBetaModal
+          accessCode={betaAccessCode}
+          error={betaAccessError}
+          isUnlocking={isUnlockingBeta}
+          onAccessCodeChange={setBetaAccessCode}
+          onCancel={() => {
+            setIsBetaModalOpen(false);
+            setBetaAccessCode("");
+            setBetaAccessError(null);
+          }}
+          onUnlock={() => void unlockBetaAccess()}
+        />
       )}
     </section>
   );

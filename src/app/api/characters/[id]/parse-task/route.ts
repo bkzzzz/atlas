@@ -1,4 +1,6 @@
 import { buildCharacterMetadata } from "@/lib/metadata-builder";
+import { betaAccess } from "@/lib/beta-access";
+import { requireBetaAccess } from "@/lib/beta-access-handler";
 import { prisma } from "@/lib/prisma";
 import { createGenerationToken } from "@/lib/generation-session";
 import { compileSingleStaticImageTask } from "@/lib/single-image-compiler";
@@ -27,7 +29,7 @@ function parserErrorStatus(category: ReturnType<typeof classifyParserError>["cat
 // The selected mode is the single eligibility gate. Only STATIC_IMAGE enters
 // the parser/compiler/token flow; unsupported modes return before database or
 // LLM work and never acquire a one-time generation token.
-export async function POST(
+async function parseTask(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
@@ -160,3 +162,8 @@ export async function POST(
     );
   }
 }
+
+export const POST = requireBetaAccess(
+  parseTask,
+  betaAccess.hasAccess,
+);

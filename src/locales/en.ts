@@ -9,6 +9,14 @@ export const en = {
   "common.edit": "Edit",
   "common.saveChanges": "Save changes",
 
+  "beta.title": "Private Beta",
+  "beta.description":
+    "Atlas is currently available to invited testers. Enter your beta access code to unlock AI generation.",
+  "beta.accessCode": "Access Code",
+  "beta.unlock": "Unlock",
+  "beta.unlocking": "Unlocking…",
+  "beta.invalid": "Invalid beta access code.",
+
   "archive.title": "Atlas reference archive",
   "archive.notes": "Visual field notes  /  01—06",
 

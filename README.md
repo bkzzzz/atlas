@@ -20,27 +20,21 @@ Atlas turns that work into a repeatable creative workflow:
 - Production controls shape the asset type, visual style, camera, background, and shadow treatment.
 - A structured compiler combines those inputs into one generation request.
 
-When visual references are attached, Atlas sends the actual reference images through a reference-conditioned image-edit path. Without references, it uses text-only image generation. The result is a workflow designed for continuity, not isolated outputs.
-
 ## Screenshots
+
+
+### Character workspace
 <img width="1669" height="1056" alt="image" src="https://github.com/user-attachments/assets/ae610841-3ce0-496b-b3b5-4c3a6b596fd5" />
 
 <img width="1622" height="1061" alt="image" src="https://github.com/user-attachments/assets/3b775ea8-94c8-44d9-9dd3-d8dea743157f" />
 
-<img width="1331" height="1050" alt="image" src="https://github.com/user-attachments/assets/3b347ca6-4508-4db1-bd7e-84b132bf8232" />
-
-
-### Character workspace
-
-> Screenshot placeholder — character profile, memory, and visual reference library.
-
 ### Asset production
 
-> Screenshot placeholder — generation controls and creative direction.
+<img width="1331" height="1050" alt="image" src="https://github.com/user-attachments/assets/3b347ca6-4508-4db1-bd7e-84b132bf8232" />
 
 ### Generated result
 
-> Screenshot placeholder — a completed asset generated from character context.
+<img width="1955" height="1047" alt="image" src="https://github.com/user-attachments/assets/2a50f746-8596-47f8-92fe-b94fcd44efcc" />
 
 ## Core features
 

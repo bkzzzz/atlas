@@ -12,9 +12,11 @@ Instead of rebuilding prompts for every image, creators define the character and
 
 ### Character workspace
 
-<img width="1669" height="1056" alt="Atlas character workspace" src="https://github.com/user-attachments/assets/ae610841-3ce0-496b-b3b5-4c3a6b596fd5" />
+<img width="1665" height="1050" alt="image" src="https://github.com/user-attachments/assets/f87807db-98bb-4d40-a3f6-f10441e9c89a" />
 
-<img width="1622" height="1061" alt="Atlas character profile and visual references" src="https://github.com/user-attachments/assets/3b775ea8-94c8-44d9-9dd3-d8dea743157f" />
+
+<img width="1737" height="1066" alt="image" src="https://github.com/user-attachments/assets/e41c5f4b-ba1c-4068-b8fb-7823f5fc26b3" />
+
 
 ### Asset generation
 

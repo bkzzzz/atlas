@@ -21,10 +21,10 @@ export const zh = {
   "hero.category": "角色制作系统",
   "hero.edition": "私测版  /  01",
   "hero.eyebrow": "让创意始终连贯",
-  "hero.titleFirst": "一个角色。",
-  "hero.titleSecond": "每一份资产。",
+  "hero.titleFirst": "设定一次，",
+  "hero.titleSecond": "持续生成。",
   "hero.proposition":
-    "Atlas 将角色设定与视觉参考转化为一致、可投入制作的游戏资产。",
+    "基于角色设定与视觉参考，稳定产出风格一致的游戏资产。",
   "hero.support":
     "只需建立一次可信源，之后的每次输出都能延续相同的视觉语言。",
   "hero.actionLabel": "从角色源头开始",

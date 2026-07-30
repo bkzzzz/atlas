@@ -108,8 +108,12 @@ test("the studio and production workspace render completely in Chinese", () => {
 
   assert.match(studio, /角色库/);
   assert.match(studio, /角色制作系统/);
-  assert.match(studio, /一个角色。/);
-  assert.match(studio, /每一份资产。/);
+  assert.match(studio, /设定一次，/);
+  assert.match(studio, /持续生成。/);
+  assert.match(
+    studio,
+    /基于角色设定与视觉参考，稳定产出风格一致的游戏资产。/,
+  );
   assert.match(studio, /新建角色/);
   assert.match(studio, /aria-label="语言"/);
   assert.match(studio, /aria-label="简体中文" aria-pressed="true"/);

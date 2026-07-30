@@ -138,53 +138,52 @@ export function LlmTaskParser({
   }
 
   return (
-    <section className="mt-8 max-w-4xl border-t border-white/10 pt-8">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">
-          Asset production
-        </p>
-        <h2 className="mt-1 text-xl font-semibold">Create game asset</h2>
-        <p className="mt-1 text-sm text-slate-400">
+    <section className="atlas-section">
+      <div className="atlas-section-header">
+        <div className="atlas-section-header__copy">
+        <p className="atlas-eyebrow">Asset production</p>
+        <h2 className="atlas-section-title">Create game asset</h2>
+        <p className="atlas-section-description">
           Atlas prepares the art direction and production prompt for you.
         </p>
+        </div>
       </div>
 
-      <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Asset workflow">
+      <div className="atlas-workflow-grid" aria-label="Asset workflow">
         {ASSET_WORKFLOWS.map((workflow) => (
           <button
             aria-pressed={workflow.executable ? true : undefined}
-            className={`rounded-lg border px-3 py-3 text-left text-sm ${
-              workflow.executable
-                ? "border-violet-400/50 bg-violet-500/10 text-violet-100"
-                : "cursor-not-allowed border-white/10 text-slate-500"
-            }`}
+            className="atlas-workflow-option"
             disabled={!workflow.executable || isGenerating}
             key={workflow.value}
             type="button"
           >
-            <span className="block font-medium">{workflow.label}</span>
-            <span className="mt-1 block text-xs">{workflow.description}</span>
+            <span className="atlas-workflow-option__label">{workflow.label}</span>
+            <span className="atlas-workflow-option__description">
+              {workflow.description}
+            </span>
           </button>
         ))}
       </div>
 
       <form
-        className="mt-4 rounded-xl border border-white/10 bg-white/[.03] p-4"
+        aria-busy={isGenerating}
+        className="atlas-production-form"
         onSubmit={generate}
       >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-sm font-medium">
+        <div className="atlas-form-grid">
+          <label className="atlas-label">
             Character
             <input
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/30 px-3 py-2.5 text-slate-300"
+              className="atlas-control"
               readOnly
               value={characterName}
             />
           </label>
-          <label className="block text-sm font-medium">
+          <label className="atlas-label">
             Asset type
             <select
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
+              className="atlas-control"
               disabled={isGenerating}
               onChange={(event) => {
                 setAssetType(event.target.value as AssetType);
@@ -199,15 +198,13 @@ export function LlmTaskParser({
           </label>
         </div>
 
-        <fieldset className="mt-4 rounded-xl border border-white/10 bg-white/[.025] p-4">
-          <legend className="px-1 text-sm font-semibold text-slate-200">
-            Style source
-          </legend>
-          <p className="mt-1 text-xs text-slate-500">
+        <fieldset className="atlas-form-group">
+          <legend className="atlas-form-group__title">Style source</legend>
+          <p className="atlas-form-group__description">
             Create a fresh style or borrow another character&apos;s established theme.
             Visual style remains independent.
           </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="atlas-style-options">
             <StyleSourceOption
               checked={styleSourceMode === "NEW"}
               disabled={isGenerating}
@@ -236,10 +233,10 @@ export function LlmTaskParser({
             />
           </div>
           {styleSourceMode === "INHERIT" && styleCharacters.length > 0 && (
-            <label className="mt-4 block text-sm font-medium">
+            <label className="atlas-label mt-4">
               Style character
               <select
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
+                className="atlas-control"
                 disabled={isGenerating}
                 onChange={(event) => {
                   setStyleSourceCharacterId(event.target.value);
@@ -257,7 +254,7 @@ export function LlmTaskParser({
           )}
         </fieldset>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="atlas-form-group atlas-form-grid atlas-form-grid--controls">
             <AssetSettingSelect
               label="Visual style"
               disabled={isGenerating}
@@ -301,21 +298,19 @@ export function LlmTaskParser({
               value={assetSettings.groundShadow}
             />
         </div>
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="atlas-flat-note">
           Flat Illustration produces a raster PNG with vector-style rendering.
         </p>
 
-        <details className="mt-4 rounded-xl border border-white/10 bg-white/[.025] p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-slate-200">
-            Advanced
-          </summary>
-          <p className="mt-2 text-xs text-slate-500">
+        <details className="atlas-disclosure">
+          <summary>Advanced</summary>
+          <p className="atlas-form-group__description">
             Add extra creative or production instructions.
           </p>
-          <label className="mt-3 block text-sm font-medium">
+          <label className="atlas-label mt-3">
             Optional art direction
             <textarea
-              className="mt-2 min-h-20 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none placeholder:text-slate-600 focus:border-violet-400"
+              className="atlas-control min-h-20"
               onChange={(event) => {
                 setArtDirection(event.target.value);
                 clearCompiledState();
@@ -326,12 +321,12 @@ export function LlmTaskParser({
           </label>
         </details>
 
-        <div className="mt-4 flex items-center justify-between gap-4">
-          <p className="text-xs text-slate-500">
+        <div className="atlas-generate-row">
+          <p>
             Transparent background and no ground shadow are the game-asset defaults.
           </p>
           <button
-            className="rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="atlas-button atlas-button--primary atlas-generate-button"
             disabled={
               isGenerating ||
               (styleSourceMode === "INHERIT" && !styleSourceCharacterId)
@@ -343,28 +338,30 @@ export function LlmTaskParser({
       </form>
 
       {error && (
-        <p className="mt-4 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">
+        <p className="atlas-error" role="alert">
           {error}
         </p>
       )}
 
       {image && (
-        <section className="mt-5 rounded-xl border border-white/10 bg-white/[.03] p-5">
-          <h3 className="font-semibold">Generated asset</h3>
-          <Image
-            unoptimized
-            width={1024}
-            height={1024}
-            className="mt-4 aspect-square w-full max-w-lg rounded-lg border border-white/10 bg-slate-950/50 object-contain"
-            src={image.imageUrl}
-            alt={`Generated ${ASSET_TYPES.find(({ value }) => value === assetType)?.label.toLowerCase() ?? "game asset"} for ${characterName}`}
-          />
-          <p className="mt-4 text-sm text-slate-400">
-            Generated {new Date(image.createdAt).toLocaleString()}
-          </p>
-          <p className="mt-2 text-xs text-slate-500">
-            Temporary browser-only preview. It is not saved to Atlas.
-          </p>
+        <section className="atlas-result">
+          <div className="atlas-result__header">
+            <h3 className="atlas-result__title">Generated asset</h3>
+          </div>
+          <div className="atlas-result__stage">
+            <Image
+              unoptimized
+              width={1024}
+              height={1024}
+              className="atlas-result__image"
+              src={image.imageUrl}
+              alt={`Generated ${ASSET_TYPES.find(({ value }) => value === assetType)?.label.toLowerCase() ?? "game asset"} for ${characterName}`}
+            />
+          </div>
+          <div className="atlas-result__metadata">
+            <span>Generated {new Date(image.createdAt).toLocaleString()}</span>
+            <span>Temporary browser-only preview. It is not saved to Atlas.</span>
+          </div>
         </section>
       )}
     </section>
@@ -387,12 +384,8 @@ function StyleSourceOption({
   value: "NEW" | "INHERIT";
 }) {
   return (
-    <label className={`rounded-lg border p-3 ${
-      checked
-        ? "border-violet-400/60 bg-violet-500/10"
-        : "border-white/10"
-    } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
-      <span className="flex items-center gap-2 text-sm font-medium">
+    <label className="atlas-style-option">
+      <span className="atlas-style-option__title">
         <input
           checked={checked}
           disabled={disabled}
@@ -403,7 +396,7 @@ function StyleSourceOption({
         />
         {label}
       </span>
-      <span className="mt-1 block pl-6 text-xs leading-5 text-slate-500">
+      <span className="atlas-style-option__description">
         {description}
       </span>
     </label>
@@ -426,10 +419,10 @@ function AssetSettingSelect<T extends string>({
   value: T;
 }) {
   return (
-    <label className="block text-sm font-medium">
+    <label className="atlas-label">
       {label}
       <select
-        className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none focus:border-violet-400"
+        className="atlas-control"
         disabled={disabled}
         onChange={(event) => onChange(event.target.value as T)}
         value={value}

@@ -121,44 +121,214 @@ export function AssetSection({ characterId }: { characterId: string }) {
     }
   }
 
-  return <section className="mt-10 max-w-4xl">
-    <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">Assets</p><h2 className="mt-1 text-xl font-semibold">Visual references</h2></div><button className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:border-violet-400/60" onClick={() => setIsAdding(true)}>Add asset</button></div>
-    {error && <p className="mt-4 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p>}
-    {isLoading ? <p className="mt-5 text-sm text-slate-400">Loading assets…</p> : assets.length === 0 ? <div className="mt-5 rounded-xl border border-dashed border-white/15 p-7 text-sm text-slate-400">No assets yet. Add an image URL to create the first visual reference.</div> : <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{assets.map((asset) => <AssetCard asset={asset} key={asset.id} onEdit={() => openEditDialog(asset)} onDelete={() => setPendingDelete(asset)} />)}</div>}
-    {isAdding && <AssetFormDialog form={form} setForm={setForm} onClose={() => { setIsAdding(false); setForm(emptyAssetForm); }} onSubmit={createAsset} />}
-    {editingAsset && <EditAssetDialog form={editForm} setForm={setEditForm} onClose={() => { setEditingAsset(null); setEditForm(emptyEditForm); }} onSubmit={saveAssetDetails} />}
-    {pendingDelete && <DeleteAssetDialog asset={pendingDelete} onCancel={() => setPendingDelete(null)} onConfirm={() => void deleteAsset()} />}
-  </section>;
+  return (
+    <section className="atlas-section atlas-section--first">
+      <div className="atlas-section-header">
+        <div className="atlas-section-header__copy">
+          <p className="atlas-eyebrow">Assets</p>
+          <h2 className="atlas-section-title">Visual references</h2>
+          <p className="atlas-section-description">
+            Curated visual material that guides this character&apos;s generated assets.
+          </p>
+        </div>
+        <button
+          className="atlas-button atlas-button--secondary"
+          onClick={() => setIsAdding(true)}
+        >
+          Add asset
+        </button>
+      </div>
+      {error && <p className="atlas-error" role="alert">{error}</p>}
+      {isLoading ? (
+        <p className="atlas-status" role="status">Loading assets…</p>
+      ) : assets.length === 0 ? (
+        <div className="atlas-empty">
+          No assets yet. Add an image URL to create the first visual reference.
+        </div>
+      ) : (
+        <div className="atlas-asset-gallery">
+          {assets.map((asset) => (
+            <AssetCard
+              asset={asset}
+              key={asset.id}
+              onDelete={() => setPendingDelete(asset)}
+              onEdit={() => openEditDialog(asset)}
+            />
+          ))}
+        </div>
+      )}
+      {isAdding && (
+        <AssetFormDialog
+          form={form}
+          onClose={() => {
+            setIsAdding(false);
+            setForm(emptyAssetForm);
+          }}
+          onSubmit={createAsset}
+          setForm={setForm}
+        />
+      )}
+      {editingAsset && (
+        <EditAssetDialog
+          form={editForm}
+          onClose={() => {
+            setEditingAsset(null);
+            setEditForm(emptyEditForm);
+          }}
+          onSubmit={saveAssetDetails}
+          setForm={setEditForm}
+        />
+      )}
+      {pendingDelete && (
+        <DeleteAssetDialog
+          asset={pendingDelete}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={() => void deleteAsset()}
+        />
+      )}
+    </section>
+  );
 }
 
 export function AssetCard({ asset, onEdit, onDelete }: { asset: ImageAsset; onEdit: () => void; onDelete: () => void }) {
-  return <article className="overflow-hidden rounded-xl border border-white/10 bg-white/[.03]"><AssetPreview asset={asset} /><div className="p-4"><p className="font-semibold">{asset.name}</p><p className="mt-2 text-sm text-slate-400">{asset.provider} · {asset.type}</p><div className="mt-4 flex justify-end gap-3 border-t border-white/10 pt-3 text-xs"><button className="text-slate-300 hover:text-white" onClick={onEdit}>Edit details</button><button className="text-rose-300 hover:text-rose-200" onClick={onDelete}>Delete</button></div><time className="mt-3 block text-xs text-slate-500">{new Date(asset.createdAt).toLocaleDateString()}</time></div></article>;
+  return (
+    <article className="atlas-asset-card">
+      <AssetPreview asset={asset} />
+      <div className="atlas-asset-card__body">
+        <p className="atlas-asset-card__title">{asset.name}</p>
+        <p className="atlas-asset-card__metadata">
+          {asset.provider} · {asset.type}
+        </p>
+        <div className="atlas-asset-card__footer">
+          <time className="atlas-asset-card__date">
+            {new Date(asset.createdAt).toLocaleDateString()}
+          </time>
+          <div className="atlas-asset-card__actions">
+            <button className="atlas-button atlas-button--quiet" onClick={onEdit}>
+              Edit details
+            </button>
+            <button className="atlas-button atlas-button--danger" onClick={onDelete}>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
 }
 
 // A failed remote URL is replaced in-place so card height and layout stay stable.
 function AssetPreview({ asset }: { asset: ImageAsset }) {
   const [isUnavailable, setIsUnavailable] = useState(false);
-  if (isUnavailable) return <div className="grid h-36 w-full place-items-center bg-gradient-to-br from-slate-900 to-violet-950/50 text-center text-xs font-medium text-slate-400"><span>Image unavailable</span></div>;
-  return <img className="h-36 w-full bg-slate-900 object-cover" src={asset.imageUrl} alt="" onError={() => setIsUnavailable(true)} />;
+  if (isUnavailable) {
+    return (
+      <div className="atlas-asset-preview atlas-asset-preview--unavailable">
+        <span>Image unavailable</span>
+      </div>
+    );
+  }
+  return (
+    <div className="atlas-asset-preview">
+      <img
+        alt={asset.name}
+        decoding="async"
+        loading="lazy"
+        onError={() => setIsUnavailable(true)}
+        src={asset.imageUrl}
+      />
+    </div>
+  );
 }
 
 function AssetFormDialog({ form, setForm, onClose, onSubmit }: { form: CreateImageAssetInput; setForm: (form: CreateImageAssetInput) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) {
-  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><form className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#151c32] p-6" onSubmit={onSubmit}><h2 className="text-xl font-semibold">Add asset</h2><p className="mt-1 text-sm text-slate-400">The image becomes an active visual reference as soon as it is added.</p><AssetField label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} /><AssetField label="Image URL" value={form.imageUrl} placeholder="https://images.unsplash.com/..." onChange={(imageUrl) => setForm({ ...form, imageUrl })} /><AssetField label="Asset type" value={form.type} onChange={(type) => setForm({ ...form, type })} /><AssetField label="Provider" value={form.provider} onChange={(provider) => setForm({ ...form, provider })} /><DialogActions onClose={onClose} submitLabel="Add asset" /></form></div>;
+  return (
+    <div className="atlas-dialog-backdrop">
+      <form
+        aria-labelledby="add-asset-title"
+        aria-modal="true"
+        className="atlas-dialog atlas-dialog--md"
+        onSubmit={onSubmit}
+        role="dialog"
+      >
+        <header className="atlas-dialog__header">
+          <h2 className="atlas-dialog__title" id="add-asset-title">Add asset</h2>
+          <p className="atlas-dialog__description">
+            The image becomes an active visual reference as soon as it is added.
+          </p>
+        </header>
+        <div className="atlas-dialog__body">
+          <AssetField label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} />
+          <AssetField label="Image URL" value={form.imageUrl} placeholder="https://images.unsplash.com/..." onChange={(imageUrl) => setForm({ ...form, imageUrl })} />
+          <AssetField label="Asset type" value={form.type} onChange={(type) => setForm({ ...form, type })} />
+          <AssetField label="Provider" value={form.provider} onChange={(provider) => setForm({ ...form, provider })} />
+        </div>
+        <DialogActions onClose={onClose} submitLabel="Add asset" />
+      </form>
+    </div>
+  );
 }
 
 function EditAssetDialog({ form, setForm, onClose, onSubmit }: { form: UpdateImageAssetInput; setForm: (form: UpdateImageAssetInput) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) {
-  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><form className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#151c32] p-6" onSubmit={onSubmit}><h2 className="text-xl font-semibold">Edit asset details</h2><AssetField label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} /><AssetField label="Asset type" value={form.type} onChange={(type) => setForm({ ...form, type })} /><AssetField label="Provider" value={form.provider} onChange={(provider) => setForm({ ...form, provider })} /><AssetField label="Prompt" value={form.prompt ?? ""} required={false} multiline onChange={(prompt) => setForm({ ...form, prompt: prompt || null })} /><DialogActions onClose={onClose} submitLabel="Save changes" /></form></div>;
+  return (
+    <div className="atlas-dialog-backdrop">
+      <form
+        aria-labelledby="edit-asset-title"
+        aria-modal="true"
+        className="atlas-dialog atlas-dialog--md"
+        onSubmit={onSubmit}
+        role="dialog"
+      >
+        <header className="atlas-dialog__header">
+          <h2 className="atlas-dialog__title" id="edit-asset-title">
+            Edit asset details
+          </h2>
+        </header>
+        <div className="atlas-dialog__body">
+          <AssetField label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} />
+          <AssetField label="Asset type" value={form.type} onChange={(type) => setForm({ ...form, type })} />
+          <AssetField label="Provider" value={form.provider} onChange={(provider) => setForm({ ...form, provider })} />
+          <AssetField label="Prompt" value={form.prompt ?? ""} required={false} multiline onChange={(prompt) => setForm({ ...form, prompt: prompt || null })} />
+        </div>
+        <DialogActions onClose={onClose} submitLabel="Save changes" />
+      </form>
+    </div>
+  );
 }
 
 function DeleteAssetDialog({ asset, onCancel, onConfirm }: { asset: ImageAsset; onCancel: () => void; onConfirm: () => void }) {
-  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><section aria-modal="true" role="dialog" className="w-full max-w-md rounded-2xl border border-white/10 bg-[#151c32] p-6"><h2 className="text-xl font-semibold">Delete {asset.name}?</h2><p className="mt-2 text-sm leading-6 text-slate-400">This removes the asset record from the local database. It cannot be undone.</p><div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" onClick={onCancel}>Cancel</button><button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-400" onClick={onConfirm}>Delete asset</button></div></section></div>;
+  return (
+    <div className="atlas-dialog-backdrop">
+      <section
+        aria-labelledby="delete-asset-title"
+        aria-modal="true"
+        className="atlas-dialog atlas-dialog--sm"
+        role="dialog"
+      >
+        <header className="atlas-dialog__header">
+          <h2 className="atlas-dialog__title" id="delete-asset-title">
+            Delete {asset.name}?
+          </h2>
+          <p className="atlas-dialog__description">
+            This removes the asset record from the local database. It cannot be undone.
+          </p>
+        </header>
+        <footer className="atlas-dialog__footer">
+          <button className="atlas-button atlas-button--quiet" onClick={onCancel}>
+            Cancel
+          </button>
+          <button className="atlas-button atlas-button--danger" onClick={onConfirm}>
+            Delete asset
+          </button>
+        </footer>
+      </section>
+    </div>
+  );
 }
 
 function DialogActions({ onClose, submitLabel, destructive = false }: { onClose: () => void; submitLabel: string; destructive?: boolean }) {
-  return <div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" type="button" onClick={onClose}>Cancel</button><button className={`rounded-lg px-4 py-2 text-sm font-semibold text-white ${destructive ? "bg-rose-500 hover:bg-rose-400" : "bg-violet-500 hover:bg-violet-400"}`}>{submitLabel}</button></div>;
+  return <footer className="atlas-dialog__footer"><button className="atlas-button atlas-button--quiet" type="button" onClick={onClose}>Cancel</button><button className={`atlas-button ${destructive ? "atlas-button--danger" : "atlas-button--primary"}`}>{submitLabel}</button></footer>;
 }
 
 function AssetField({ label, value, placeholder, required = true, multiline = false, onChange }: { label: string; value: string; placeholder?: string; required?: boolean; multiline?: boolean; onChange: (value: string) => void }) {
-  const className = "mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none placeholder:text-slate-600 focus:border-violet-400";
-  return <label className="mt-4 block text-sm font-medium">{label}{multiline ? <textarea className={`${className} min-h-24`} required={required} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} /> : <input className={className} required={required} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />}</label>;
+  return <label className="atlas-label mt-4">{label}{multiline ? <textarea className="atlas-control min-h-24" required={required} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} /> : <input className="atlas-control" required={required} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />}</label>;
 }

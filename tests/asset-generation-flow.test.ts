@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { AmbientAssetShowcase } from "../src/components/ambient-asset-showcase";
 import { CharacterAssetWorkspace } from "../src/components/character-studio";
 import { LlmTaskParser } from "../src/components/llm-task-parser";
 import {
@@ -10,6 +12,25 @@ import {
   runProductGeneration,
 } from "../src/lib/asset-generation-flow";
 import { DEFAULT_STATIC_IMAGE_ASSET_SETTINGS } from "../src/lib/task-mode";
+
+test("the ambient asset showcase is decorative, local, and non-interactive", () => {
+  const html = renderToStaticMarkup(React.createElement(AmbientAssetShowcase));
+
+  assert.match(html, /aria-hidden="true"/);
+  assert.ok((html.match(/\/references\//g) ?? []).length >= 8);
+  assert.doesNotMatch(html, /<(?:a|button)\b/);
+  assert.doesNotMatch(html, /https?:\/\//);
+});
+
+test("ambient motion respects reduced-motion and small-screen preferences", () => {
+  const css = readFileSync(
+    new URL("../src/app/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.atlas-showcase__track/);
+  assert.match(css, /@media \(max-width: 767px\)[\s\S]*?\.atlas-showcase/);
+});
 
 test("the beta character workspace omits metadata and developer previews", () => {
   const html = renderToStaticMarkup(
@@ -26,6 +47,10 @@ test("the beta character workspace omits metadata and developer previews", () =>
     }),
   );
 
+  assert.match(html, /Visual references/);
+  assert.match(html, /Add asset/);
+  assert.match(html, /Persistent creative context/);
+  assert.match(html, /Create memory/);
   assert.match(html, /Create game asset/);
   assert.doesNotMatch(html, /Metadata engine|Metadata preview|Developer details/);
 });

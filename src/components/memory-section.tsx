@@ -95,49 +95,134 @@ export function MemorySection({ characterId }: { characterId: string }) {
     }
   }
 
-  return <section className="mt-10 max-w-4xl border-t border-white/10 pt-10">
-    <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">Character memory</p><h2 className="mt-1 text-xl font-semibold">Persistent creative context</h2></div><div className="flex gap-2"><button className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:border-violet-400/60" onClick={openEditor}>{memory ? "Edit memory" : "Create memory"}</button>{memory && <button className="rounded-lg border border-rose-400/30 px-3 py-2 text-sm text-rose-200 hover:bg-rose-500/10" onClick={() => setIsConfirmingDelete(true)}>Delete</button>}</div></div>
-    {error && <p className="mt-4 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p>}
-    {isLoading ? <p className="mt-5 text-sm text-slate-400">Loading memory…</p> : memory ? <CharacterMemoryContent memory={memory} /> : <div className="mt-5 rounded-xl border border-dashed border-white/15 p-7 text-sm text-slate-400">No persistent memory yet. Create one to record the character details future workflows should preserve.</div>}
-    {isEditing && <MemoryDialog form={form} setForm={setForm} onClose={() => setIsEditing(false)} onSubmit={saveMemory} />}
-    {isConfirmingDelete && <DeleteMemoryDialog onCancel={() => setIsConfirmingDelete(false)} onConfirm={() => void deleteMemory()} />}
-  </section>;
+  return (
+    <section className="atlas-section">
+      <div className="atlas-section-header">
+        <div className="atlas-section-header__copy">
+          <p className="atlas-eyebrow">Character memory</p>
+          <h2 className="atlas-section-title">Persistent creative context</h2>
+          <p className="atlas-section-description">
+            Durable art direction and character knowledge carried into future work.
+          </p>
+        </div>
+        <div className="atlas-heading-actions">
+          <button
+            className="atlas-button atlas-button--secondary"
+            onClick={openEditor}
+          >
+            {memory ? "Edit memory" : "Create memory"}
+          </button>
+          {memory && (
+            <button
+              className="atlas-button atlas-button--danger"
+              onClick={() => setIsConfirmingDelete(true)}
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      </div>
+      {error && <p className="atlas-error" role="alert">{error}</p>}
+      {isLoading ? (
+        <p className="atlas-status" role="status">Loading memory…</p>
+      ) : memory ? (
+        <CharacterMemoryContent memory={memory} />
+      ) : (
+        <div className="atlas-empty">
+          No persistent memory yet. Create one to record the character details
+          future workflows should preserve.
+        </div>
+      )}
+      {isEditing && (
+        <MemoryDialog
+          form={form}
+          onClose={() => setIsEditing(false)}
+          onSubmit={saveMemory}
+          setForm={setForm}
+        />
+      )}
+      {isConfirmingDelete && (
+        <DeleteMemoryDialog
+          onCancel={() => setIsConfirmingDelete(false)}
+          onConfirm={() => void deleteMemory()}
+        />
+      )}
+    </section>
+  );
 }
 
 export function CharacterMemoryContent({ memory }: { memory: CharacterMemory }) {
   const hasAdvancedMemory = advancedMemoryFields.some(({ field }) => memory[field]);
-  return <div className="mt-5">
-    <div className="grid gap-4 sm:grid-cols-2">
-      {primaryMemoryFields.map(({ field, label }) => memory[field] ? <MemoryCard field={field} label={label} memory={memory} key={field} /> : null)}
+  return (
+    <div>
+      {primaryMemoryFields.map(({ field, label }) =>
+        memory[field] ? (
+          <MemoryCard field={field} label={label} memory={memory} key={field} />
+        ) : null,
+      )}
+      {hasAdvancedMemory && (
+        <details className="atlas-disclosure">
+          <summary>Advanced memory</summary>
+          <div className="atlas-memory-grid">
+            {advancedMemoryFields.map(({ field, label }) =>
+              memory[field] ? (
+                <MemoryCard field={field} label={label} memory={memory} key={field} />
+              ) : null,
+            )}
+          </div>
+        </details>
+      )}
+      <p className="atlas-updated-at">
+        Last updated {new Date(memory.lastUpdated).toLocaleString()}
+      </p>
     </div>
-    {hasAdvancedMemory && <details className="mt-4 rounded-xl border border-white/10 bg-white/[.025] p-4">
-      <summary className="cursor-pointer text-sm font-semibold text-slate-200">Advanced memory</summary>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        {advancedMemoryFields.map(({ field, label }) => memory[field] ? <MemoryCard field={field} label={label} memory={memory} key={field} /> : null)}
-      </div>
-    </details>}
-    <p className="mt-4 text-xs text-slate-500">Last updated {new Date(memory.lastUpdated).toLocaleString()}</p>
-  </div>;
+  );
 }
 
 function MemoryDialog({ form, setForm, onClose, onSubmit }: { form: MemoryForm; setForm: (form: MemoryForm) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) {
-  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><form className="flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#151c32]" onSubmit={onSubmit}><header className="shrink-0 border-b border-white/10 px-6 py-5"><h2 className="text-xl font-semibold">Edit character memory</h2><p className="mt-1 text-sm text-slate-400">This is manual, durable context. No AI generation is used here.</p></header><div className="min-h-0 flex-1 overflow-y-auto px-6 py-5"><CharacterMemoryFields form={form} setForm={setForm} /></div><footer className="flex shrink-0 justify-end gap-3 border-t border-white/10 bg-[#151c32] px-6 py-4"><button className="px-4 py-2 text-sm text-slate-300" type="button" onClick={onClose}>Cancel</button><button className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold hover:bg-violet-400">Save memory</button></footer></form></div>;
+  return (
+    <div className="atlas-dialog-backdrop">
+      <form
+        aria-labelledby="memory-dialog-title"
+        aria-modal="true"
+        className="atlas-dialog atlas-dialog--lg"
+        onSubmit={onSubmit}
+        role="dialog"
+      >
+        <header className="atlas-dialog__header">
+          <h2 className="atlas-dialog__title" id="memory-dialog-title">
+            Edit character memory
+          </h2>
+          <p className="atlas-dialog__description">
+            This is manual, durable context. No AI generation is used here.
+          </p>
+        </header>
+        <div className="atlas-dialog__body">
+          <CharacterMemoryFields form={form} setForm={setForm} />
+        </div>
+        <footer className="atlas-dialog__footer">
+          <button className="atlas-button atlas-button--quiet" type="button" onClick={onClose}>Cancel</button>
+          <button className="atlas-button atlas-button--primary">Save memory</button>
+        </footer>
+      </form>
+    </div>
+  );
 }
 
 export function CharacterMemoryFields({ form, setForm }: { form: MemoryForm; setForm: (form: MemoryForm) => void }) {
-  return <><p className="text-sm font-semibold text-slate-200">Visual identity</p>{primaryMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}<details className="mt-5 rounded-xl border border-white/10 bg-white/[.025] p-4"><summary className="cursor-pointer text-sm font-semibold text-slate-200">Advanced memory</summary><p className="mt-1 text-xs text-slate-500">Lore, immutable design rules, prompt guidance, and review summaries.</p>{advancedMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}</details></>;
+  return <><p className="atlas-form-group__title mt-4">Visual identity</p>{primaryMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}<details className="atlas-disclosure"><summary>Advanced memory</summary><p className="atlas-form-group__description">Lore, immutable design rules, prompt guidance, and review summaries.</p>{advancedMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}</details></>;
 }
 
 function MemoryCard({ field, label, memory }: { field: keyof MemoryForm; label: string; memory: CharacterMemory }) {
-  return <article className="rounded-xl border border-white/10 bg-white/[.03] p-4"><p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p><p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-200">{memory[field]}</p></article>;
+  return <article className={field === "visualStyle" ? "atlas-memory-feature" : "atlas-memory-card"}><p className="atlas-memory-label">{label}</p><p className="atlas-memory-value">{memory[field]}</p></article>;
 }
 
 function MemoryField({ field, form, setForm, label, hint }: { field: keyof MemoryForm; form: MemoryForm; setForm: (form: MemoryForm) => void; label: string; hint: string }) {
-  return <label className="mt-4 block text-sm font-medium">{label}<span className="ml-2 text-xs font-normal text-slate-500">{hint}</span><textarea className="mt-2 min-h-24 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none placeholder:text-slate-600 focus:border-violet-400" value={form[field]} onChange={(event) => setForm({ ...form, [field]: event.target.value })} /></label>;
+  return <label className="atlas-label mt-4">{label}<span className="atlas-field-hint">{hint}</span><textarea className="atlas-control min-h-24" value={form[field]} onChange={(event) => setForm({ ...form, [field]: event.target.value })} /></label>;
 }
 
 function DeleteMemoryDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-  return <div className="fixed inset-0 z-10 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm"><section aria-modal="true" role="dialog" className="w-full max-w-md rounded-2xl border border-white/10 bg-[#151c32] p-6"><h2 className="text-xl font-semibold">Delete character memory?</h2><p className="mt-2 text-sm leading-6 text-slate-400">This removes the persistent memory record. You can create a new one later.</p><div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" onClick={onCancel}>Cancel</button><button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-400" onClick={onConfirm}>Delete memory</button></div></section></div>;
+  return <div className="atlas-dialog-backdrop"><section aria-labelledby="delete-memory-title" aria-modal="true" className="atlas-dialog atlas-dialog--sm" role="dialog"><header className="atlas-dialog__header"><h2 className="atlas-dialog__title" id="delete-memory-title">Delete character memory?</h2><p className="atlas-dialog__description">This removes the persistent memory record. You can create a new one later.</p></header><footer className="atlas-dialog__footer"><button className="atlas-button atlas-button--quiet" onClick={onCancel}>Cancel</button><button className="atlas-button atlas-button--danger" onClick={onConfirm}>Delete memory</button></footer></section></div>;
 }
 
 function toMemoryForm(memory: CharacterMemory): MemoryForm {

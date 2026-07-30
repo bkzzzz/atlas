@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { AmbientAssetShowcase } from "@/components/ambient-asset-showcase";
 import { AssetSection } from "@/components/asset-section";
 import { MemorySection } from "@/components/memory-section";
 import { LlmTaskParser } from "@/components/llm-task-parser";
@@ -136,46 +137,77 @@ export function CharacterStudio() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0b1020] text-slate-100">
-      <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-1 lg:grid-cols-[340px_1fr]">
-        <aside className="border-b border-white/10 bg-[#0e1427] p-6 lg:border-r lg:border-b-0">
-          <p className="text-lg font-bold">Atlas<span className="text-violet-400">.io</span></p>
-          <p className="mt-8 text-xs font-semibold uppercase tracking-[.16em] text-violet-300">Character library</p>
-          <div className="mt-4 space-y-2">
-            {isLoading && <p className="text-sm text-slate-400">Loading characters…</p>}
+    <main className="atlas-app">
+      <AmbientAssetShowcase />
+      <div className="atlas-shell">
+        <aside className="atlas-sidebar">
+          <p className="atlas-brand">Atlas<span>.io</span></p>
+          <p className="atlas-library-label">Character library</p>
+          <div className="atlas-character-list">
+            {isLoading && <p className="atlas-status" role="status">Loading characters…</p>}
             {characters.map((character) => (
               <button
-                className={`w-full rounded-xl border p-4 text-left transition ${selected?.id === character.id ? "border-violet-400/60 bg-violet-500/10" : "border-white/10 hover:bg-white/5"}`}
+                aria-current={selected?.id === character.id ? "true" : undefined}
+                className="atlas-character-row"
                 key={character.id}
                 onClick={() => void selectCharacter(character.id)}
               >
-                <p className="font-semibold">{character.name}</p>
-                <p className="mt-1 text-sm text-slate-400">{character.species}</p>
+                <span className="atlas-character-row__name">{character.name}</span>
+                <span className="atlas-character-row__species">{character.species}</span>
               </button>
             ))}
           </div>
-          {!isLoading && characters.length === 0 && <p className="mt-4 text-sm text-slate-400">No characters yet.</p>}
+          {!isLoading && characters.length === 0 && (
+            <p className="atlas-status">No characters yet.</p>
+          )}
         </aside>
 
-        <section className="p-6 sm:p-10">
-          <div className="flex items-center justify-between gap-4">
-            <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">Character Studio</p><h1 className="mt-1 text-2xl font-semibold">Your characters</h1></div>
-            <button className="rounded-lg bg-violet-500 px-4 py-2.5 text-sm font-semibold hover:bg-violet-400" onClick={() => setIsCreating(true)}>New character</button>
+        <section className="atlas-workspace">
+          <div className="atlas-page-toolbar">
+            <div>
+              <p className="atlas-eyebrow">Character studio</p>
+              <h1 className="atlas-page-title">Your characters</h1>
+            </div>
+            <button
+              className="atlas-button atlas-button--primary"
+              onClick={() => setIsCreating(true)}
+            >
+              New character
+            </button>
           </div>
 
-          {error && <p className="mt-6 rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p>}
+          {error && <p className="atlas-error" role="alert">{error}</p>}
 
           {selected ? (
             <>
-              <article className="mt-10 max-w-2xl rounded-2xl border border-white/10 bg-white/[.03] p-6">
-              <p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-300">Character profile</p>
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-3"><h2 className="text-3xl font-semibold">{selected.name}</h2><div className="flex gap-2"><button className="rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 hover:border-violet-400/60" onClick={openEditDialog}>Edit</button><button className="rounded-lg border border-rose-400/30 px-3 py-2 text-sm text-rose-200 hover:bg-rose-500/10" onClick={() => setIsConfirmingDelete(true)}>Delete</button></div></div>
-              <dl className="mt-8 grid gap-6 sm:grid-cols-2">
-                <Detail label="Species" value={selected.species} />
-                <Detail label="Created" value={new Date(selected.createdAt).toLocaleDateString()} />
-                <Detail label="Personality" value={selected.personality} />
-                <Detail label="Description" value={selected.description} />
-              </dl>
+              <article className="atlas-profile">
+                <p className="atlas-eyebrow">Character profile</p>
+                <div className="atlas-profile__heading">
+                  <h2 className="atlas-profile__title">{selected.name}</h2>
+                  <div className="atlas-heading-actions">
+                    <button
+                      className="atlas-button atlas-button--quiet"
+                      onClick={openEditDialog}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="atlas-button atlas-button--danger"
+                      onClick={() => setIsConfirmingDelete(true)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <dl className="atlas-profile__details">
+                  <Detail label="Species" value={selected.species} />
+                  <Detail
+                    label="Created"
+                    value={new Date(selected.createdAt).toLocaleDateString()}
+                  />
+                  <Detail label="Personality" value={selected.personality} />
+                  <Detail label="Description" value={selected.description} />
+                </dl>
               </article>
               <CharacterAssetWorkspace
                 character={selected}
@@ -183,7 +215,11 @@ export function CharacterStudio() {
                 key={selected.id}
               />
             </>
-          ) : !isLoading && <div className="mt-10 rounded-2xl border border-dashed border-white/15 p-10 text-center text-slate-400">Create your first character to begin.</div>}
+          ) : !isLoading && (
+            <div className="atlas-empty">
+              Create your first character to begin.
+            </div>
+          )}
         </section>
       </div>
 
@@ -196,8 +232,37 @@ export function CharacterStudio() {
       )}
 
       {isConfirmingDelete && selected && (
-        <div className="fixed inset-0 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm">
-          <section aria-modal="true" role="dialog" className="w-full max-w-md rounded-2xl border border-white/10 bg-[#151c32] p-6"><h2 className="text-xl font-semibold">Delete {selected.name}?</h2><p className="mt-2 text-sm leading-6 text-slate-400">This permanently removes the character from the local database. This action cannot be undone.</p><div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" onClick={() => setIsConfirmingDelete(false)}>Cancel</button><button className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-400" onClick={() => void deleteCharacter()}>Delete character</button></div></section>
+        <div className="atlas-dialog-backdrop">
+          <section
+            aria-labelledby="delete-character-title"
+            aria-modal="true"
+            className="atlas-dialog atlas-dialog--sm"
+            role="dialog"
+          >
+            <header className="atlas-dialog__header">
+              <h2 className="atlas-dialog__title" id="delete-character-title">
+                Delete {selected.name}?
+              </h2>
+              <p className="atlas-dialog__description">
+                This permanently removes the character from the local database.
+                This action cannot be undone.
+              </p>
+            </header>
+            <footer className="atlas-dialog__footer">
+              <button
+                className="atlas-button atlas-button--quiet"
+                onClick={() => setIsConfirmingDelete(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="atlas-button atlas-button--danger"
+                onClick={() => void deleteCharacter()}
+              >
+                Delete character
+              </button>
+            </footer>
+          </section>
         </div>
       )}
     </main>
@@ -230,25 +295,37 @@ export function CharacterAssetWorkspace({
 // validation consistent while their submit handlers remain separate.
 function CharacterFormDialog({ title, description, form, setForm, onClose, onSubmit, submitLabel }: { title: string; description: string; form: CreateCharacterInput; setForm: (form: CreateCharacterInput) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void; submitLabel: string }) {
   return (
-    <div className="fixed inset-0 grid place-items-center bg-slate-950/75 p-4 backdrop-blur-sm">
-          <form className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#151c32] p-6" onSubmit={onSubmit}>
-            <h2 className="text-xl font-semibold">{title}</h2>
-            <p className="mt-1 text-sm text-slate-400">{description}</p>
+    <div className="atlas-dialog-backdrop">
+          <form
+            aria-labelledby="character-form-title"
+            aria-modal="true"
+            className="atlas-dialog atlas-dialog--md"
+            onSubmit={onSubmit}
+            role="dialog"
+          >
+            <header className="atlas-dialog__header">
+              <h2 className="atlas-dialog__title" id="character-form-title">{title}</h2>
+              <p className="atlas-dialog__description">{description}</p>
+            </header>
+            <div className="atlas-dialog__body">
             <Field label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} />
             <Field label="Species" value={form.species} onChange={(species) => setForm({ ...form, species })} />
             <Field label="Personality" value={form.personality} onChange={(personality) => setForm({ ...form, personality })} />
             <Field label="Description" value={form.description} onChange={(description) => setForm({ ...form, description })} multiline />
-            <div className="mt-6 flex justify-end gap-3"><button className="px-4 py-2 text-sm text-slate-300" type="button" onClick={onClose}>Cancel</button><button className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold hover:bg-violet-400">{submitLabel}</button></div>
+            </div>
+            <footer className="atlas-dialog__footer">
+              <button className="atlas-button atlas-button--quiet" type="button" onClick={onClose}>Cancel</button>
+              <button className="atlas-button atlas-button--primary">{submitLabel}</button>
+            </footer>
           </form>
     </div>
   );
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
-  return <div><dt className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</dt><dd className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-200">{value}</dd></div>;
+  return <div className="atlas-detail"><dt>{label}</dt><dd>{value}</dd></div>;
 }
 
 function Field({ label, value, onChange, multiline = false }: { label: string; value: string; onChange: (value: string) => void; multiline?: boolean }) {
-  const className = "mt-2 w-full rounded-lg border border-white/10 bg-slate-950/50 px-3 py-2.5 outline-none placeholder:text-slate-600 focus:border-violet-400";
-  return <label className="mt-4 block text-sm font-medium">{label}{multiline ? <textarea className={`${className} min-h-24`} required value={value} onChange={(event) => onChange(event.target.value)} /> : <input className={className} required value={value} onChange={(event) => onChange(event.target.value)} />}</label>;
+  return <label className="atlas-label mt-4">{label}{multiline ? <textarea className="atlas-control min-h-24" required value={value} onChange={(event) => onChange(event.target.value)} /> : <input className="atlas-control" required value={value} onChange={(event) => onChange(event.target.value)} />}</label>;
 }

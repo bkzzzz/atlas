@@ -1,66 +1,66 @@
 # Atlas
 
-### Build a character once. Create a consistent world around it.
+### AI-powered game asset creation with consistent art direction.
 
-Atlas is a reference-driven creative production platform for making game assets that stay aligned with a character’s identity and visual language.
+Atlas is a creative workspace for generating game assets from reusable character profiles, visual references, and production rules.
 
-Instead of rebuilding art direction for every prompt, creators establish a reusable character source, attach visual references, and carry that context into each generation.
+Instead of rebuilding prompts for every image, creators define the character and art direction once, then use AI to generate assets that stay visually consistent.
 
 > **Private beta** — Atlas is under active development. Generated assets should be reviewed before production use.
 
-## Product introduction
-
-Game asset generation is rarely a one-prompt problem. A character needs to remain recognizable across new objects, poses, views, and production requests—even as the brief evolves.
-
-Atlas turns that work into a repeatable creative workflow:
-
-- Character profiles hold the core identity and description.
-- Character Memory preserves durable art direction and design rules.
-- Visual references provide direct style and rendering context.
-- Production controls shape the asset type, visual style, camera, background, and shadow treatment.
-- A structured compiler combines those inputs into one generation request.
-
 ## Screenshots
 
-
 ### Character workspace
-<img width="1669" height="1056" alt="image" src="https://github.com/user-attachments/assets/ae610841-3ce0-496b-b3b5-4c3a6b596fd5" />
 
-<img width="1622" height="1061" alt="image" src="https://github.com/user-attachments/assets/3b775ea8-94c8-44d9-9dd3-d8dea743157f" />
+<img width="1669" height="1056" alt="Atlas character workspace" src="https://github.com/user-attachments/assets/ae610841-3ce0-496b-b3b5-4c3a6b596fd5" />
 
-### Asset production
+<img width="1622" height="1061" alt="Atlas character profile and visual references" src="https://github.com/user-attachments/assets/3b775ea8-94c8-44d9-9dd3-d8dea743157f" />
 
-<img width="1331" height="1050" alt="image" src="https://github.com/user-attachments/assets/3b347ca6-4508-4db1-bd7e-84b132bf8232" />
+### Asset generation
+
+<img width="1331" height="1050" alt="Atlas asset generation controls" src="https://github.com/user-attachments/assets/3b347ca6-4508-4db1-bd7e-84b132bf8232" />
 
 ### Generated result
 
-<img width="1955" height="1047" alt="image" src="https://github.com/user-attachments/assets/2a50f746-8596-47f8-92fe-b94fcd44efcc" />
+<img width="1955" height="1047" alt="Atlas generated game asset" src="https://github.com/user-attachments/assets/2a50f746-8596-47f8-92fe-b94fcd44efcc" />
 
 ## Core features
 
-### Reference-driven generation
+### AI reference-conditioned generation
 
-Attach visual references to a character and use them immediately. Atlas passes the source image files into reference-conditioned generation so style guidance is not reduced to titles or metadata alone.
+Attach visual references to a character and use them immediately during generation.
 
-### Persistent art direction
+Atlas sends the original reference image files into the image-generation workflow instead of reducing them to titles or text metadata alone.
 
-Store visual style, lore, preferred prompting, and design rules in Character Memory. That context remains available across production requests instead of living in a disposable chat.
+### Persistent character and art direction
 
-### Consistent game assets
+Store reusable character identity, lore, visual direction, preferred prompting, and design rules in Character Memory.
 
-Combine character identity, visual references, and explicit production controls to create static game assets with a repeatable visual brief. Pixel-art mode adds constraints for crisp pixels, limited palettes, simple shading, and sprite-scale readability.
+That context remains available across multiple production requests instead of living in a disposable chat session.
 
-### Creative control without prompt reconstruction
+### Structured creative controls
 
-Choose the asset type, visual style, camera or view, background, and ground-shadow treatment directly. Optional art direction remains available for briefs that need additional specificity.
+Choose the asset type, visual style, camera or view, background, ground-shadow treatment, and optional art direction without manually rebuilding a long prompt.
+
+Atlas combines those controls with the selected character and visual references into one structured generation request.
+
+### Consistent game-asset workflow
+
+Atlas is designed for continuity rather than isolated outputs.
+
+Character profiles, persistent memory, visual references, production settings, and user intent are compiled into a reusable AI-assisted workflow for generating static, vector-style, and pixel-art assets.
 
 ### Character and reference management
 
-Create and edit characters, add or remove their visual references, and keep each character’s production context together in one workspace.
+Create and edit characters, attach visual references, update persistent memory, and keep each character’s production context together in one workspace.
+
+New visual references become active immediately and can be edited or deleted at any time.
 
 ### English and Simplified Chinese interface
 
-Switch the product interface between English and Simplified Chinese without reloading the page. User-authored content, character names, prompts, and generated output remain unchanged.
+Switch the product interface between English and Simplified Chinese without reloading the page.
+
+Character names, user prompts, uploaded asset names, and generated content remain unchanged.
 
 ## Workflow
 
@@ -144,13 +144,12 @@ npm run lint
 npm run build
 ```
 
-### Repository safety
+### Security and operational safeguards
 
-- Never commit `.env.local`, API keys, tokens, or other credentials.
-- Local SQLite databases are intentionally excluded from version control.
-- Commit `prisma/schema.prisma` and migration files, not a local database file.
-- Uploaded references and generated assets may contain private creative material; use appropriate data and access practices for your environment.
-- Generation calls can incur API usage costs. Avoid retrying requests blindly after network or provider errors.
+- Secrets and provider credentials are kept server-side and excluded from version control.
+- Generation requests use short-lived authorization and server-side validation.
+- Uploaded references and generated assets are treated as private project data.
+- Database schema and migrations are versioned without committing local database files.
 
 ## Roadmap
 

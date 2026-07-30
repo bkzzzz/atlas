@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { FormEvent, useState } from "react";
+import { useLanguage } from "@/components/language-provider";
 import {
   ASSET_TYPES,
   ASSET_WORKFLOWS,
@@ -10,6 +11,11 @@ import {
   type GeneratedImage,
   type ProductGenerationInput,
 } from "@/lib/asset-generation-flow";
+import {
+  localeForLanguage,
+  translateKnownText,
+  type TranslationKey,
+} from "@/lib/i18n";
 import {
   DEFAULT_STATIC_IMAGE_ASSET_SETTINGS,
   GROUND_SHADOW_OPTIONS,
@@ -20,33 +26,53 @@ import {
   type StaticImageAssetSettings,
 } from "@/lib/task-mode";
 
-const VISUAL_STYLE_LABELS: Record<StaticImageAssetSettings["visualStyle"], string> = {
-  PIXEL_ART: "Pixel art",
-  VECTOR_STYLE: "Flat Illustration",
-  ILLUSTRATION: "Illustration",
+const VISUAL_STYLE_LABELS: Record<StaticImageAssetSettings["visualStyle"], TranslationKey> = {
+  PIXEL_ART: "generation.visualStyle.pixelArt",
+  VECTOR_STYLE: "generation.visualStyle.flatIllustration",
+  ILLUSTRATION: "generation.visualStyle.illustration",
 };
-const VIEW_ANGLE_LABELS: Record<StaticImageAssetSettings["viewAngle"], string> = {
-  SIDE: "Side",
-  FRONT: "Front",
-  TOP_DOWN: "Top-down",
-  ISOMETRIC: "Isometric",
-  THREE_QUARTER: "Three-quarter",
-  UNSPECIFIED: "Unspecified",
+const VIEW_ANGLE_LABELS: Record<StaticImageAssetSettings["viewAngle"], TranslationKey> = {
+  SIDE: "generation.camera.side",
+  FRONT: "generation.camera.front",
+  TOP_DOWN: "generation.camera.topDown",
+  ISOMETRIC: "generation.camera.isometric",
+  THREE_QUARTER: "generation.camera.threeQuarter",
+  UNSPECIFIED: "generation.camera.unspecified",
 };
-const BACKGROUND_LABELS: Record<StaticImageAssetSettings["background"], string> = {
-  TRANSPARENT: "Transparent",
-  WHITE: "White",
-  SIMPLE_SOLID: "Simple solid",
-  UNSPECIFIED: "Unspecified",
+const BACKGROUND_LABELS: Record<StaticImageAssetSettings["background"], TranslationKey> = {
+  TRANSPARENT: "generation.background.transparent",
+  WHITE: "generation.background.white",
+  SIMPLE_SOLID: "generation.background.simpleSolid",
+  UNSPECIFIED: "generation.background.unspecified",
 };
-const PIXEL_DETAIL_LABELS: Record<StaticImageAssetSettings["pixelDetail"], string> = {
-  LOW: "Low detail",
-  MEDIUM: "Medium detail",
-  HIGH: "High detail",
+const PIXEL_DETAIL_LABELS: Record<StaticImageAssetSettings["pixelDetail"], TranslationKey> = {
+  LOW: "generation.pixelDetail.low",
+  MEDIUM: "generation.pixelDetail.medium",
+  HIGH: "generation.pixelDetail.high",
 };
-const GROUND_SHADOW_LABELS: Record<StaticImageAssetSettings["groundShadow"], string> = {
-  ALLOW: "Allow",
-  NONE: "None",
+const GROUND_SHADOW_LABELS: Record<StaticImageAssetSettings["groundShadow"], TranslationKey> = {
+  ALLOW: "generation.groundShadow.allow",
+  NONE: "generation.groundShadow.none",
+};
+
+const WORKFLOW_LABELS: Record<(typeof ASSET_WORKFLOWS)[number]["value"], TranslationKey> = {
+  STATIC_IMAGE: "generation.workflow.static",
+  IDLE_ANIMATION: "generation.workflow.idle",
+  WALK_ANIMATION: "generation.workflow.walk",
+};
+
+const WORKFLOW_DESCRIPTIONS: Record<(typeof ASSET_WORKFLOWS)[number]["value"], TranslationKey> = {
+  STATIC_IMAGE: "generation.workflow.raster",
+  IDLE_ANIMATION: "generation.workflow.unavailable",
+  WALK_ANIMATION: "generation.workflow.unavailable",
+};
+
+const ASSET_TYPE_LABELS: Record<AssetType, TranslationKey> = {
+  CHARACTER_SPRITE: "generation.assetType.characterSprite",
+  PORTRAIT: "generation.assetType.portrait",
+  ICON: "generation.assetType.icon",
+  PROP: "generation.assetType.prop",
+  UI_ASSET: "generation.assetType.uiAsset",
 };
 
 type Props = {
@@ -60,6 +86,7 @@ export function LlmTaskParser({
   characterName,
   styleCharacters = [],
 }: Props) {
+  const { language, t } = useLanguage();
   const [assetType, setAssetType] = useState<AssetType>("CHARACTER_SPRITE");
   const [artDirection, setArtDirection] = useState("");
   const [styleSourceMode, setStyleSourceMode] = useState<"NEW" | "INHERIT">("NEW");
@@ -107,14 +134,14 @@ export function LlmTaskParser({
       payload = await response.json();
     } catch {
       throw new Error(response.ok
-        ? "Atlas returned an invalid JSON response."
-        : "Atlas could not complete the asset request.");
+        ? "errors.invalidJson"
+        : "errors.assetRequest");
     }
     if (!response.ok) {
       const message = payload && typeof payload === "object" && "error" in payload
         ? (payload as { error?: unknown }).error
         : null;
-      throw new Error(typeof message === "string" ? message : "Atlas could not complete the asset request.");
+      throw new Error(typeof message === "string" ? message : "errors.assetRequest");
     }
     return payload;
   }
@@ -130,7 +157,7 @@ export function LlmTaskParser({
       setError(
         generationError instanceof Error
           ? generationError.message
-          : "Could not generate the image.",
+          : "errors.generateImage",
       );
     } finally {
       setIsGenerating(false);
@@ -141,15 +168,15 @@ export function LlmTaskParser({
     <section className="atlas-section">
       <div className="atlas-section-header">
         <div className="atlas-section-header__copy">
-        <p className="atlas-eyebrow">Asset production</p>
-        <h2 className="atlas-section-title">Create game asset</h2>
+        <p className="atlas-eyebrow">{t("generation.eyebrow")}</p>
+        <h2 className="atlas-section-title">{t("generation.title")}</h2>
         <p className="atlas-section-description">
-          Atlas prepares the art direction and production prompt for you.
+          {t("generation.description")}
         </p>
         </div>
       </div>
 
-      <div className="atlas-workflow-grid" aria-label="Asset workflow">
+      <div className="atlas-workflow-grid" aria-label={t("generation.workflowLabel")}>
         {ASSET_WORKFLOWS.map((workflow) => (
           <button
             aria-pressed={workflow.executable ? true : undefined}
@@ -158,9 +185,11 @@ export function LlmTaskParser({
             key={workflow.value}
             type="button"
           >
-            <span className="atlas-workflow-option__label">{workflow.label}</span>
+            <span className="atlas-workflow-option__label">
+              {t(WORKFLOW_LABELS[workflow.value])}
+            </span>
             <span className="atlas-workflow-option__description">
-              {workflow.description}
+              {t(WORKFLOW_DESCRIPTIONS[workflow.value])}
             </span>
           </button>
         ))}
@@ -173,7 +202,7 @@ export function LlmTaskParser({
       >
         <div className="atlas-form-grid">
           <label className="atlas-label">
-            Character
+            {t("generation.character")}
             <input
               className="atlas-control"
               readOnly
@@ -181,7 +210,7 @@ export function LlmTaskParser({
             />
           </label>
           <label className="atlas-label">
-            Asset type
+            {t("generation.assetType")}
             <select
               className="atlas-control"
               disabled={isGenerating}
@@ -192,24 +221,27 @@ export function LlmTaskParser({
               value={assetType}
             >
               {ASSET_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>{type.label}</option>
+                <option key={type.value} value={type.value}>
+                  {t(ASSET_TYPE_LABELS[type.value])}
+                </option>
               ))}
             </select>
           </label>
         </div>
 
         <fieldset className="atlas-form-group">
-          <legend className="atlas-form-group__title">Style source</legend>
+          <legend className="atlas-form-group__title">
+            {t("generation.styleSource")}
+          </legend>
           <p className="atlas-form-group__description">
-            Create a fresh style or borrow another character&apos;s established theme.
-            Visual style remains independent.
+            {t("generation.styleSourceDescription")}
           </p>
           <div className="atlas-style-options">
             <StyleSourceOption
               checked={styleSourceMode === "NEW"}
               disabled={isGenerating}
-              description="Use the visual style selected below without inheriting another character."
-              label="Create a new style"
+              description={t("generation.styleNewDescription")}
+              label={t("generation.styleNew")}
               onChange={() => {
                 setStyleSourceMode("NEW");
                 clearCompiledState();
@@ -221,10 +253,10 @@ export function LlmTaskParser({
               disabled={isGenerating || styleCharacters.length === 0}
               description={
                 styleCharacters.length
-                  ? "Use another character's style memory and visual references."
-                  : "Create another character first to use style inheritance."
+                  ? t("generation.styleInheritDescription")
+                  : t("generation.styleInheritUnavailable")
               }
-              label="Inherit another character's style/theme"
+              label={t("generation.styleInherit")}
               onChange={() => {
                 setStyleSourceMode("INHERIT");
                 clearCompiledState();
@@ -234,7 +266,7 @@ export function LlmTaskParser({
           </div>
           {styleSourceMode === "INHERIT" && styleCharacters.length > 0 && (
             <label className="atlas-label mt-4">
-              Style character
+              {t("generation.styleCharacter")}
               <select
                 className="atlas-control"
                 disabled={isGenerating}
@@ -256,7 +288,7 @@ export function LlmTaskParser({
 
         <div className="atlas-form-group atlas-form-grid atlas-form-grid--controls">
             <AssetSettingSelect
-              label="Visual style"
+              label={t("generation.visualStyle")}
               disabled={isGenerating}
               onChange={(value) => updateAssetSetting("visualStyle", value)}
               options={STATIC_IMAGE_VISUAL_STYLES}
@@ -264,7 +296,7 @@ export function LlmTaskParser({
               value={assetSettings.visualStyle}
             />
             <AssetSettingSelect
-              label="Camera / view"
+              label={t("generation.camera")}
               disabled={isGenerating}
               onChange={(value) => updateAssetSetting("viewAngle", value)}
               options={STATIC_IMAGE_VIEW_ANGLES}
@@ -272,7 +304,7 @@ export function LlmTaskParser({
               value={assetSettings.viewAngle}
             />
             <AssetSettingSelect
-              label="Background"
+              label={t("generation.background")}
               disabled={isGenerating}
               onChange={(value) => updateAssetSetting("background", value)}
               options={STATIC_IMAGE_BACKGROUNDS}
@@ -281,7 +313,7 @@ export function LlmTaskParser({
             />
             {assetSettings.visualStyle === "PIXEL_ART" && (
               <AssetSettingSelect
-                label="Pixel detail"
+                label={t("generation.pixelDetail")}
                 disabled={isGenerating}
                 onChange={(value) => updateAssetSetting("pixelDetail", value)}
                 options={PIXEL_ART_DETAILS}
@@ -290,7 +322,7 @@ export function LlmTaskParser({
               />
             )}
             <AssetSettingSelect
-              label="Ground shadow"
+              label={t("generation.groundShadow")}
               disabled={isGenerating}
               onChange={(value) => updateAssetSetting("groundShadow", value)}
               options={GROUND_SHADOW_OPTIONS}
@@ -299,23 +331,23 @@ export function LlmTaskParser({
             />
         </div>
         <p className="atlas-flat-note">
-          Flat Illustration produces a raster PNG with vector-style rendering.
+          {t("generation.flatNote")}
         </p>
 
         <details className="atlas-disclosure">
-          <summary>Advanced</summary>
+          <summary>{t("generation.advanced")}</summary>
           <p className="atlas-form-group__description">
-            Add extra creative or production instructions.
+            {t("generation.advancedDescription")}
           </p>
           <label className="atlas-label mt-3">
-            Optional art direction
+            {t("generation.artDirection")}
             <textarea
               className="atlas-control min-h-20"
               onChange={(event) => {
                 setArtDirection(event.target.value);
                 clearCompiledState();
               }}
-              placeholder="For example: make the character look exhausted, more mysterious, or add snow on the shoulders."
+              placeholder={t("generation.artDirectionPlaceholder")}
               value={artDirection}
             />
           </label>
@@ -323,7 +355,7 @@ export function LlmTaskParser({
 
         <div className="atlas-generate-row">
           <p>
-            Transparent background and no ground shadow are the game-asset defaults.
+            {t("generation.defaults")}
           </p>
           <button
             className="atlas-button atlas-button--primary atlas-generate-button"
@@ -332,21 +364,21 @@ export function LlmTaskParser({
               (styleSourceMode === "INHERIT" && !styleSourceCharacterId)
             }
           >
-            {isGenerating ? "Generating…" : "Generate"}
+            {isGenerating ? t("generation.generating") : t("generation.generate")}
           </button>
         </div>
       </form>
 
       {error && (
         <p className="atlas-error" role="alert">
-          {error}
+          {translateKnownText(error, t)}
         </p>
       )}
 
       {image && (
         <section className="atlas-result">
           <div className="atlas-result__header">
-            <h3 className="atlas-result__title">Generated asset</h3>
+            <h3 className="atlas-result__title">{t("generation.resultTitle")}</h3>
           </div>
           <div className="atlas-result__stage">
             <Image
@@ -355,12 +387,21 @@ export function LlmTaskParser({
               height={1024}
               className="atlas-result__image"
               src={image.imageUrl}
-              alt={`Generated ${ASSET_TYPES.find(({ value }) => value === assetType)?.label.toLowerCase() ?? "game asset"} for ${characterName}`}
+              alt={t("generation.resultAlt", {
+                assetType: t(ASSET_TYPE_LABELS[assetType]).toLowerCase(),
+                characterName,
+              })}
             />
           </div>
           <div className="atlas-result__metadata">
-            <span>Generated {new Date(image.createdAt).toLocaleString()}</span>
-            <span>Temporary browser-only preview. It is not saved to Atlas.</span>
+            <span>
+              {t("generation.generatedAt", {
+                date: new Date(image.createdAt).toLocaleString(
+                  localeForLanguage(language),
+                ),
+              })}
+            </span>
+            <span>{t("generation.temporary")}</span>
           </div>
         </section>
       )}
@@ -413,11 +454,13 @@ function AssetSettingSelect<T extends string>({
 }: {
   disabled?: boolean;
   label: string;
-  labels: Record<T, string>;
+  labels: Record<T, TranslationKey>;
   onChange: (value: T) => void;
   options: readonly T[];
   value: T;
 }) {
+  const { t } = useLanguage();
+
   return (
     <label className="atlas-label">
       {label}
@@ -428,7 +471,7 @@ function AssetSettingSelect<T extends string>({
         value={value}
       >
         {options.map((option) => (
-          <option key={option} value={option}>{labels[option]}</option>
+          <option key={option} value={option}>{t(labels[option])}</option>
         ))}
       </select>
     </label>

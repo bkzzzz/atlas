@@ -3,8 +3,11 @@ import {
   DEMO_SHOWCASE_ARCHIVE,
   DEMO_SHOWCASE_BANDS,
 } from "@/lib/demo-showcase-assets";
+import { useLanguage } from "@/components/language-provider";
 
 export function AmbientAssetShowcase() {
+  const { t } = useLanguage();
+
   return (
     <div aria-hidden="true" className="atlas-showcase">
       {DEMO_SHOWCASE_BANDS.map((assets, bandIndex) => (
@@ -35,8 +38,8 @@ export function AmbientAssetShowcase() {
       ))}
       <div className="atlas-showcase__archive">
         <div className="atlas-showcase__archive-heading">
-          <span>Atlas reference archive</span>
-          <span>Visual field notes&nbsp;&nbsp;/&nbsp;&nbsp;01—06</span>
+          <span>{t("archive.title")}</span>
+          <span>{t("archive.notes")}</span>
         </div>
         {DEMO_SHOWCASE_ARCHIVE.map((asset, assetIndex) => (
           <figure

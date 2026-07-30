@@ -416,6 +416,42 @@ button:disabled {
   text-align: right;
 }
 
+.atlas-hero__utilities {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.atlas-language-switcher {
+  display: inline-flex;
+  width: 62px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--atlas-text-faint);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.atlas-language-switcher button {
+  min-width: 20px;
+  border: 0;
+  background: transparent;
+  padding: 4px 0;
+  color: var(--atlas-text-faint);
+  font: inherit;
+  transition: color var(--atlas-transition);
+}
+
+.atlas-language-switcher button:hover {
+  color: var(--atlas-text-soft);
+}
+
+.atlas-language-switcher button[aria-pressed="true"] {
+  color: var(--atlas-accent-strong);
+}
+
 .atlas-hero__body {
   display: grid;
   gap: 34px;
@@ -1672,6 +1708,28 @@ textarea.atlas-control {
 
   .atlas-hero__edition {
     display: none;
+  }
+
+  .atlas-hero__masthead {
+    gap: 12px;
+  }
+
+  .atlas-hero__wordmark {
+    gap: 10px;
+  }
+
+  .atlas-hero__mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .atlas-hero__category {
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+  }
+
+  .atlas-hero__utilities {
+    flex: none;
   }
 
   .atlas-hero__body {

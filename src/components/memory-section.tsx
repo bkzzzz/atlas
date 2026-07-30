@@ -1,6 +1,12 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useLanguage } from "@/components/language-provider";
+import {
+  localeForLanguage,
+  translateKnownText,
+  type TranslationKey,
+} from "@/lib/i18n";
 import type { CharacterMemory, CharacterMemoryInput } from "@/lib/memory";
 
 export type MemoryForm = Record<keyof CharacterMemoryInput, string>;
@@ -14,13 +20,17 @@ const emptyMemoryForm: MemoryForm = {
   preferredPrompt: "",
 };
 
-const memoryLabels: { field: keyof MemoryForm; label: string; hint: string }[] = [
-  { field: "visualStyle", label: "Visual style", hint: "Art direction, palette, framing, and mood." },
-  { field: "lore", label: "Lore", hint: "Backstory, world context, and character facts." },
-  { field: "designRules", label: "Design rules", hint: "Details that must stay consistent." },
-  { field: "approvedSummary", label: "Approved summary", hint: "What is working and should be preserved." },
-  { field: "rejectedSummary", label: "Rejected summary", hint: "What should not be repeated." },
-  { field: "preferredPrompt", label: "Preferred prompt", hint: "A human-maintained prompt starting point." },
+const memoryLabels: {
+  field: keyof MemoryForm;
+  label: TranslationKey;
+  hint: TranslationKey;
+}[] = [
+  { field: "visualStyle", label: "memory.field.visualStyle", hint: "memory.hint.visualStyle" },
+  { field: "lore", label: "memory.field.lore", hint: "memory.hint.lore" },
+  { field: "designRules", label: "memory.field.designRules", hint: "memory.hint.designRules" },
+  { field: "approvedSummary", label: "memory.field.approvedSummary", hint: "memory.hint.approvedSummary" },
+  { field: "rejectedSummary", label: "memory.field.rejectedSummary", hint: "memory.hint.rejectedSummary" },
+  { field: "preferredPrompt", label: "memory.field.preferredPrompt", hint: "memory.hint.preferredPrompt" },
 ];
 
 const primaryMemoryFields = memoryLabels.filter(({ field }) => field === "visualStyle");
@@ -29,6 +39,7 @@ const advancedMemoryFields = memoryLabels.filter(({ field }) => field !== "visua
 // Memory is scoped to a selected character, so this component owns its API
 // calls and editing state without adding unrelated state to CharacterStudio.
 export function MemorySection({ characterId }: { characterId: string }) {
+  const { t } = useLanguage();
   const [memory, setMemory] = useState<CharacterMemory | null>(null);
   const [form, setForm] = useState<MemoryForm>(emptyMemoryForm);
   const [isEditing, setIsEditing] = useState(false);
@@ -40,10 +51,10 @@ export function MemorySection({ characterId }: { characterId: string }) {
     try {
       setError(null);
       const response = await fetch(`/api/characters/${characterId}/memory`);
-      if (!response.ok) throw new Error("Could not load character memory.");
+      if (!response.ok) throw new Error("errors.loadMemory");
       setMemory(await response.json());
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Could not load character memory.");
+      setError(loadError instanceof Error ? loadError.message : "errors.loadMemory");
     } finally {
       setIsLoading(false);
     }
@@ -74,11 +85,11 @@ export function MemorySection({ characterId }: { characterId: string }) {
         body: JSON.stringify(toMemoryInput(form)),
       });
       const updatedMemory = await response.json();
-      if (!response.ok) throw new Error(updatedMemory.error ?? "Could not save character memory.");
+      if (!response.ok) throw new Error(updatedMemory.error ?? "errors.saveMemory");
       setMemory(updatedMemory);
       setIsEditing(false);
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "Could not save character memory.");
+      setError(saveError instanceof Error ? saveError.message : "errors.saveMemory");
     }
   }
 
@@ -86,12 +97,12 @@ export function MemorySection({ characterId }: { characterId: string }) {
     try {
       setError(null);
       const response = await fetch(`/api/characters/${characterId}/memory`, { method: "DELETE" });
-      if (!response.ok) throw new Error("Could not delete character memory.");
+      if (!response.ok) throw new Error("errors.deleteMemory");
       setMemory(null);
       setForm(emptyMemoryForm);
       setIsConfirmingDelete(false);
     } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : "Could not delete character memory.");
+      setError(deleteError instanceof Error ? deleteError.message : "errors.deleteMemory");
     }
   }
 
@@ -99,10 +110,10 @@ export function MemorySection({ characterId }: { characterId: string }) {
     <section className="atlas-section">
       <div className="atlas-section-header">
         <div className="atlas-section-header__copy">
-          <p className="atlas-eyebrow">Character memory</p>
-          <h2 className="atlas-section-title">Persistent creative context</h2>
+          <p className="atlas-eyebrow">{t("memory.eyebrow")}</p>
+          <h2 className="atlas-section-title">{t("memory.title")}</h2>
           <p className="atlas-section-description">
-            Durable art direction and character knowledge carried into future work.
+            {t("memory.description")}
           </p>
         </div>
         <div className="atlas-heading-actions">
@@ -110,32 +121,36 @@ export function MemorySection({ characterId }: { characterId: string }) {
             className="atlas-button atlas-button--secondary"
             onClick={openEditor}
           >
-            {memory ? "Edit memory" : "Create memory"}
+            {memory ? t("memory.edit") : t("memory.create")}
           </button>
           {memory && (
             <button
               className="atlas-button atlas-button--danger"
               onClick={() => setIsConfirmingDelete(true)}
             >
-              Delete
+              {t("common.delete")}
             </button>
           )}
         </div>
       </div>
-      {error && <p className="atlas-error" role="alert">{error}</p>}
+      {error && (
+        <p className="atlas-error" role="alert">
+          {translateKnownText(error, t)}
+        </p>
+      )}
       {isLoading ? (
-        <p className="atlas-status" role="status">Loading memory…</p>
+        <p className="atlas-status" role="status">{t("memory.loading")}</p>
       ) : memory ? (
         <CharacterMemoryContent memory={memory} />
       ) : (
         <div className="atlas-empty">
-          No persistent memory yet. Create one to record the character details
-          future workflows should preserve.
+          {t("memory.empty")}
         </div>
       )}
       {isEditing && (
         <MemoryDialog
           form={form}
+          isCreating={!memory}
           onClose={() => setIsEditing(false)}
           onSubmit={saveMemory}
           setForm={setForm}
@@ -152,34 +167,41 @@ export function MemorySection({ characterId }: { characterId: string }) {
 }
 
 export function CharacterMemoryContent({ memory }: { memory: CharacterMemory }) {
+  const { language, t } = useLanguage();
   const hasAdvancedMemory = advancedMemoryFields.some(({ field }) => memory[field]);
   return (
     <div>
       {primaryMemoryFields.map(({ field, label }) =>
         memory[field] ? (
-          <MemoryCard field={field} label={label} memory={memory} key={field} />
+          <MemoryCard field={field} label={t(label)} memory={memory} key={field} />
         ) : null,
       )}
       {hasAdvancedMemory && (
         <details className="atlas-disclosure">
-          <summary>Advanced memory</summary>
+          <summary>{t("memory.advanced")}</summary>
           <div className="atlas-memory-grid">
             {advancedMemoryFields.map(({ field, label }) =>
               memory[field] ? (
-                <MemoryCard field={field} label={label} memory={memory} key={field} />
+                <MemoryCard field={field} label={t(label)} memory={memory} key={field} />
               ) : null,
             )}
           </div>
         </details>
       )}
       <p className="atlas-updated-at">
-        Last updated {new Date(memory.lastUpdated).toLocaleString()}
+        {t("memory.lastUpdated", {
+          date: new Date(memory.lastUpdated).toLocaleString(
+            localeForLanguage(language),
+          ),
+        })}
       </p>
     </div>
   );
 }
 
-function MemoryDialog({ form, setForm, onClose, onSubmit }: { form: MemoryForm; setForm: (form: MemoryForm) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) {
+function MemoryDialog({ form, isCreating, setForm, onClose, onSubmit }: { form: MemoryForm; isCreating: boolean; setForm: (form: MemoryForm) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void }) {
+  const { t } = useLanguage();
+
   return (
     <div className="atlas-dialog-backdrop">
       <form
@@ -191,18 +213,18 @@ function MemoryDialog({ form, setForm, onClose, onSubmit }: { form: MemoryForm; 
       >
         <header className="atlas-dialog__header">
           <h2 className="atlas-dialog__title" id="memory-dialog-title">
-            Edit character memory
+            {t(isCreating ? "memory.dialogCreateTitle" : "memory.dialogEditTitle")}
           </h2>
           <p className="atlas-dialog__description">
-            This is manual, durable context. No AI generation is used here.
+            {t("memory.dialogDescription")}
           </p>
         </header>
         <div className="atlas-dialog__body">
           <CharacterMemoryFields form={form} setForm={setForm} />
         </div>
         <footer className="atlas-dialog__footer">
-          <button className="atlas-button atlas-button--quiet" type="button" onClick={onClose}>Cancel</button>
-          <button className="atlas-button atlas-button--primary">Save memory</button>
+          <button className="atlas-button atlas-button--quiet" type="button" onClick={onClose}>{t("common.cancel")}</button>
+          <button className="atlas-button atlas-button--primary">{t("memory.save")}</button>
         </footer>
       </form>
     </div>
@@ -210,7 +232,8 @@ function MemoryDialog({ form, setForm, onClose, onSubmit }: { form: MemoryForm; 
 }
 
 export function CharacterMemoryFields({ form, setForm }: { form: MemoryForm; setForm: (form: MemoryForm) => void }) {
-  return <><p className="atlas-form-group__title mt-4">Visual identity</p>{primaryMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}<details className="atlas-disclosure"><summary>Advanced memory</summary><p className="atlas-form-group__description">Lore, immutable design rules, prompt guidance, and review summaries.</p>{advancedMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={label} hint={hint} key={field} />)}</details></>;
+  const { t } = useLanguage();
+  return <><p className="atlas-form-group__title mt-4">{t("memory.visualIdentity")}</p>{primaryMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={t(label)} hint={t(hint)} key={field} />)}<details className="atlas-disclosure"><summary>{t("memory.advanced")}</summary><p className="atlas-form-group__description">{t("memory.advancedDescription")}</p>{advancedMemoryFields.map(({ field, label, hint }) => <MemoryField field={field} form={form} setForm={setForm} label={t(label)} hint={t(hint)} key={field} />)}</details></>;
 }
 
 function MemoryCard({ field, label, memory }: { field: keyof MemoryForm; label: string; memory: CharacterMemory }) {
@@ -222,7 +245,8 @@ function MemoryField({ field, form, setForm, label, hint }: { field: keyof Memor
 }
 
 function DeleteMemoryDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-  return <div className="atlas-dialog-backdrop"><section aria-labelledby="delete-memory-title" aria-modal="true" className="atlas-dialog atlas-dialog--sm" role="dialog"><header className="atlas-dialog__header"><h2 className="atlas-dialog__title" id="delete-memory-title">Delete character memory?</h2><p className="atlas-dialog__description">This removes the persistent memory record. You can create a new one later.</p></header><footer className="atlas-dialog__footer"><button className="atlas-button atlas-button--quiet" onClick={onCancel}>Cancel</button><button className="atlas-button atlas-button--danger" onClick={onConfirm}>Delete memory</button></footer></section></div>;
+  const { t } = useLanguage();
+  return <div className="atlas-dialog-backdrop"><section aria-labelledby="delete-memory-title" aria-modal="true" className="atlas-dialog atlas-dialog--sm" role="dialog"><header className="atlas-dialog__header"><h2 className="atlas-dialog__title" id="delete-memory-title">{t("memory.deleteTitle")}</h2><p className="atlas-dialog__description">{t("memory.deleteDescription")}</p></header><footer className="atlas-dialog__footer"><button className="atlas-button atlas-button--quiet" onClick={onCancel}>{t("common.cancel")}</button><button className="atlas-button atlas-button--danger" onClick={onConfirm}>{t("memory.deleteAction")}</button></footer></section></div>;
 }
 
 function toMemoryForm(memory: CharacterMemory): MemoryForm {

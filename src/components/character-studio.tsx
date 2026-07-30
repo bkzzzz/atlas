@@ -3,9 +3,14 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { AmbientAssetShowcase } from "@/components/ambient-asset-showcase";
 import { AssetSection } from "@/components/asset-section";
+import {
+  LanguageSwitcher,
+  useLanguage,
+} from "@/components/language-provider";
 import { MemorySection } from "@/components/memory-section";
 import { LlmTaskParser } from "@/components/llm-task-parser";
 import type { Character, CreateCharacterInput } from "@/lib/characters";
+import { localeForLanguage, translateKnownText } from "@/lib/i18n";
 
 const emptyForm: CreateCharacterInput = {
   name: "",
@@ -17,6 +22,7 @@ const emptyForm: CreateCharacterInput = {
 // This Client Component owns browser interaction. It talks only to the API,
 // leaving database access in server-side Route Handlers.
 export function CharacterStudio() {
+  const { language, t } = useLanguage();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [selected, setSelected] = useState<Character | null>(null);
   const [form, setForm] = useState<CreateCharacterInput>(emptyForm);
@@ -30,23 +36,23 @@ export function CharacterStudio() {
     try {
       setError(null);
       const response = await fetch(`/api/characters/${id}`);
-      if (!response.ok) throw new Error("Could not load this character.");
+      if (!response.ok) throw new Error("errors.loadCharacter");
       setSelected(await response.json());
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Could not load this character.");
+      setError(loadError instanceof Error ? loadError.message : "errors.loadCharacter");
     }
   }, []);
 
   const loadCharacters = useCallback(async () => {
     try {
       const response = await fetch("/api/characters");
-      if (!response.ok) throw new Error("Could not load characters.");
+      if (!response.ok) throw new Error("errors.loadCharacters");
 
       const items: Character[] = await response.json();
       setCharacters(items);
       if (items[0]) await selectCharacter(items[0].id);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Could not load characters.");
+      setError(loadError instanceof Error ? loadError.message : "errors.loadCharacters");
     } finally {
       setIsLoading(false);
     }
@@ -70,14 +76,14 @@ export function CharacterStudio() {
       });
       const character = await response.json();
 
-      if (!response.ok) throw new Error(character.error ?? "Could not create character.");
+      if (!response.ok) throw new Error(character.error ?? "errors.createCharacter");
 
       setCharacters((items) => [character, ...items]);
       setSelected(character);
       setForm(emptyForm);
       setIsCreating(false);
     } catch (createError) {
-      setError(createError instanceof Error ? createError.message : "Could not create character.");
+      setError(createError instanceof Error ? createError.message : "errors.createCharacter");
     }
   }
 
@@ -104,14 +110,14 @@ export function CharacterStudio() {
         body: JSON.stringify(form),
       });
       const character = await response.json();
-      if (!response.ok) throw new Error(character.error ?? "Could not update character.");
+      if (!response.ok) throw new Error(character.error ?? "errors.updateCharacter");
 
       setCharacters((items) => items.map((item) => item.id === character.id ? character : item));
       setSelected(character);
       setForm(emptyForm);
       setIsEditing(false);
     } catch (updateError) {
-      setError(updateError instanceof Error ? updateError.message : "Could not update character.");
+      setError(updateError instanceof Error ? updateError.message : "errors.updateCharacter");
     }
   }
 
@@ -124,7 +130,7 @@ export function CharacterStudio() {
       const response = await fetch(`/api/characters/${deletedId}`, { method: "DELETE" });
       if (!response.ok) {
         const body = await response.json();
-        throw new Error(body.error ?? "Could not delete character.");
+        throw new Error(body.error ?? "errors.deleteCharacter");
       }
 
       const remaining = characters.filter((item) => item.id !== deletedId);
@@ -132,7 +138,7 @@ export function CharacterStudio() {
       setSelected(remaining[0] ?? null);
       setIsConfirmingDelete(false);
     } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : "Could not delete character.");
+      setError(deleteError instanceof Error ? deleteError.message : "errors.deleteCharacter");
     }
   }
 
@@ -146,9 +152,13 @@ export function CharacterStudio() {
             <span className="atlas-brand__name">Atlas</span>
             <span className="atlas-brand__domain">.io</span>
           </p>
-          <p className="atlas-library-label">Character library</p>
+          <p className="atlas-library-label">{t("nav.characterLibrary")}</p>
           <div className="atlas-character-list">
-            {isLoading && <p className="atlas-status" role="status">Loading characters…</p>}
+            {isLoading && (
+              <p className="atlas-status" role="status">
+                {t("nav.loadingCharacters")}
+              </p>
+            )}
             {characters.map((character) => (
               <button
                 aria-current={selected?.id === character.id ? "true" : undefined}
@@ -162,7 +172,7 @@ export function CharacterStudio() {
             ))}
           </div>
           {!isLoading && characters.length === 0 && (
-            <p className="atlas-status">No characters yet.</p>
+            <p className="atlas-status">{t("nav.noCharacters")}</p>
           )}
         </aside>
 
@@ -174,48 +184,53 @@ export function CharacterStudio() {
                 <div>
                   <p className="atlas-hero__product">Atlas</p>
                   <p className="atlas-hero__category">
-                    Character production system
+                    {t("hero.category")}
                   </p>
                 </div>
               </div>
-              <p className="atlas-hero__edition">Private beta&nbsp;&nbsp;/&nbsp;&nbsp;01</p>
+              <div className="atlas-hero__utilities">
+                <LanguageSwitcher />
+                <p className="atlas-hero__edition">{t("hero.edition")}</p>
+              </div>
             </div>
 
             <div className="atlas-hero__body">
               <div className="atlas-hero__copy">
-                <p className="atlas-eyebrow">Creative continuity, built in</p>
+                <p className="atlas-eyebrow">{t("hero.eyebrow")}</p>
                 <h1 className="atlas-hero__title">
-                  One character.
-                  <span>Every asset.</span>
+                  {t("hero.titleFirst")}
+                  <span>{t("hero.titleSecond")}</span>
                 </h1>
                 <p className="atlas-hero__proposition">
-                  Atlas turns character direction and visual references into
-                  consistent, production-ready game assets.
+                  {t("hero.proposition")}
                 </p>
                 <p className="atlas-hero__support">
-                  Build the source of truth once, then carry the look across
-                  every output.
+                  {t("hero.support")}
                 </p>
               </div>
 
               <div className="atlas-hero__action">
-                <p>Begin with the source</p>
+                <p>{t("hero.actionLabel")}</p>
                 <button
                   className="atlas-button atlas-button--primary"
                   onClick={() => setIsCreating(true)}
                 >
-                  New character
+                  {t("hero.newCharacter")}
                 </button>
               </div>
             </div>
           </header>
 
-          {error && <p className="atlas-error" role="alert">{error}</p>}
+          {error && (
+            <p className="atlas-error" role="alert">
+              {translateKnownText(error, t)}
+            </p>
+          )}
 
           {selected ? (
             <>
               <article className="atlas-profile">
-                <p className="atlas-eyebrow">Character profile</p>
+                <p className="atlas-eyebrow">{t("character.profile")}</p>
                 <div className="atlas-profile__heading">
                   <h2 className="atlas-profile__title">{selected.name}</h2>
                   <div className="atlas-heading-actions">
@@ -223,24 +238,26 @@ export function CharacterStudio() {
                       className="atlas-button atlas-button--quiet"
                       onClick={openEditDialog}
                     >
-                      Edit
+                      {t("common.edit")}
                     </button>
                     <button
                       className="atlas-button atlas-button--danger"
                       onClick={() => setIsConfirmingDelete(true)}
                     >
-                      Delete
+                      {t("common.delete")}
                     </button>
                   </div>
                 </div>
                 <dl className="atlas-profile__details">
-                  <Detail label="Species" value={selected.species} />
+                  <Detail label={t("character.species")} value={selected.species} />
                   <Detail
-                    label="Created"
-                    value={new Date(selected.createdAt).toLocaleDateString()}
+                    label={t("character.created")}
+                    value={new Date(selected.createdAt).toLocaleDateString(
+                      localeForLanguage(language),
+                    )}
                   />
-                  <Detail label="Personality" value={selected.personality} />
-                  <Detail label="Description" value={selected.description} />
+                  <Detail label={t("character.personality")} value={selected.personality} />
+                  <Detail label={t("character.description")} value={selected.description} />
                 </dl>
               </article>
               <CharacterAssetWorkspace
@@ -251,18 +268,18 @@ export function CharacterStudio() {
             </>
           ) : !isLoading && (
             <div className="atlas-empty">
-              Create your first character to begin.
+              {t("character.empty")}
             </div>
           )}
         </section>
       </div>
 
       {isCreating && (
-        <CharacterFormDialog title="Create a character" description="These four fields are stored in your local SQLite database." form={form} setForm={setForm} onClose={() => setIsCreating(false)} onSubmit={createCharacter} submitLabel="Create character" />
+        <CharacterFormDialog title={t("character.createTitle")} description={t("character.createDescription")} form={form} setForm={setForm} onClose={() => setIsCreating(false)} onSubmit={createCharacter} submitLabel={t("character.createAction")} />
       )}
 
       {isEditing && (
-        <CharacterFormDialog title="Edit character" description="Save changes to update this character in the database." form={form} setForm={setForm} onClose={() => { setIsEditing(false); setForm(emptyForm); }} onSubmit={updateCharacter} submitLabel="Save changes" />
+        <CharacterFormDialog title={t("character.editTitle")} description={t("character.editDescription")} form={form} setForm={setForm} onClose={() => { setIsEditing(false); setForm(emptyForm); }} onSubmit={updateCharacter} submitLabel={t("common.saveChanges")} />
       )}
 
       {isConfirmingDelete && selected && (
@@ -275,11 +292,10 @@ export function CharacterStudio() {
           >
             <header className="atlas-dialog__header">
               <h2 className="atlas-dialog__title" id="delete-character-title">
-                Delete {selected.name}?
+                {t("character.deleteTitle", { name: selected.name })}
               </h2>
               <p className="atlas-dialog__description">
-                This permanently removes the character from the local database.
-                This action cannot be undone.
+                {t("character.deleteDescription")}
               </p>
             </header>
             <footer className="atlas-dialog__footer">
@@ -287,13 +303,13 @@ export function CharacterStudio() {
                 className="atlas-button atlas-button--quiet"
                 onClick={() => setIsConfirmingDelete(false)}
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button
                 className="atlas-button atlas-button--danger"
                 onClick={() => void deleteCharacter()}
               >
-                Delete character
+                {t("character.deleteAction")}
               </button>
             </footer>
           </section>
@@ -328,6 +344,8 @@ export function CharacterAssetWorkspace({
 // Both create and edit use the same fields, so one dialog keeps their UI and
 // validation consistent while their submit handlers remain separate.
 function CharacterFormDialog({ title, description, form, setForm, onClose, onSubmit, submitLabel }: { title: string; description: string; form: CreateCharacterInput; setForm: (form: CreateCharacterInput) => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void; submitLabel: string }) {
+  const { t } = useLanguage();
+
   return (
     <div className="atlas-dialog-backdrop">
           <form
@@ -342,13 +360,13 @@ function CharacterFormDialog({ title, description, form, setForm, onClose, onSub
               <p className="atlas-dialog__description">{description}</p>
             </header>
             <div className="atlas-dialog__body">
-            <Field label="Name" value={form.name} onChange={(name) => setForm({ ...form, name })} />
-            <Field label="Species" value={form.species} onChange={(species) => setForm({ ...form, species })} />
-            <Field label="Personality" value={form.personality} onChange={(personality) => setForm({ ...form, personality })} />
-            <Field label="Description" value={form.description} onChange={(description) => setForm({ ...form, description })} multiline />
+            <Field label={t("character.field.name")} value={form.name} onChange={(name) => setForm({ ...form, name })} />
+            <Field label={t("character.species")} value={form.species} onChange={(species) => setForm({ ...form, species })} />
+            <Field label={t("character.personality")} value={form.personality} onChange={(personality) => setForm({ ...form, personality })} />
+            <Field label={t("character.description")} value={form.description} onChange={(description) => setForm({ ...form, description })} multiline />
             </div>
             <footer className="atlas-dialog__footer">
-              <button className="atlas-button atlas-button--quiet" type="button" onClick={onClose}>Cancel</button>
+              <button className="atlas-button atlas-button--quiet" type="button" onClick={onClose}>{t("common.cancel")}</button>
               <button className="atlas-button atlas-button--primary">{submitLabel}</button>
             </footer>
           </form>

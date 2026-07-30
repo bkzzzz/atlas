@@ -116,6 +116,34 @@ test("uses only the compiled prompt stored behind the token and calls the image 
   });
 });
 
+test("stores a generated image before returning it", async () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken("stored prompt");
+  assert.ok(token);
+  const persisted = {
+    ...generatedImage,
+    imageUrl: "https://store.public.blob.vercel-storage.com/generated/output.png",
+    blobPathname: "generated/output.png",
+  };
+  const received: GeneratedImage[] = [];
+  const handler = createGenerateImageHandler({
+    consumeGenerationToken: session.consumeGenerationToken,
+    generateCompiledImage: async () => generatedImage,
+    persistGeneratedImage: async (image) => {
+      received.push(image);
+      return persisted;
+    },
+  });
+
+  const response = await handler(requestFor(token));
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(received, [generatedImage]);
+  assert.equal(body.image.imageUrl, persisted.imageUrl);
+  assert.equal(body.image.blobPathname, persisted.blobPathname);
+});
+
 test("uses only the output background stored behind the token", async () => {
   const { session } = makeSession();
   const token = session.createGenerationToken("trusted server compiled prompt", "transparent");

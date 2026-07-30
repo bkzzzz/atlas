@@ -20,8 +20,18 @@ export type ImageAssetModel = runtime.Types.Result.DefaultSelection<Prisma.$Imag
 
 export type AggregateImageAsset = {
   _count: ImageAssetCountAggregateOutputType | null
+  _avg: ImageAssetAvgAggregateOutputType | null
+  _sum: ImageAssetSumAggregateOutputType | null
   _min: ImageAssetMinAggregateOutputType | null
   _max: ImageAssetMaxAggregateOutputType | null
+}
+
+export type ImageAssetAvgAggregateOutputType = {
+  byteSize: number | null
+}
+
+export type ImageAssetSumAggregateOutputType = {
+  byteSize: number | null
 }
 
 export type ImageAssetMinAggregateOutputType = {
@@ -29,6 +39,9 @@ export type ImageAssetMinAggregateOutputType = {
   characterId: string | null
   name: string | null
   imageUrl: string | null
+  blobPathname: string | null
+  mimeType: string | null
+  byteSize: number | null
   type: string | null
   provider: string | null
   status: string | null
@@ -42,6 +55,9 @@ export type ImageAssetMaxAggregateOutputType = {
   characterId: string | null
   name: string | null
   imageUrl: string | null
+  blobPathname: string | null
+  mimeType: string | null
+  byteSize: number | null
   type: string | null
   provider: string | null
   status: string | null
@@ -55,6 +71,9 @@ export type ImageAssetCountAggregateOutputType = {
   characterId: number
   name: number
   imageUrl: number
+  blobPathname: number
+  mimeType: number
+  byteSize: number
   type: number
   provider: number
   status: number
@@ -65,11 +84,22 @@ export type ImageAssetCountAggregateOutputType = {
 }
 
 
+export type ImageAssetAvgAggregateInputType = {
+  byteSize?: true
+}
+
+export type ImageAssetSumAggregateInputType = {
+  byteSize?: true
+}
+
 export type ImageAssetMinAggregateInputType = {
   id?: true
   characterId?: true
   name?: true
   imageUrl?: true
+  blobPathname?: true
+  mimeType?: true
+  byteSize?: true
   type?: true
   provider?: true
   status?: true
@@ -83,6 +113,9 @@ export type ImageAssetMaxAggregateInputType = {
   characterId?: true
   name?: true
   imageUrl?: true
+  blobPathname?: true
+  mimeType?: true
+  byteSize?: true
   type?: true
   provider?: true
   status?: true
@@ -96,6 +129,9 @@ export type ImageAssetCountAggregateInputType = {
   characterId?: true
   name?: true
   imageUrl?: true
+  blobPathname?: true
+  mimeType?: true
+  byteSize?: true
   type?: true
   provider?: true
   status?: true
@@ -143,6 +179,18 @@ export type ImageAssetAggregateArgs<ExtArgs extends runtime.Types.Extensions.Int
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ImageAssetAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ImageAssetSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ImageAssetMinAggregateInputType
@@ -173,6 +221,8 @@ export type ImageAssetGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   _count?: ImageAssetCountAggregateInputType | true
+  _avg?: ImageAssetAvgAggregateInputType
+  _sum?: ImageAssetSumAggregateInputType
   _min?: ImageAssetMinAggregateInputType
   _max?: ImageAssetMaxAggregateInputType
 }
@@ -182,6 +232,9 @@ export type ImageAssetGroupByOutputType = {
   characterId: string
   name: string
   imageUrl: string
+  blobPathname: string | null
+  mimeType: string | null
+  byteSize: number | null
   type: string
   provider: string
   status: string
@@ -189,6 +242,8 @@ export type ImageAssetGroupByOutputType = {
   feedback: string | null
   createdAt: Date
   _count: ImageAssetCountAggregateOutputType | null
+  _avg: ImageAssetAvgAggregateOutputType | null
+  _sum: ImageAssetSumAggregateOutputType | null
   _min: ImageAssetMinAggregateOutputType | null
   _max: ImageAssetMaxAggregateOutputType | null
 }
@@ -216,6 +271,9 @@ export type ImageAssetWhereInput = {
   characterId?: Prisma.StringFilter<"ImageAsset"> | string
   name?: Prisma.StringFilter<"ImageAsset"> | string
   imageUrl?: Prisma.StringFilter<"ImageAsset"> | string
+  blobPathname?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  mimeType?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  byteSize?: Prisma.IntNullableFilter<"ImageAsset"> | number | null
   type?: Prisma.StringFilter<"ImageAsset"> | string
   provider?: Prisma.StringFilter<"ImageAsset"> | string
   status?: Prisma.StringFilter<"ImageAsset"> | string
@@ -230,6 +288,9 @@ export type ImageAssetOrderByWithRelationInput = {
   characterId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  blobPathname?: Prisma.SortOrderInput | Prisma.SortOrder
+  mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
+  byteSize?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -247,6 +308,9 @@ export type ImageAssetWhereUniqueInput = Prisma.AtLeast<{
   characterId?: Prisma.StringFilter<"ImageAsset"> | string
   name?: Prisma.StringFilter<"ImageAsset"> | string
   imageUrl?: Prisma.StringFilter<"ImageAsset"> | string
+  blobPathname?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  mimeType?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  byteSize?: Prisma.IntNullableFilter<"ImageAsset"> | number | null
   type?: Prisma.StringFilter<"ImageAsset"> | string
   provider?: Prisma.StringFilter<"ImageAsset"> | string
   status?: Prisma.StringFilter<"ImageAsset"> | string
@@ -261,6 +325,9 @@ export type ImageAssetOrderByWithAggregationInput = {
   characterId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  blobPathname?: Prisma.SortOrderInput | Prisma.SortOrder
+  mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
+  byteSize?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -268,8 +335,10 @@ export type ImageAssetOrderByWithAggregationInput = {
   feedback?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ImageAssetCountOrderByAggregateInput
+  _avg?: Prisma.ImageAssetAvgOrderByAggregateInput
   _max?: Prisma.ImageAssetMaxOrderByAggregateInput
   _min?: Prisma.ImageAssetMinOrderByAggregateInput
+  _sum?: Prisma.ImageAssetSumOrderByAggregateInput
 }
 
 export type ImageAssetScalarWhereWithAggregatesInput = {
@@ -280,6 +349,9 @@ export type ImageAssetScalarWhereWithAggregatesInput = {
   characterId?: Prisma.StringWithAggregatesFilter<"ImageAsset"> | string
   name?: Prisma.StringWithAggregatesFilter<"ImageAsset"> | string
   imageUrl?: Prisma.StringWithAggregatesFilter<"ImageAsset"> | string
+  blobPathname?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
+  mimeType?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
+  byteSize?: Prisma.IntNullableWithAggregatesFilter<"ImageAsset"> | number | null
   type?: Prisma.StringWithAggregatesFilter<"ImageAsset"> | string
   provider?: Prisma.StringWithAggregatesFilter<"ImageAsset"> | string
   status?: Prisma.StringWithAggregatesFilter<"ImageAsset"> | string
@@ -292,6 +364,9 @@ export type ImageAssetCreateInput = {
   id?: string
   name: string
   imageUrl: string
+  blobPathname?: string | null
+  mimeType?: string | null
+  byteSize?: number | null
   type: string
   provider: string
   status: string
@@ -306,6 +381,9 @@ export type ImageAssetUncheckedCreateInput = {
   characterId: string
   name: string
   imageUrl: string
+  blobPathname?: string | null
+  mimeType?: string | null
+  byteSize?: number | null
   type: string
   provider: string
   status: string
@@ -318,6 +396,9 @@ export type ImageAssetUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  blobPathname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -332,6 +413,9 @@ export type ImageAssetUncheckedUpdateInput = {
   characterId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  blobPathname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -345,6 +429,9 @@ export type ImageAssetCreateManyInput = {
   characterId: string
   name: string
   imageUrl: string
+  blobPathname?: string | null
+  mimeType?: string | null
+  byteSize?: number | null
   type: string
   provider: string
   status: string
@@ -357,6 +444,9 @@ export type ImageAssetUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  blobPathname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -370,6 +460,9 @@ export type ImageAssetUncheckedUpdateManyInput = {
   characterId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  blobPathname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -393,6 +486,9 @@ export type ImageAssetCountOrderByAggregateInput = {
   characterId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  blobPathname?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
+  byteSize?: Prisma.SortOrder
   type?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -401,11 +497,18 @@ export type ImageAssetCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
+export type ImageAssetAvgOrderByAggregateInput = {
+  byteSize?: Prisma.SortOrder
+}
+
 export type ImageAssetMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  blobPathname?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
+  byteSize?: Prisma.SortOrder
   type?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -419,12 +522,19 @@ export type ImageAssetMinOrderByAggregateInput = {
   characterId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  blobPathname?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
+  byteSize?: Prisma.SortOrder
   type?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   status?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   feedback?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type ImageAssetSumOrderByAggregateInput = {
+  byteSize?: Prisma.SortOrder
 }
 
 export type ImageAssetCreateNestedManyWithoutCharacterInput = {
@@ -473,10 +583,21 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type ImageAssetCreateWithoutCharacterInput = {
   id?: string
   name: string
   imageUrl: string
+  blobPathname?: string | null
+  mimeType?: string | null
+  byteSize?: number | null
   type: string
   provider: string
   status: string
@@ -489,6 +610,9 @@ export type ImageAssetUncheckedCreateWithoutCharacterInput = {
   id?: string
   name: string
   imageUrl: string
+  blobPathname?: string | null
+  mimeType?: string | null
+  byteSize?: number | null
   type: string
   provider: string
   status: string
@@ -531,6 +655,9 @@ export type ImageAssetScalarWhereInput = {
   characterId?: Prisma.StringFilter<"ImageAsset"> | string
   name?: Prisma.StringFilter<"ImageAsset"> | string
   imageUrl?: Prisma.StringFilter<"ImageAsset"> | string
+  blobPathname?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  mimeType?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  byteSize?: Prisma.IntNullableFilter<"ImageAsset"> | number | null
   type?: Prisma.StringFilter<"ImageAsset"> | string
   provider?: Prisma.StringFilter<"ImageAsset"> | string
   status?: Prisma.StringFilter<"ImageAsset"> | string
@@ -543,6 +670,9 @@ export type ImageAssetCreateManyCharacterInput = {
   id?: string
   name: string
   imageUrl: string
+  blobPathname?: string | null
+  mimeType?: string | null
+  byteSize?: number | null
   type: string
   provider: string
   status: string
@@ -555,6 +685,9 @@ export type ImageAssetUpdateWithoutCharacterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  blobPathname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -567,6 +700,9 @@ export type ImageAssetUncheckedUpdateWithoutCharacterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  blobPathname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -579,6 +715,9 @@ export type ImageAssetUncheckedUpdateManyWithoutCharacterInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  blobPathname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  byteSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -594,6 +733,9 @@ export type ImageAssetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   characterId?: boolean
   name?: boolean
   imageUrl?: boolean
+  blobPathname?: boolean
+  mimeType?: boolean
+  byteSize?: boolean
   type?: boolean
   provider?: boolean
   status?: boolean
@@ -608,6 +750,9 @@ export type ImageAssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   characterId?: boolean
   name?: boolean
   imageUrl?: boolean
+  blobPathname?: boolean
+  mimeType?: boolean
+  byteSize?: boolean
   type?: boolean
   provider?: boolean
   status?: boolean
@@ -622,6 +767,9 @@ export type ImageAssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   characterId?: boolean
   name?: boolean
   imageUrl?: boolean
+  blobPathname?: boolean
+  mimeType?: boolean
+  byteSize?: boolean
   type?: boolean
   provider?: boolean
   status?: boolean
@@ -636,6 +784,9 @@ export type ImageAssetSelectScalar = {
   characterId?: boolean
   name?: boolean
   imageUrl?: boolean
+  blobPathname?: boolean
+  mimeType?: boolean
+  byteSize?: boolean
   type?: boolean
   provider?: boolean
   status?: boolean
@@ -644,7 +795,7 @@ export type ImageAssetSelectScalar = {
   createdAt?: boolean
 }
 
-export type ImageAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "characterId" | "name" | "imageUrl" | "type" | "provider" | "status" | "prompt" | "feedback" | "createdAt", ExtArgs["result"]["imageAsset"]>
+export type ImageAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "characterId" | "name" | "imageUrl" | "blobPathname" | "mimeType" | "byteSize" | "type" | "provider" | "status" | "prompt" | "feedback" | "createdAt", ExtArgs["result"]["imageAsset"]>
 export type ImageAssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
 }
@@ -665,6 +816,9 @@ export type $ImageAssetPayload<ExtArgs extends runtime.Types.Extensions.Internal
     characterId: string
     name: string
     imageUrl: string
+    blobPathname: string | null
+    mimeType: string | null
+    byteSize: number | null
     type: string
     provider: string
     status: string
@@ -1099,6 +1253,9 @@ export interface ImageAssetFieldRefs {
   readonly characterId: Prisma.FieldRef<"ImageAsset", 'String'>
   readonly name: Prisma.FieldRef<"ImageAsset", 'String'>
   readonly imageUrl: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly blobPathname: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly mimeType: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly byteSize: Prisma.FieldRef<"ImageAsset", 'Int'>
   readonly type: Prisma.FieldRef<"ImageAsset", 'String'>
   readonly provider: Prisma.FieldRef<"ImageAsset", 'String'>
   readonly status: Prisma.FieldRef<"ImageAsset", 'String'>

@@ -1,4 +1,5 @@
 import { createAssetItemHandler } from "@/lib/asset-handler";
+import { deleteReferenceImage } from "@/lib/image-storage";
 import { prisma } from "@/lib/prisma";
 
 const handler = createAssetItemHandler({
@@ -12,6 +13,7 @@ const handler = createAssetItemHandler({
   deleteAsset: async (assetId) => {
     await prisma.imageAsset.delete({ where: { id: assetId } });
   },
+  deleteReferenceImage,
 });
 
 export async function PATCH(
@@ -34,6 +36,14 @@ export async function DELETE(
   _request: Request,
   context: { params: Promise<{ assetId: string }> },
 ) {
-  const { assetId } = await context.params;
-  return handler.DELETE(assetId);
+  try {
+    const { assetId } = await context.params;
+    return await handler.DELETE(assetId);
+  } catch (error) {
+    console.error("Failed to delete image asset", error);
+    return Response.json(
+      { error: "Unexpected error while deleting asset." },
+      { status: 500 },
+    );
+  }
 }

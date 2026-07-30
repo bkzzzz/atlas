@@ -99,6 +99,7 @@ The product uses server-side routes for persistence, prompt compilation, short-l
 - A current Node.js LTS release
 - npm
 - A Neon PostgreSQL database
+- A Vercel Blob store
 - An OpenAI API key
 
 ### Setup
@@ -119,6 +120,7 @@ The product uses server-side routes for persistence, prompt compilation, short-l
 
    ```dotenv
    DATABASE_URL="your-pooled-neon-postgresql-connection-string"
+   BLOB_READ_WRITE_TOKEN="your-vercel-blob-read-write-token"
    OPENAI_API_KEY="your-api-key"
    ```
 
@@ -150,6 +152,7 @@ npm run build
 ### Security and operational safeguards
 
 - Secrets and provider credentials are kept server-side and excluded from version control.
+- `BLOB_READ_WRITE_TOKEN` is used only by server routes and must never use a `NEXT_PUBLIC_` prefix.
 - Generation requests use short-lived authorization and server-side validation.
 - Uploaded references and generated assets are treated as private project data.
 - Database schema and migrations are versioned without committing connection strings.

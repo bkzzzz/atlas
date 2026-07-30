@@ -35,6 +35,7 @@ export class ImageGenerationError extends Error {
 
 export type GeneratedImage = {
   imageUrl: string;
+  blobPathname?: string;
   model: string;
   createdAt: string;
 };

@@ -8,6 +8,9 @@ export type ImageAsset = {
   characterId: string;
   name: string;
   imageUrl: string;
+  blobPathname: string | null;
+  mimeType: string | null;
+  byteSize: number | null;
   type: string;
   provider: string;
   status: AssetStatus;
@@ -18,8 +21,8 @@ export type ImageAsset = {
 
 export type CreateImageAssetInput = Pick<
   ImageAsset,
-  "name" | "imageUrl" | "type" | "provider"
->;
+  "name" | "type" | "provider"
+> & { image: File | null };
 
 export type UpdateImageAssetInput = Pick<
   ImageAsset,

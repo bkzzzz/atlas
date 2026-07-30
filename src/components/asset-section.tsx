@@ -1,5 +1,5 @@
 "use client";
-/* eslint-disable @next/next/no-img-element -- Asset URLs are user-entered and not restricted to known image domains yet. */
+/* eslint-disable @next/next/no-img-element -- Blob URLs are dynamic per deployment. */
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useLanguage } from "@/components/language-provider";
@@ -12,7 +12,7 @@ import { localeForLanguage, translateKnownText } from "@/lib/i18n";
 
 const emptyAssetForm: CreateImageAssetInput = {
   name: "",
-  imageUrl: "",
+  image: null,
   type: "Reference",
   provider: "Manual",
 };
@@ -78,10 +78,15 @@ export function AssetSection({ characterId }: { characterId: string }) {
     event.preventDefault();
     try {
       setError(null);
+      if (!form.image) throw new Error("errors.createAsset");
+      const body = new FormData();
+      body.set("name", form.name);
+      body.set("image", form.image);
+      body.set("type", form.type);
+      body.set("provider", form.provider);
       const response = await fetch(`/api/characters/${characterId}/assets`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body,
       });
       const asset = await response.json();
       if (!response.ok) throw new Error(asset.error ?? "errors.createAsset");
@@ -207,6 +212,7 @@ export function AssetCard({ asset, onEdit, onDelete }: { asset: ImageAsset; onEd
         <p className="atlas-asset-card__title">{asset.name}</p>
         <p className="atlas-asset-card__metadata">
           {asset.provider} · {asset.type}
+          {!asset.blobPathname && ` · ${t("assets.reuploadRequired")}`}
         </p>
         <div className="atlas-asset-card__footer">
           <time className="atlas-asset-card__date">
@@ -272,7 +278,21 @@ function AssetFormDialog({ form, setForm, onClose, onSubmit }: { form: CreateIma
         </header>
         <div className="atlas-dialog__body">
           <AssetField label={t("character.field.name")} value={form.name} onChange={(name) => setForm({ ...form, name })} />
-          <AssetField label={t("assets.field.imageUrl")} value={form.imageUrl} placeholder="https://images.unsplash.com/..." onChange={(imageUrl) => setForm({ ...form, imageUrl })} />
+          <label className="atlas-label mt-4">
+            {t("assets.field.imageFile")}
+            <input
+              accept="image/png,image/jpeg,image/webp"
+              className="atlas-control"
+              onChange={(event) =>
+                setForm({
+                  ...form,
+                  image: event.target.files?.[0] ?? null,
+                })
+              }
+              required
+              type="file"
+            />
+          </label>
           <AssetField label={t("assets.field.type")} value={form.type} onChange={(type) => setForm({ ...form, type })} />
           <AssetField label={t("assets.field.provider")} value={form.provider} onChange={(provider) => setForm({ ...form, provider })} />
         </div>

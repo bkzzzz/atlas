@@ -54,9 +54,10 @@ export const en = {
   "assets.add": "Add asset",
   "assets.loading": "Loading assets…",
   "assets.empty":
-    "No assets yet. Add an image URL to create the first visual reference.",
+    "No assets yet. Upload an image to create the first visual reference.",
   "assets.editDetails": "Edit details",
   "assets.imageUnavailable": "Image unavailable",
+  "assets.reuploadRequired": "Re-upload required",
   "assets.addDescription":
     "The image becomes an active visual reference as soon as it is added.",
   "assets.editTitle": "Edit asset details",
@@ -64,7 +65,7 @@ export const en = {
   "assets.deleteDescription":
     "This removes the asset record from the local database. It cannot be undone.",
   "assets.deleteAction": "Delete asset",
-  "assets.field.imageUrl": "Image URL",
+  "assets.field.imageFile": "Image file (PNG, JPEG, or WebP; 4 MB max)",
   "assets.field.type": "Asset type",
   "assets.field.provider": "Provider",
   "assets.field.prompt": "Prompt",
@@ -173,7 +174,7 @@ export const en = {
   "generation.resultAlt": "Generated {assetType} for {characterName}",
   "generation.generatedAt": "Generated {date}",
   "generation.temporary":
-    "Temporary browser-only preview. It is not saved to Atlas.",
+    "Saved to Atlas image storage.",
 
   "errors.loadCharacter": "Could not load this character.",
   "errors.loadCharacters": "Could not load characters.",

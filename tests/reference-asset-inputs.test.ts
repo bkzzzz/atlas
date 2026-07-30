@@ -9,11 +9,17 @@ test("all current assets resolve to files and deleted assets disappear from subs
       id: "reference-pending",
       name: "Pending legacy record",
       imageUrl: "https://example.com/pending.png",
+      blobPathname: "references/pending.png",
+      mimeType: "image/png",
+      byteSize: 3,
     },
     {
       id: "reference-rejected",
       name: "Rejected legacy record",
       imageUrl: "https://example.com/rejected.webp",
+      blobPathname: "references/rejected.webp",
+      mimeType: "image/webp",
+      byteSize: 3,
     },
   ];
   const createdUploads: Array<{
@@ -23,17 +29,12 @@ test("all current assets resolve to files and deleted assets disappear from subs
   }> = [];
   const resolver = createReferenceAssetUploadResolver({
     loadAssets: async (ids) => assets.filter(({ id }) => ids.includes(id)),
-    fetchImage: async (url) =>
-      new Response(
-        Uint8Array.from(url.endsWith(".webp") ? [4, 5, 6] : [1, 2, 3]),
-        {
-          headers: {
-            "Content-Type": url.endsWith(".webp")
-              ? "image/webp"
-              : "image/png",
-          },
-        },
+    getReferenceImageBytes: async ({ pathname, mimeType }) => ({
+      bytes: Uint8Array.from(
+        pathname.endsWith(".webp") ? [4, 5, 6] : [1, 2, 3],
       ),
+      mimeType,
+    }),
     createUpload: async (bytes, filename, mimeType) => {
       createdUploads.push({
         bytes: [...bytes],
@@ -69,4 +70,30 @@ test("all current assets resolve to files and deleted assets disappear from subs
     filename: "reference-pending.png",
     mimeType: "image/png",
   });
+});
+
+test("legacy URL-only references require re-upload and fail closed", async () => {
+  const resolver = createReferenceAssetUploadResolver({
+    loadAssets: async () => [
+      {
+        id: "legacy-reference",
+        name: "Legacy reference",
+        imageUrl: "https://example.com/legacy.png",
+        blobPathname: null,
+        mimeType: null,
+        byteSize: null,
+      },
+    ],
+    getReferenceImageBytes: async () => {
+      throw new Error("legacy records must not reach Blob storage");
+    },
+    createUpload: async () => {
+      throw new Error("legacy records must not reach OpenAI uploads");
+    },
+  });
+
+  await assert.rejects(
+    resolver(["legacy-reference"]),
+    /unavailable/i,
+  );
 });

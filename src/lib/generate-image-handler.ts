@@ -19,11 +19,15 @@ type GenerateCompiledImage = (
 type ResolveReferenceImageUploads = (
   referenceAssetIds: readonly string[],
 ) => Promise<readonly Uploadable[]>;
+type PersistGeneratedImage = (
+  image: GeneratedImage,
+) => Promise<GeneratedImage>;
 
 export type GenerateImageHandlerDependencies = {
   consumeGenerationToken: ConsumeGenerationToken;
   generateCompiledImage: GenerateCompiledImage;
   resolveReferenceImageUploads?: ResolveReferenceImageUploads;
+  persistGeneratedImage?: PersistGeneratedImage;
   logError?: (message: string, details: { category: string } & ImageGenerationDiagnostic) => void;
 };
 
@@ -102,11 +106,14 @@ export function createGenerateImageHandler(dependencies: GenerateImageHandlerDep
           throw new ImageGenerationError("reference_unavailable");
         }
       }
-      const image = await dependencies.generateCompiledImage(
+      const generatedImage = await dependencies.generateCompiledImage(
         pending.compiledPrompt,
         pending.background,
         referenceImages,
       );
+      const image = dependencies.persistGeneratedImage
+        ? await dependencies.persistGeneratedImage(generatedImage)
+        : generatedImage;
       return Response.json({ image: { ...image, compiledPrompt: pending.compiledPrompt } });
     } catch (cause) {
       const error = classifyImageGenerationError(cause);

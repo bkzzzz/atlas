@@ -1,4 +1,8 @@
 import { createAssetCollectionHandler } from "@/lib/asset-handler";
+import {
+  deleteReferenceImage,
+  putReferenceImage,
+} from "@/lib/image-storage";
 import { prisma } from "@/lib/prisma";
 
 const handler = createAssetCollectionHandler({
@@ -13,6 +17,8 @@ const handler = createAssetCollectionHandler({
     prisma.imageAsset.create({
       data: data as Parameters<typeof prisma.imageAsset.create>[0]["data"],
     }),
+  putReferenceImage,
+  deleteReferenceImage,
 });
 
 // Assets are nested under a character because creating or listing an asset

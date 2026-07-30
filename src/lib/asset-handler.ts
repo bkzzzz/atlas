@@ -1,19 +1,30 @@
-const requiredFields = ["name", "imageUrl", "type", "provider"] as const;
+import {
+  type ImageToStore,
+  type StoredImage,
+  validateImage,
+} from "@/lib/image-storage-core";
+
+const requiredFields = ["name", "type", "provider"] as const;
 const editableFields = ["name", "type", "provider", "prompt"] as const;
 
 type AssetCollectionDependencies = Readonly<{
   listAssets: (characterId: string) => Promise<unknown[]>;
   findCharacter: (characterId: string) => Promise<unknown | null>;
   createAsset: (data: Record<string, unknown>) => Promise<unknown>;
+  putReferenceImage: (input: ImageToStore) => Promise<StoredImage>;
+  deleteReferenceImage: (pathname: string) => Promise<void>;
 }>;
 
 type AssetItemDependencies = Readonly<{
-  findAsset: (assetId: string) => Promise<unknown | null>;
+  findAsset: (
+    assetId: string,
+  ) => Promise<{ blobPathname?: string | null } | null>;
   updateAsset: (
     assetId: string,
     data: Record<string, unknown>,
   ) => Promise<unknown>;
   deleteAsset: (assetId: string) => Promise<void>;
+  deleteReferenceImage: (pathname: string) => Promise<void>;
 }>;
 
 export function createAssetCollectionHandler(
@@ -24,22 +35,40 @@ export function createAssetCollectionHandler(
       return Response.json(await dependencies.listAssets(characterId));
     },
     async POST(request: Request, characterId: string) {
-      let body: unknown;
+      let body: FormData;
       try {
-        body = await request.json();
+        body = await request.formData();
       } catch {
         return invalidCreateResponse();
       }
-      if (!isRecord(body)) return invalidCreateResponse();
+      const image = body.get("image");
       if (
         requiredFields.some(
           (field) =>
-            typeof body[field] !== "string" || !body[field].trim(),
-        )
+            typeof body.get(field) !== "string" ||
+            !(body.get(field) as string).trim(),
+        ) ||
+        !(image instanceof File)
       ) {
         return invalidCreateResponse();
       }
-      const input = body as Record<(typeof requiredFields)[number], string>;
+      const input = Object.fromEntries(
+        requiredFields.map((field) => [field, body.get(field) as string]),
+      ) as Record<(typeof requiredFields)[number], string>;
+      const bytes = new Uint8Array(await image.arrayBuffer());
+      try {
+        validateImage(bytes, image.type);
+      } catch (error) {
+        return Response.json(
+          {
+            error:
+              error instanceof Error
+                ? error.message
+                : "Uploaded image is invalid.",
+          },
+          { status: 400 },
+        );
+      }
       if (!(await dependencies.findCharacter(characterId))) {
         return Response.json(
           { error: "Character not found." },
@@ -47,16 +76,39 @@ export function createAssetCollectionHandler(
         );
       }
 
-      const created = await dependencies.createAsset({
-        characterId,
-        name: input.name.trim(),
-        imageUrl: input.imageUrl.trim(),
-        type: input.type.trim(),
-        provider: input.provider.trim(),
-        // Retained only because the legacy database column is required.
-        status: "PENDING",
-      });
-      return Response.json(created, { status: 201 });
+      let stored: StoredImage | undefined;
+      try {
+        stored = await dependencies.putReferenceImage({
+          bytes,
+          filename: image.name,
+          mimeType: image.type,
+        });
+        const created = await dependencies.createAsset({
+          characterId,
+          name: input.name.trim(),
+          imageUrl: stored.url,
+          blobPathname: stored.pathname,
+          mimeType: stored.mimeType,
+          byteSize: stored.byteSize,
+          type: input.type.trim(),
+          provider: input.provider.trim(),
+          // Retained only because the legacy database column is required.
+          status: "PENDING",
+        });
+        return Response.json(created, { status: 201 });
+      } catch {
+        if (stored) {
+          try {
+            await dependencies.deleteReferenceImage(stored.pathname);
+          } catch {
+            // The original write failure remains the actionable error.
+          }
+        }
+        return Response.json(
+          { error: "Could not store the visual reference." },
+          { status: 503 },
+        );
+      }
     },
   };
 }
@@ -127,8 +179,12 @@ export function createAssetItemHandler(
       );
     },
     async DELETE(assetId: string) {
-      if (!(await dependencies.findAsset(assetId))) {
+      const asset = await dependencies.findAsset(assetId);
+      if (!asset) {
         return Response.json({ error: "Asset not found." }, { status: 404 });
+      }
+      if (asset.blobPathname) {
+        await dependencies.deleteReferenceImage(asset.blobPathname);
       }
       await dependencies.deleteAsset(assetId);
       return new Response(null, { status: 204 });
@@ -138,7 +194,7 @@ export function createAssetItemHandler(
 
 function invalidCreateResponse() {
   return Response.json(
-    { error: "Name, image URL, type, and provider are required." },
+    { error: "Name, image file, type, and provider are required." },
     { status: 400 },
   );
 }

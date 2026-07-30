@@ -108,18 +108,18 @@ test("the studio and production workspace render completely in Chinese", () => {
 
   assert.match(studio, /角色库/);
   assert.match(studio, /角色制作系统/);
-  assert.match(studio, /为游戏开发打造一致的/);
-  assert.match(studio, /AI 美术工作流。/);
+  assert.match(studio, /用 AI 创作/);
+  assert.match(studio, /游戏资产。/);
   assert.match(
     studio,
-    /Atlas 将 AI、可复用角色与视觉参考整合为统一的美术方向，帮助开发者持续生成风格一致、可用于游戏开发的资产。/,
+    /结合角色设定与视觉参考，持续生成风格统一的资产。/,
   );
   assert.match(studio, /创建角色/);
   assert.match(studio, /aria-label="语言"/);
   assert.match(studio, /aria-label="简体中文" aria-pressed="true"/);
   assert.doesNotMatch(
     studio,
-    /Character library|Generate game assets|Create Character/,
+    /Character library|Create game assets|Create Character/,
   );
 
   assert.match(workspace, /视觉参考/);

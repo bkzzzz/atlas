@@ -36,11 +36,11 @@ test("the opening experience identifies Atlas and its creative purpose", () => {
   assert.match(html, /<header[^>]*class="atlas-hero"/);
   assert.match(html, />Atlas</);
   assert.match(html, /Character production system/);
-  assert.match(html, /Generate game assets/);
-  assert.match(html, /that belong together\./);
+  assert.match(html, /Create game assets/);
+  assert.match(html, /with AI\./);
   assert.match(
     html,
-    /combines AI, reusable characters, and visual references to create assets with consistent art direction/,
+    /Use characters and visual references to keep your assets consistent/,
   );
   assert.match(html, />Create Character</);
   assert.doesNotMatch(html, />Your characters</);

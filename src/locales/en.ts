@@ -18,11 +18,11 @@ export const en = {
 
   "hero.category": "Character production system",
   "hero.edition": "Private beta  /  01",
-  "hero.eyebrow": "AI-POWERED GAME ASSET STUDIO",
-  "hero.titleFirst": "Generate game assets",
-  "hero.titleSecond": "that belong together.",
+  "hero.eyebrow": "AI GAME ASSET STUDIO",
+  "hero.titleFirst": "Create game assets",
+  "hero.titleSecond": "with AI.",
   "hero.proposition":
-    "Atlas combines AI, reusable characters, and visual references to create assets with consistent art direction.",
+    "Use characters and visual references to keep your assets consistent.",
   "hero.support":
     "Build the source of truth once, then carry the look across every output.",
   "hero.actionLabel": "Begin with the source",

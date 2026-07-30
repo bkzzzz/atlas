@@ -21,10 +21,10 @@ export const zh = {
   "hero.category": "角色制作系统",
   "hero.edition": "私测版  /  01",
   "hero.eyebrow": "AI 游戏资产创作平台",
-  "hero.titleFirst": "为游戏开发打造一致的",
-  "hero.titleSecond": "AI 美术工作流。",
+  "hero.titleFirst": "用 AI 创作",
+  "hero.titleSecond": "游戏资产。",
   "hero.proposition":
-    "Atlas 将 AI、可复用角色与视觉参考整合为统一的美术方向，帮助开发者持续生成风格一致、可用于游戏开发的资产。",
+    "结合角色设定与视觉参考，持续生成风格统一的资产。",
   "hero.support":
     "只需建立一次可信源，之后的每次输出都能延续相同的视觉语言。",
   "hero.actionLabel": "从角色源头开始",

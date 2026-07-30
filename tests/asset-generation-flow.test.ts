@@ -15,9 +15,12 @@ import { DEFAULT_STATIC_IMAGE_ASSET_SETTINGS } from "../src/lib/task-mode";
 
 test("the ambient asset showcase is decorative, local, and non-interactive", () => {
   const html = renderToStaticMarkup(React.createElement(AmbientAssetShowcase));
+  const decodedHtml = decodeURIComponent(html);
 
   assert.match(html, /aria-hidden="true"/);
-  assert.ok((html.match(/\/references\//g) ?? []).length >= 8);
+  assert.ok((html.match(/atlas-showcase__band/g) ?? []).length >= 4);
+  assert.match(html, /atlas-showcase__archive/);
+  assert.ok((decodedHtml.match(/\/references\//g) ?? []).length >= 8);
   assert.doesNotMatch(html, /<(?:a|button)\b/);
   assert.doesNotMatch(html, /https?:\/\//);
 });
@@ -28,8 +31,23 @@ test("ambient motion respects reduced-motion and small-screen preferences", () =
     "utf8",
   );
 
+  assert.match(css, /\.atlas-app::after/);
+  assert.match(css, /\.atlas-workspace::before/);
+  assert.match(css, /\.atlas-showcase__band--4/);
+  assert.match(css, /\.atlas-showcase__archive/);
+  assert.match(
+    css,
+    /@media \(max-width: 1199px\)[\s\S]*?\.atlas-showcase__archive/,
+  );
+  assert.match(
+    css,
+    /@media \(max-width: 1023px\)[\s\S]*?\.atlas-showcase__band--4/,
+  );
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.atlas-showcase__track/);
-  assert.match(css, /@media \(max-width: 767px\)[\s\S]*?\.atlas-showcase/);
+  assert.match(
+    css,
+    /@media \(max-width: 767px\)[\s\S]*?\.atlas-app::after[\s\S]*?display: none[\s\S]*?\.atlas-showcase/,
+  );
 });
 
 test("the beta character workspace omits metadata and developer previews", () => {

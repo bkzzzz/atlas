@@ -147,6 +147,9 @@ export async function generateImageFromCompiledPrompt(
   const model = dependencies.model?.trim();
   if (!apiKey || !model) throw new ImageGenerationError("not_configured");
   const referenceImages = dependencies.referenceImages ?? [];
+  const isPixelArt = /(?:^|\n)RENDERING MODE: PIXEL_ART(?:\n|$)/.test(
+    compiledPrompt,
+  );
 
   try {
     const client = dependencies.createClient(apiKey);
@@ -155,7 +158,7 @@ export async function generateImageFromCompiledPrompt(
       prompt: compiledPrompt,
       n: 1,
       size: "1024x1024" as const,
-      quality: "low" as const,
+      quality: isPixelArt ? "medium" as const : "low" as const,
       background: dependencies.background ?? "opaque",
       output_format: "png" as const,
     };

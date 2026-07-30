@@ -89,6 +89,40 @@ test("returns one temporary data URL from a valid mocked b64_json response", asy
   });
 });
 
+test("pixel-art generation uses medium output quality without increasing reference fidelity", async () => {
+  const calls: Array<Record<string, unknown>> = [];
+  const reference = { name: "reference-1.png" } as unknown as Uploadable;
+  const client: ImageApiClient = {
+    images: {
+      async generate(request) {
+        calls.push(request as unknown as Record<string, unknown>);
+        return { data: [{ b64_json: "aGVsbG8=" }] };
+      },
+      async edit(request) {
+        calls.push(request as unknown as Record<string, unknown>);
+        return { data: [{ b64_json: "aGVsbG8=" }] };
+      },
+    },
+  };
+  const pixelPrompt = "RENDERING MODE: PIXEL_ART\nCreate a game sprite.";
+
+  await generateImageFromCompiledPrompt(pixelPrompt, {
+    apiKey: testApiKey,
+    model: testModel,
+    createClient: () => client,
+  });
+  await generateImageFromCompiledPrompt(pixelPrompt, {
+    apiKey: testApiKey,
+    model: testModel,
+    createClient: () => client,
+    referenceImages: [reference],
+  });
+
+  assert.equal(calls[0].quality, "medium");
+  assert.equal(calls[1].quality, "medium");
+  assert.equal(calls[1].input_fidelity, "low");
+});
+
 test("uses image editing only when visual reference uploads are present", async () => {
   const calls: Array<{
     method: "generate" | "edit";

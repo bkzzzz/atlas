@@ -51,27 +51,54 @@ function formatList(items: string[]) {
   return items.length ? items.join("; ") : "None";
 }
 
-function assetSettingInstructions(settings: StaticImageAssetSettings): string[] {
-  const instructions = [
-    {
-      PIXEL_ART:
-        "Pixel-art game asset with hard pixel edges, no anti-aliasing, and no smooth vector gradients.",
-      VECTOR_STYLE:
-        "Clean vector-style game asset with simple geometric shapes, crisp contours, and flat fills. Raster image output, not SVG.",
-      ILLUSTRATION:
-        "Illustrated game asset with a clear readable silhouette and cohesive rendered color.",
-    }[settings.visualStyle],
-  ];
+function pixelArtInstructions(settings: StaticImageAssetSettings): string[] {
+  const detailInstruction = {
+    LOW: "Use large, deliberate pixel clusters with minimal detail.",
+    MEDIUM: "Use moderately sized, deliberate pixel clusters with controlled detail.",
+    HIGH: "Use smaller, deliberate pixel clusters with richer detail while keeping every edge hard.",
+  }[settings.pixelDetail];
+  const viewInstruction = settings.viewAngle === "UNSPECIFIED"
+    ? "Use a strict front-facing orthographic view with no perspective."
+    : "Use the explicitly selected camera/view below; it overrides the default front view.";
 
-  if (settings.visualStyle === "PIXEL_ART") {
-    instructions.push(
-      {
-        LOW: "Very low-resolution pixel-art appearance with large visible pixels and minimal detail.",
-        MEDIUM: "Moderate pixel-art detail with clear pixel clusters.",
-        HIGH: "Detailed pixel art while preserving crisp hard-edged pixels.",
-      }[settings.pixelDetail],
-    );
-  }
+  return [
+    "RENDERING MODE: PIXEL_ART",
+    "PIXEL ART OUTPUT:",
+    "- Create an authentic, production-ready pixel art game sprite, not a smooth digital illustration.",
+    "PIXEL CONSTRUCTION:",
+    "- Use crisp square pixels and a nearest-neighbor appearance.",
+    "- Use hard pixel boundaries with no anti-aliasing, no subpixel smoothing, and no blurred edges.",
+    "- Use no smooth gradients and no painterly rendering.",
+    "- Use a limited color palette and simple, readable shading made from intentional color clusters.",
+    `- ${detailInstruction}`,
+    "SPRITE READABILITY:",
+    "- Keep a clean silhouette and make the sprite readable at both 32×32 and 64×64.",
+    `- ${viewInstruction}`,
+    "PIXEL-ART PRIORITY:",
+    "- These pixel-art constraints override all generic illustration, rendering, lighting, and detail wording elsewhere in the request.",
+  ];
+}
+
+function pixelArtReferenceInstructions(): string[] {
+  return [
+    "PIXEL ART REFERENCE ROLE:",
+    "- Treat all input images primarily as visual style references.",
+    "- Preserve their pixel density, outline thickness, palette complexity, shading style, and camera angle.",
+    "- Do not copy the reference subject, object identity, silhouette, or decorations.",
+  ];
+}
+
+function assetSettingInstructions(settings: StaticImageAssetSettings): string[] {
+  const instructions = settings.visualStyle === "PIXEL_ART"
+    ? pixelArtInstructions(settings)
+    : [
+        {
+          VECTOR_STYLE:
+            "Clean vector-style game asset with simple geometric shapes, crisp contours, and flat fills. Raster image output, not SVG.",
+          ILLUSTRATION:
+            "Illustrated game asset with a clear readable silhouette and cohesive rendered color.",
+        }[settings.visualStyle],
+      ];
 
   const viewInstruction = {
     SIDE: "Strict side view, camera level with the subject, no top-down perspective and no three-quarter perspective.",
@@ -106,6 +133,9 @@ export function compileSingleStaticImageTask(
   styleSource: CharacterMetadata | null = null,
 ): CompiledStaticImagePrompt {
   const explicitAssetInstructions = assetSettingInstructions(task.assetSettings);
+  const hasVisualReferences =
+    metadata.visualReferences.length > 0 ||
+    (styleSource?.visualReferences.length ?? 0) > 0;
   const compilerInstructions = [
     "Create exactly one coherent still image.",
     "Preserve character identity, memory, and visual-reference guidance.",
@@ -132,6 +162,9 @@ export function compileSingleStaticImageTask(
     `Assumptions: ${formatList(task.assumptions)}`,
     "The explicit asset settings below override conflicting wording in the user request.",
     ...explicitAssetInstructions,
+    ...(task.assetSettings.visualStyle === "PIXEL_ART" && hasVisualReferences
+      ? pixelArtReferenceInstructions()
+      : []),
     `Compiler rules: ${compilerInstructions.join(" ")}`,
   ].join("\n");
 

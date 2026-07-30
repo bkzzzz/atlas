@@ -100,14 +100,58 @@ test("explicit settings reach the task and override conflicting natural-language
   assert.ok(prompt.indexOf("Strict side view") > prompt.indexOf("front-view"));
 });
 
-test("PIXEL_ART plus LOW detail adds the low-resolution pixel instructions", () => {
+test("PIXEL_ART compiles a dedicated game-sprite production template", () => {
   const prompt = compileSingleStaticImageTask(
     parsedTask({ ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, visualStyle: "PIXEL_ART", pixelDetail: "LOW" }),
     metadata,
   ).compiledPrompt;
 
-  assert.match(prompt, /Pixel-art game asset with hard pixel edges, no anti-aliasing/i);
-  assert.match(prompt, /Very low-resolution pixel-art appearance with large visible pixels and minimal detail/i);
+  assert.match(prompt, /RENDERING MODE: PIXEL_ART/);
+  assert.match(prompt, /authentic, production-ready pixel art game sprite/i);
+  assert.match(prompt, /crisp square pixels/i);
+  assert.match(prompt, /nearest-neighbor appearance/i);
+  assert.match(prompt, /no anti-aliasing/i);
+  assert.match(prompt, /no smooth gradients/i);
+  assert.match(prompt, /no painterly rendering/i);
+  assert.match(prompt, /limited color palette/i);
+  assert.match(prompt, /simple, readable shading/i);
+  assert.match(prompt, /readable at both 32×32 and 64×64/i);
+  assert.match(prompt, /strict front-facing orthographic view/i);
+  assert.match(prompt, /transparent background/i);
+  assert.match(prompt, /large, deliberate pixel clusters with minimal detail/i);
+  assert.doesNotMatch(
+    prompt,
+    /highly detailed illustration|rendered painting|realistic lighting|cinematic rendering|soft shading/i,
+  );
+});
+
+test("PIXEL_ART treats attached images as style references without copying their subjects", () => {
+  const prompt = compileSingleStaticImageTask(
+    parsedTask({ ...DEFAULT_STATIC_IMAGE_ASSET_SETTINGS, visualStyle: "PIXEL_ART" }),
+    {
+      ...metadata,
+      visualReferences: [
+        {
+          id: "reference-1",
+          name: "Knight sprite",
+          imageUrl: "https://example.com/knight.png",
+          type: "Sprite sheet",
+          provider: "Manual",
+          prompt: null,
+          createdAt: "2026-07-29T10:00:00.000Z",
+        },
+      ],
+    },
+  ).compiledPrompt;
+
+  assert.match(prompt, /PIXEL ART REFERENCE ROLE:/);
+  assert.match(prompt, /primarily as visual style references/i);
+  assert.match(prompt, /pixel density/i);
+  assert.match(prompt, /outline thickness/i);
+  assert.match(prompt, /palette complexity/i);
+  assert.match(prompt, /shading style/i);
+  assert.match(prompt, /camera angle/i);
+  assert.match(prompt, /Do not copy the reference subject/i);
 });
 
 test("style source inheritance is independent from the selected visual style", () => {
@@ -135,7 +179,7 @@ test("style source inheritance is independent from the selected visual style", (
   assert.match(prompt, /Style source: Inherit Nova's style\/theme/);
   assert.match(prompt, /Inherited visual style: storybook cut paper/);
   assert.match(prompt, /Inherited design rules: rounded layered shapes/);
-  assert.match(prompt, /Pixel-art game asset with hard pixel edges/);
+  assert.match(prompt, /RENDERING MODE: PIXEL_ART/);
   assert.match(prompt, /Isolated subject on a transparent background/i);
   assert.match(prompt, /No ground shadow/i);
 });

@@ -42,7 +42,6 @@ test("the beta asset form presents production controls in order without internal
   const expectedOrder = [
     "Create game asset",
     "Static image",
-    "Vector asset",
     "Character",
     "Asset type",
     "Style source",
@@ -69,12 +68,11 @@ test("the beta asset form presents production controls in order without internal
   assert.doesNotMatch(html, /Output format|Advanced controls|Developer details/);
 });
 
-test("vector-style raster assets are enabled while animation modes remain unavailable", () => {
+test("the workflow picker offers static images while animation modes remain unavailable", () => {
   assert.deepEqual(
     ASSET_WORKFLOWS.map(({ label, executable }) => [label, executable]),
     [
       ["Static image", true],
-      ["Vector asset", true],
       ["Idle animation", false],
       ["Walk animation", false],
     ],
@@ -86,11 +84,7 @@ test("vector-style raster assets are enabled while animation modes remain unavai
       characterName: "Mira",
     }),
   );
-  assert.match(html, /Vector asset[\s\S]*?Raster vector-style PNG/);
-  assert.doesNotMatch(html, /Vector asset[\s\S]{0,120}(?:Experimental|unavailable)/i);
-  const vectorCard = html.match(/<button[^>]*>[\s\S]*?Vector asset[\s\S]*?<\/button>/)?.[0];
-  assert.ok(vectorCard);
-  assert.doesNotMatch(vectorCard, /disabled/);
+  assert.doesNotMatch(html, /Vector asset|Raster vector-style PNG/);
   assert.equal((html.match(/Unavailable/g) ?? []).length, 2);
   assert.match(html, /<button[^>]*disabled[^>]*>[\s\S]*?Idle animation/);
   assert.match(html, /<button[^>]*disabled[^>]*>[\s\S]*?Walk animation/);

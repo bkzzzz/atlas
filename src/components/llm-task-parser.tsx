@@ -60,9 +60,6 @@ export function LlmTaskParser({
   characterName,
   styleCharacters = [],
 }: Props) {
-  const [assetWorkflow, setAssetWorkflow] = useState<"STATIC_IMAGE" | "VECTOR_ASSET">(
-    "STATIC_IMAGE",
-  );
   const [assetType, setAssetType] = useState<AssetType>("CHARACTER_SPRITE");
   const [artDirection, setArtDirection] = useState("");
   const [styleSourceMode, setStyleSourceMode] = useState<"NEW" | "INHERIT">("NEW");
@@ -155,28 +152,14 @@ export function LlmTaskParser({
       <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" aria-label="Asset workflow">
         {ASSET_WORKFLOWS.map((workflow) => (
           <button
-            aria-pressed={workflow.executable ? assetWorkflow === workflow.value : undefined}
+            aria-pressed={workflow.executable ? true : undefined}
             className={`rounded-lg border px-3 py-3 text-left text-sm ${
-              workflow.executable && assetWorkflow === workflow.value
+              workflow.executable
                 ? "border-violet-400/50 bg-violet-500/10 text-violet-100"
-                : workflow.executable
-                  ? "border-white/10 text-slate-300 hover:border-violet-400/40"
-                  : "cursor-not-allowed border-white/10 text-slate-500"
+                : "cursor-not-allowed border-white/10 text-slate-500"
             }`}
             disabled={!workflow.executable || isGenerating}
             key={workflow.value}
-            onClick={() => {
-              if (workflow.value !== "STATIC_IMAGE" && workflow.value !== "VECTOR_ASSET") return;
-              setAssetWorkflow(workflow.value);
-              if (workflow.value === "VECTOR_ASSET") {
-                updateAssetSetting("visualStyle", "VECTOR_STYLE");
-              } else {
-                updateAssetSetting(
-                  "visualStyle",
-                  DEFAULT_STATIC_IMAGE_ASSET_SETTINGS.visualStyle,
-                );
-              }
-            }}
             type="button"
           >
             <span className="block font-medium">{workflow.label}</span>
@@ -278,12 +261,7 @@ export function LlmTaskParser({
             <AssetSettingSelect
               label="Visual style"
               disabled={isGenerating}
-              onChange={(value) => {
-                updateAssetSetting("visualStyle", value);
-                if (assetWorkflow === "VECTOR_ASSET" && value !== "VECTOR_STYLE") {
-                  setAssetWorkflow("STATIC_IMAGE");
-                }
-              }}
+              onChange={(value) => updateAssetSetting("visualStyle", value)}
               options={STATIC_IMAGE_VISUAL_STYLES}
               labels={VISUAL_STYLE_LABELS}
               value={assetSettings.visualStyle}

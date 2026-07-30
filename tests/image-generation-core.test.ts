@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import OpenAI from "openai";
+import OpenAI, { type Uploadable } from "openai";
 import {
   generateImageFromCompiledPrompt,
   ImageGenerationError,
@@ -18,6 +18,11 @@ function clientThat(
   return {
     images: {
       async generate(request) {
+        calls.count += 1;
+        calls.request = request;
+        return implementation();
+      },
+      async edit(request) {
         calls.count += 1;
         calls.request = request;
         return implementation();
@@ -82,6 +87,49 @@ test("returns one temporary data URL from a valid mocked b64_json response", asy
     background: "opaque",
     output_format: "png",
   });
+});
+
+test("uses image editing only when visual reference uploads are present", async () => {
+  const calls: Array<{
+    method: "generate" | "edit";
+    request: Record<string, unknown>;
+  }> = [];
+  const reference = { name: "reference-1.png" } as unknown as Uploadable;
+  const client: ImageApiClient = {
+    images: {
+      async generate(request) {
+        calls.push({
+          method: "generate",
+          request: request as unknown as Record<string, unknown>,
+        });
+        return { data: [{ b64_json: "aGVsbG8=" }] };
+      },
+      async edit(request) {
+        calls.push({
+          method: "edit",
+          request: request as unknown as Record<string, unknown>,
+        });
+        return { data: [{ b64_json: "aGVsbG8=" }] };
+      },
+    },
+  };
+
+  await generateImageFromCompiledPrompt(compiledPrompt, {
+    apiKey: testApiKey,
+    model: testModel,
+    createClient: () => client,
+    referenceImages: [reference],
+  });
+  await generateImageFromCompiledPrompt(compiledPrompt, {
+    apiKey: testApiKey,
+    model: testModel,
+    createClient: () => client,
+  });
+
+  assert.equal(calls[0].method, "edit");
+  assert.deepEqual(calls[0].request.image, [reference]);
+  assert.equal(calls[1].method, "generate");
+  assert.equal("image" in calls[1].request, false);
 });
 
 test("uses a validated transparent background when the server requests it", async () => {

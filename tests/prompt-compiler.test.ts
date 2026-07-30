@@ -19,8 +19,7 @@ const metadata = {
     species: "arcane creature",
   },
   memory: null,
-  approvedAssets: [],
-  rejectedAssets: [],
+  visualReferences: [],
 };
 
 const staticTask = {
@@ -53,6 +52,30 @@ test("compiles identical structured input into the exact same prompt", () => {
     compileSingleStaticImageTask(task, metadata),
     compileSingleStaticImageTask(task, metadata),
   );
+});
+
+test("all attached visual references compile once without approval language or contradictory empty references", () => {
+  const prompt = compileSingleStaticImageTask(
+    parsedTask(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS),
+    {
+      ...metadata,
+      visualReferences: [
+        {
+          id: "reference-1",
+          name: "Gothic",
+          imageUrl: "https://example.com/gothic.png",
+          type: "Mood board",
+          provider: "Manual",
+          prompt: null,
+          createdAt: "2026-07-29T10:00:00.000Z",
+        },
+      ],
+    },
+  ).compiledPrompt;
+
+  assert.match(prompt, /Visual references: Gothic \(Mood board, Manual\)/);
+  assert.doesNotMatch(prompt, /Approved visual references|Avoid rejected references/i);
+  assert.doesNotMatch(prompt, /Reference assets: None/i);
 });
 
 test("explicit settings reach the task and override conflicting natural-language wording", () => {
@@ -158,6 +181,7 @@ test("STATIC_IMAGE validates, compiles, and receives a one-time token", async ()
   assert.deepEqual(session.consumeGenerationToken("static-image-token"), {
     compiledPrompt: compiled.compiledPrompt,
     background: "opaque",
+    referenceAssetIds: [],
     expiresAt: 1_100,
   });
 });

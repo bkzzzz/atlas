@@ -2,9 +2,11 @@ import type {
   GenerationBackground,
   PendingGeneration,
 } from "@/lib/generation-session";
+import type { Uploadable } from "openai";
 import {
   classifyImageGenerationError,
   type GeneratedImage,
+  ImageGenerationError,
   type ImageGenerationDiagnostic,
 } from "@/lib/image-generation-core";
 
@@ -12,16 +14,21 @@ type ConsumeGenerationToken = (token: string) => PendingGeneration | null;
 type GenerateCompiledImage = (
   compiledPrompt: string,
   background: GenerationBackground,
+  referenceImages: readonly Uploadable[],
 ) => Promise<GeneratedImage>;
+type ResolveReferenceImageUploads = (
+  referenceAssetIds: readonly string[],
+) => Promise<readonly Uploadable[]>;
 
 export type GenerateImageHandlerDependencies = {
   consumeGenerationToken: ConsumeGenerationToken;
   generateCompiledImage: GenerateCompiledImage;
+  resolveReferenceImageUploads?: ResolveReferenceImageUploads;
   logError?: (message: string, details: { category: string } & ImageGenerationDiagnostic) => void;
 };
 
 function statusForGenerationError(category: ReturnType<typeof classifyImageGenerationError>["category"]) {
-  if (category === "not_configured") return 503;
+  if (category === "not_configured" || category === "reference_unavailable") return 503;
   if (category === "authentication_error") return 401;
   if (category === "permission_or_model_access") return 403;
   if (category === "model_not_found") return 404;
@@ -81,9 +88,24 @@ export function createGenerateImageHandler(dependencies: GenerateImageHandlerDep
       }
 
       activeTokens.add(token);
+      let referenceImages: readonly Uploadable[] = [];
+      if (pending.referenceAssetIds.length) {
+        try {
+          referenceImages =
+            await dependencies.resolveReferenceImageUploads?.(
+              pending.referenceAssetIds,
+            ) ?? [];
+        } catch {
+          throw new ImageGenerationError("reference_unavailable");
+        }
+        if (referenceImages.length !== pending.referenceAssetIds.length) {
+          throw new ImageGenerationError("reference_unavailable");
+        }
+      }
       const image = await dependencies.generateCompiledImage(
         pending.compiledPrompt,
         pending.background,
+        referenceImages,
       );
       return Response.json({ image: { ...image, compiledPrompt: pending.compiledPrompt } });
     } catch (cause) {

@@ -68,7 +68,7 @@ export async function POST(
       const [memory, assets] = await Promise.all([
         prisma.characterMemory.findUnique({ where: { characterId } }),
         prisma.imageAsset.findMany({
-          where: { characterId, status: { in: ["APPROVED", "REJECTED"] } },
+          where: { characterId },
           orderBy: { createdAt: "desc" },
         }),
       ]);
@@ -80,10 +80,7 @@ export async function POST(
             where: { characterId: styleSourceCharacterId },
           }),
           prisma.imageAsset.findMany({
-            where: {
-              characterId: styleSourceCharacterId,
-              status: { in: ["APPROVED", "REJECTED"] },
-            },
+            where: { characterId: styleSourceCharacterId },
             orderBy: { createdAt: "desc" },
           }),
         ]);
@@ -127,6 +124,7 @@ export async function POST(
       const generationToken = createGenerationToken(
         compiled.compiledPrompt,
         assetSettings.background === "TRANSPARENT" ? "transparent" : "opaque",
+        metadata.visualReferences.map(({ id }) => id),
       );
 
       return Response.json({

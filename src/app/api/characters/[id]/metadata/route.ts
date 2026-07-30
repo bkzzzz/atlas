@@ -15,7 +15,7 @@ export async function GET(
     const [memory, assets] = await Promise.all([
       prisma.characterMemory.findUnique({ where: { characterId } }),
       prisma.imageAsset.findMany({
-        where: { characterId, status: { in: ["APPROVED", "REJECTED"] } },
+        where: { characterId },
         orderBy: { createdAt: "desc" },
       }),
     ]);

@@ -1,6 +1,7 @@
 export type PendingGeneration = {
   compiledPrompt: string;
   background: GenerationBackground;
+  referenceAssetIds: readonly string[];
   expiresAt: number;
 };
 
@@ -26,11 +27,13 @@ export function createGenerationSession(options: GenerationSessionOptions = {}) 
   function createGenerationToken(
     compiledPrompt: string,
     background: GenerationBackground = "opaque",
+    referenceAssetIds: readonly string[] = [],
   ) {
     const token = createToken();
     pendingGenerations.set(token, {
       compiledPrompt,
       background,
+      referenceAssetIds: Object.freeze([...referenceAssetIds]),
       expiresAt: now() + ttlMs,
     });
     return token;

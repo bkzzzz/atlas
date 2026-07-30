@@ -23,5 +23,5 @@ export type CreateImageAssetInput = Pick<
 
 export type UpdateImageAssetInput = Pick<
   ImageAsset,
-  "name" | "type" | "provider" | "prompt" | "feedback"
+  "name" | "type" | "provider" | "prompt"
 >;

@@ -1,5 +1,5 @@
 import "server-only";
-import OpenAI from "openai";
+import OpenAI, { type Uploadable } from "openai";
 import {
   generateImageFromCompiledPrompt,
   type GeneratedImage,
@@ -22,6 +22,7 @@ function createOpenAIImageClient(apiKey: string): ImageApiClient {
 export function generateCompiledImage(
   compiledPrompt: string,
   background: GenerationBackground,
+  referenceImages: readonly Uploadable[] = [],
 ): Promise<GeneratedImage> {
   return generateImageFromCompiledPrompt(compiledPrompt, {
     apiKey: process.env.OPENAI_API_KEY,
@@ -29,5 +30,6 @@ export function generateCompiledImage(
     createClient: createOpenAIImageClient,
     timeoutMs: IMAGE_TIMEOUT_MS,
     background,
+    referenceImages,
   });
 }

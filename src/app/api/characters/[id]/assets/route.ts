@@ -1,6 +1,19 @@
+import { createAssetCollectionHandler } from "@/lib/asset-handler";
 import { prisma } from "@/lib/prisma";
 
-const requiredFields = ["name", "imageUrl", "type", "provider"] as const;
+const handler = createAssetCollectionHandler({
+  listAssets: (characterId) =>
+    prisma.imageAsset.findMany({
+      where: { characterId },
+      orderBy: { createdAt: "desc" },
+    }),
+  findCharacter: (characterId) =>
+    prisma.character.findUnique({ where: { id: characterId } }),
+  createAsset: (data) =>
+    prisma.imageAsset.create({
+      data: data as Parameters<typeof prisma.imageAsset.create>[0]["data"],
+    }),
+});
 
 // Assets are nested under a character because creating or listing an asset
 // always happens in the context of its owner.
@@ -9,12 +22,7 @@ export async function GET(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id: characterId } = await context.params;
-  const assets = await prisma.imageAsset.findMany({
-    where: { characterId },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return Response.json(assets);
+  return handler.GET(characterId);
 }
 
 export async function POST(
@@ -22,31 +30,5 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id: characterId } = await context.params;
-  const body = await request.json();
-
-  if (requiredFields.some((field) => typeof body[field] !== "string" || !body[field].trim())) {
-    return Response.json(
-      { error: "Name, image URL, type, and provider are required." },
-      { status: 400 },
-    );
-  }
-
-  const character = await prisma.character.findUnique({ where: { id: characterId } });
-  if (!character) {
-    return Response.json({ error: "Character not found." }, { status: 404 });
-  }
-
-  const asset = await prisma.imageAsset.create({
-    data: {
-      characterId,
-      name: body.name.trim(),
-      imageUrl: body.imageUrl.trim(),
-      type: body.type.trim(),
-      provider: body.provider.trim(),
-      // New assets always enter the review queue before a reviewer acts.
-      status: "PENDING",
-    },
-  });
-
-  return Response.json(asset, { status: 201 });
+  return handler.POST(request, characterId);
 }

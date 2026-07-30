@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import type { Uploadable } from "openai";
 import { createGenerateImageHandler } from "../src/lib/generate-image-handler";
 import { createGenerationSession } from "../src/lib/generation-session";
 import type { GeneratedImage } from "../src/lib/image-generation-core";
@@ -135,6 +136,43 @@ test("uses only the output background stored behind the token", async () => {
     prompt: "trusted server compiled prompt",
     background: "transparent",
   }]);
+});
+
+test("passes every token-bound visual reference file to generation", async () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken(
+    "trusted server compiled prompt",
+    "opaque",
+    ["reference-1", "reference-2"],
+  );
+  const uploads = [
+    { name: "reference-1.png" },
+    { name: "reference-2.webp" },
+  ] as unknown as Uploadable[];
+  const received: unknown[] = [];
+  const handler = createGenerateImageHandler({
+    consumeGenerationToken: session.consumeGenerationToken,
+    resolveReferenceImageUploads: async (ids) => {
+      received.push({ ids });
+      return uploads;
+    },
+    generateCompiledImage: async (prompt, background, referenceImages) => {
+      received.push({ prompt, background, referenceImages });
+      return generatedImage;
+    },
+  });
+
+  const response = await handler(requestFor(token));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(received, [
+    { ids: ["reference-1", "reference-2"] },
+    {
+      prompt: "trusted server compiled prompt",
+      background: "opaque",
+      referenceImages: uploads,
+    },
+  ]);
 });
 
 test("consumes a token before the external image API and consumes it after a failed generation", async () => {

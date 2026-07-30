@@ -27,22 +27,13 @@ export type CharacterMetadata = {
     rejectedSummary: string | null;
     preferredPrompt: string | null;
   } | null;
-  approvedAssets: Array<{
+  visualReferences: Array<{
     id: string;
     name: string;
     imageUrl: string;
     type: string;
     provider: string;
     prompt: string | null;
-    createdAt: string;
-  }>;
-  rejectedAssets: Array<{
-    id: string;
-    name: string;
-    imageUrl: string;
-    type: string;
-    provider: string;
-    feedback: string | null;
     createdAt: string;
   }>;
 };
@@ -78,27 +69,14 @@ export function buildCharacterMetadata({
       rejectedSummary: memory.rejectedSummary,
       preferredPrompt: memory.preferredPrompt,
     },
-    approvedAssets: assets
-      .filter((asset) => asset.status === "APPROVED")
-      .map((asset) => ({
-        id: asset.id,
-        name: asset.name,
-        imageUrl: asset.imageUrl,
-        type: asset.type,
-        provider: asset.provider,
-        prompt: asset.prompt,
-        createdAt: toIsoString(asset.createdAt),
-      })),
-    rejectedAssets: assets
-      .filter((asset) => asset.status === "REJECTED")
-      .map((asset) => ({
-        id: asset.id,
-        name: asset.name,
-        imageUrl: asset.imageUrl,
-        type: asset.type,
-        provider: asset.provider,
-        feedback: asset.feedback,
-        createdAt: toIsoString(asset.createdAt),
-      })),
+    visualReferences: assets.map((asset) => ({
+      id: asset.id,
+      name: asset.name,
+      imageUrl: asset.imageUrl,
+      type: asset.type,
+      provider: asset.provider,
+      prompt: asset.prompt,
+      createdAt: toIsoString(asset.createdAt),
+    })),
   };
 }

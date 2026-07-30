@@ -9,14 +9,9 @@ export type CompiledStaticImagePrompt = {
 
 function formatMetadataContext(metadata: CharacterMetadata) {
   const memory = metadata.memory;
-  const approvedAssets = metadata.approvedAssets.length
-    ? metadata.approvedAssets
+  const visualReferences = metadata.visualReferences.length
+    ? metadata.visualReferences
         .map((asset) => `${asset.name} (${asset.type}, ${asset.provider})`)
-        .join("; ")
-    : "None";
-  const rejectedAssets = metadata.rejectedAssets.length
-    ? metadata.rejectedAssets
-        .map((asset) => `${asset.name}: ${asset.feedback ?? "No feedback recorded"}`)
         .join("; ")
     : "None";
 
@@ -28,8 +23,7 @@ function formatMetadataContext(metadata: CharacterMetadata) {
     `Lore: ${memory?.lore ?? "Not specified"}`,
     `Design rules: ${memory?.designRules ?? "Not specified"}`,
     `Preferred prompt context: ${memory?.preferredPrompt ?? "Not specified"}`,
-    `Approved visual references: ${approvedAssets}`,
-    `Avoid rejected references: ${rejectedAssets}`,
+    `Visual references: ${visualReferences}`,
   ];
 }
 
@@ -38,8 +32,8 @@ function formatStyleSourceContext(styleSource: CharacterMetadata | null) {
     return ["Style source: Create a new style for this asset."];
   }
 
-  const approvedReferences = styleSource.approvedAssets.length
-    ? styleSource.approvedAssets
+  const visualReferences = styleSource.visualReferences.length
+    ? styleSource.visualReferences
         .map((asset) => `${asset.name} (${asset.type}, ${asset.provider})`)
         .join("; ")
     : "None";
@@ -49,7 +43,7 @@ function formatStyleSourceContext(styleSource: CharacterMetadata | null) {
     `Inherited visual style: ${styleSource.memory?.visualStyle ?? "Not specified"}`,
     `Inherited design rules: ${styleSource.memory?.designRules ?? "Not specified"}`,
     `Inherited prompt context: ${styleSource.memory?.preferredPrompt ?? "Not specified"}`,
-    `Inherited visual references: ${approvedReferences}`,
+    `Inherited visual references: ${visualReferences}`,
   ];
 }
 
@@ -114,8 +108,7 @@ export function compileSingleStaticImageTask(
   const explicitAssetInstructions = assetSettingInstructions(task.assetSettings);
   const compilerInstructions = [
     "Create exactly one coherent still image.",
-    "Preserve character identity, memory, and approved references.",
-    "Avoid rejected-reference feedback.",
+    "Preserve character identity, memory, and visual-reference guidance.",
   ];
   const compiledPrompt = [
     "Create one still game asset.",
@@ -133,7 +126,9 @@ export function compileSingleStaticImageTask(
       : []),
     `Positive constraints: ${formatList(task.positiveConstraints)}`,
     `Negative constraints: ${formatList(task.negativeConstraints)}`,
-    `Reference assets: ${formatList(task.referenceAssets)}`,
+    ...(task.referenceAssets.length
+      ? [`Additional reference notes: ${formatList(task.referenceAssets)}`]
+      : []),
     `Assumptions: ${formatList(task.assumptions)}`,
     "The explicit asset settings below override conflicting wording in the user request.",
     ...explicitAssetInstructions,

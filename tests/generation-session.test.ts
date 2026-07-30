@@ -27,6 +27,7 @@ test("a valid generation token succeeds once and unknown tokens fail", () => {
   assert.deepEqual(session.consumeGenerationToken(token), {
     compiledPrompt: "compiled prompt",
     background: "opaque",
+    referenceAssetIds: [],
     expiresAt: 1_100,
   });
   assert.equal(session.consumeGenerationToken(token), null);
@@ -40,6 +41,26 @@ test("a generation token preserves the server-selected output background", () =>
   assert.deepEqual(session.consumeGenerationToken(token), {
     compiledPrompt: "compiled prompt",
     background: "transparent",
+    referenceAssetIds: [],
+    expiresAt: 1_100,
+  });
+});
+
+test("a generation token binds every active visual reference ID", () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken(
+    "compiled prompt",
+    "opaque",
+    ["reference-new", "reference-legacy-rejected"],
+  );
+
+  assert.deepEqual(session.consumeGenerationToken(token), {
+    compiledPrompt: "compiled prompt",
+    background: "opaque",
+    referenceAssetIds: [
+      "reference-new",
+      "reference-legacy-rejected",
+    ],
     expiresAt: 1_100,
   });
 });

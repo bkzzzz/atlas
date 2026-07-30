@@ -274,7 +274,7 @@ export function LlmTaskParser({
               disabled={isGenerating || styleCharacters.length === 0}
               description={
                 styleCharacters.length
-                  ? "Use another character's style memory and approved references."
+                  ? "Use another character's style memory and visual references."
                   : "Create another character first to use style inheritance."
               }
               label="Inherit another character's style/theme"

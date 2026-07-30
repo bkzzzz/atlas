@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import OpenAI, { type Uploadable } from "openai";
 import type { GenerationBackground } from "@/lib/generation-session";
 
 export type ImageGenerationErrorCategory =
@@ -9,7 +9,8 @@ export type ImageGenerationErrorCategory =
   | "authentication_error"
   | "timeout"
   | "unknown_upstream_error"
-  | "not_configured";
+  | "not_configured"
+  | "reference_unavailable";
 
 export type ImageGenerationDiagnostic = {
   code: string | null;
@@ -44,6 +45,10 @@ export type ImageApiClient = {
       request: OpenAI.Images.ImageGenerateParamsNonStreaming,
       options?: { signal?: AbortSignal },
     ) => Promise<unknown>;
+    edit: (
+      request: OpenAI.Images.ImageEditParamsNonStreaming,
+      options?: { signal?: AbortSignal },
+    ) => Promise<unknown>;
   };
 };
 
@@ -54,6 +59,7 @@ export type ImageGenerationDependencies = {
   now?: () => Date;
   timeoutMs?: number;
   background?: GenerationBackground;
+  referenceImages?: readonly Uploadable[];
 };
 
 const DEFAULT_TIMEOUT_MS = 60_000;
@@ -67,6 +73,8 @@ export function safeImageGenerationMessage(category: ImageGenerationErrorCategor
     authentication_error: "API key is invalid or inaccessible.",
     timeout: "Image generation timed out. Click Generate to try again.",
     not_configured: "Image generation is not configured on this server.",
+    reference_unavailable:
+      "One or more visual references are unavailable. Generate again after updating the references.",
     unknown_upstream_error: "Could not generate the image. Click Generate to try again.",
   }[category];
 }
@@ -138,20 +146,34 @@ export async function generateImageFromCompiledPrompt(
   const apiKey = dependencies.apiKey?.trim();
   const model = dependencies.model?.trim();
   if (!apiKey || !model) throw new ImageGenerationError("not_configured");
+  const referenceImages = dependencies.referenceImages ?? [];
 
   try {
-    const response = await dependencies.createClient(apiKey).images.generate(
-      {
-        model: model as OpenAI.Images.ImageModel,
-        prompt: compiledPrompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "low",
-        background: dependencies.background ?? "opaque",
-        output_format: "png",
-      },
-      { signal: AbortSignal.timeout(dependencies.timeoutMs ?? DEFAULT_TIMEOUT_MS) },
-    );
+    const client = dependencies.createClient(apiKey);
+    const request = {
+      model: model as OpenAI.Images.ImageModel,
+      prompt: compiledPrompt,
+      n: 1,
+      size: "1024x1024" as const,
+      quality: "low" as const,
+      background: dependencies.background ?? "opaque",
+      output_format: "png" as const,
+    };
+    const options = {
+      signal: AbortSignal.timeout(
+        dependencies.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+      ),
+    };
+    const response = referenceImages.length
+      ? await client.images.edit(
+          {
+            ...request,
+            image: [...referenceImages],
+            input_fidelity: "low",
+          },
+          options,
+        )
+      : await client.images.generate(request, options);
     const image = imageBase64From(response);
     if (!image) throw new ImageGenerationError("unknown_upstream_error");
 

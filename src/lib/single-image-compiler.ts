@@ -128,9 +128,10 @@ function referenceGuidance(
   const guidance: string[] = [];
 
   if (task.referenceGuidance.length) {
-    const titles = listSentence(
-      "Selected reference families:",
-      task.referenceGuidance.map((reference) => reference.title),
+    guidance.push(
+      ...task.referenceGuidance.map(
+        (reference, index) => `Image ${index + 1}: ${reference.title}`,
+      ),
     );
     const categories = listSentence(
       "Categories:",
@@ -140,11 +141,12 @@ function referenceGuidance(
       "Objective tags:",
       task.referenceGuidance.flatMap((reference) => reference.tags),
     );
-    if (titles) guidance.push(titles);
     if (categories) guidance.push(categories);
     if (tags) guidance.push(tags);
     guidance.push(
-      "Use these as supporting visual direction only, without copying identity or assuming unlisted traits",
+      "Use the input images only as visual references for rendering technique, edge treatment, shape language, proportion conventions, palette treatment, and gameplay readability",
+      "Do not copy their exact subject, identity, pose, composition, text, logos, or distinctive content",
+      "The Draft StyleSpec remains authoritative",
       "Preserve the requested subject, composition, dimensions, background, asset settings, and explicit constraints",
     );
   }

@@ -71,7 +71,11 @@ function request(body: unknown) {
 
 function createHandler(overrides: {
   onIndexLoad?: () => void;
-  createGenerationToken?: (prompt: string, background: "transparent" | "opaque") => string;
+  createGenerationToken?: (
+    prompt: string,
+    background: "transparent" | "opaque",
+    referenceFamilyIds: readonly string[],
+  ) => string;
 } = {}) {
   return createCompileTaskHandler({
     loadReferenceFamilyIndex: async () => {
@@ -189,6 +193,8 @@ test("a compile response mints an unchanged one-time generation token", async ()
   assert.deepEqual(session.consumeGenerationToken(body.generationToken), {
     compiledPrompt: body.compiledPrompt,
     background: "transparent",
+    referenceFamilyIds: ["kenney-roguelike-crystal"],
+    generationMode: "visual-reference",
     expiresAt: 1_100,
   });
   assert.equal(session.consumeGenerationToken(body.generationToken), null);

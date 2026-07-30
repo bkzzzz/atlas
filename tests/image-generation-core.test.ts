@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import OpenAI from "openai";
+import OpenAI, { type Uploadable } from "openai";
 import {
   generateImageFromCompiledPrompt,
   ImageGenerationError,
@@ -13,14 +13,28 @@ const compiledPrompt = "SERVER-COMPILED prompt only";
 
 function clientThat(
   implementation: () => Promise<unknown>,
-  calls: { count: number; request?: unknown },
+  calls: {
+    count: number;
+    request?: unknown;
+    method?: "generate" | "edit";
+  },
 ): ImageApiClient {
+  const invoke = async (
+    method: "generate" | "edit",
+    request: unknown,
+  ) => {
+    calls.count += 1;
+    calls.method = method;
+    calls.request = request;
+    return implementation();
+  };
   return {
     images: {
       async generate(request) {
-        calls.count += 1;
-        calls.request = request;
-        return implementation();
+        return invoke("generate", request);
+      },
+      async edit(request) {
+        return invoke("edit", request);
       },
     },
   };
@@ -59,7 +73,11 @@ async function expectCategory(
 }
 
 test("returns one temporary data URL from a valid mocked b64_json response", async () => {
-  const calls = { count: 0, request: undefined as unknown };
+  const calls = {
+    count: 0,
+    request: undefined as unknown,
+    method: undefined as "generate" | "edit" | undefined,
+  };
   const generated = await generateImageFromCompiledPrompt(compiledPrompt, {
     apiKey: testApiKey,
     model: testModel,
@@ -73,6 +91,7 @@ test("returns one temporary data URL from a valid mocked b64_json response", asy
     createdAt: "2026-07-24T12:00:00.000Z",
   });
   assert.equal(calls.count, 1);
+  assert.equal(calls.method, "generate");
   assert.deepEqual(calls.request, {
     model: testModel,
     prompt: compiledPrompt,
@@ -82,6 +101,66 @@ test("returns one temporary data URL from a valid mocked b64_json response", asy
     background: "opaque",
     output_format: "png",
   });
+});
+
+test("uses images.edit with one to three trusted reference uploads in stable order", async () => {
+  const calls = {
+    count: 0,
+    request: undefined as unknown,
+    method: undefined as "generate" | "edit" | undefined,
+  };
+  const referenceImages = [
+    { name: "reference-1.png" },
+    { name: "reference-2.png" },
+    { name: "reference-3.png" },
+  ] as unknown as Uploadable[];
+
+  await generateImageFromCompiledPrompt(compiledPrompt, {
+    apiKey: testApiKey,
+    model: "gpt-image-1.5",
+    createClient: () =>
+      clientThat(
+        async () => ({ data: [{ b64_json: "aGVsbG8=" }] }),
+        calls,
+      ),
+    background: "transparent",
+    referenceImages,
+  });
+
+  assert.equal(calls.count, 1);
+  assert.equal(calls.method, "edit");
+  assert.deepEqual(calls.request, {
+    model: "gpt-image-1.5",
+    image: referenceImages,
+    prompt: compiledPrompt,
+    input_fidelity: "low",
+    n: 1,
+    size: "1024x1024",
+    quality: "low",
+    background: "transparent",
+    output_format: "png",
+  });
+});
+
+test("rejects more than three reference uploads before creating a provider client", async () => {
+  let factoryCalls = 0;
+  const referenceImages = [{}, {}, {}, {}] as Uploadable[];
+
+  await assert.rejects(
+    generateImageFromCompiledPrompt(compiledPrompt, {
+      apiKey: testApiKey,
+      model: "gpt-image-1.5",
+      createClient: () => {
+        factoryCalls += 1;
+        throw new Error("must not create client");
+      },
+      referenceImages,
+    }),
+    (error: unknown) =>
+      error instanceof ImageGenerationError &&
+      error.category === "reference_unavailable",
+  );
+  assert.equal(factoryCalls, 0);
 });
 
 test("uses a validated transparent background when the server requests it", async () => {

@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
   // deployment artifacts. Runtime reads still work from the project root,
   // while output tracing cannot copy the ignored 88k-file source bundle.
   outputFileTracingExcludes: {
+    "/api/generate-image": [
+      "./data/reference-source/Kenney/**/*",
+      "./data/reference-index/reference-families.json",
+      "./data/reference-index/reference-embeddings.json",
+    ],
     "/api/references/image": [
       "./data/reference-source/Kenney/**/*",
       "./data/reference-index/reference-families.json",

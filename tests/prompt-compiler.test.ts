@@ -203,15 +203,30 @@ test("compiles selected family metadata once without leaking provenance", () => 
       category: "characters",
       tags: ["MAGIC", "cloak"],
     },
+    {
+      id: "secret-family-id-c",
+      title: "Castle Tower",
+      pack: "secret-pack-c",
+      category: "Buildings",
+      tags: ["stone", "tower"],
+    },
   ];
 
   const prompt = compileSingleStaticImageTask(task, metadata).compiledPrompt;
 
+  assert.match(prompt, /Reference Guidance:\nImage 1: Forest Mage\./);
+  assert.match(prompt, /Image 2: forest mage\./);
+  assert.match(prompt, /Image 3: Castle Tower\./);
   assert.match(
     prompt,
-    /Reference Guidance:\nSelected reference families: Forest Mage\. Categories: Characters\. Objective tags: magic; walk; forest; cloak\. Use these as supporting visual direction only, without copying identity or assuming unlisted traits\. Preserve the requested subject, composition, dimensions, background, asset settings, and explicit constraints\./,
+    /Use the input images only as visual references for rendering technique, edge treatment, shape language, proportion conventions, palette treatment, and gameplay readability\./,
   );
-  assert.equal(prompt.match(/Forest Mage/gi)?.length, 1);
+  assert.match(
+    prompt,
+    /Do not copy their exact subject, identity, pose, composition, text, logos, or distinctive content\./,
+  );
+  assert.match(prompt, /The Draft StyleSpec remains authoritative\./);
+  assert.equal(prompt.match(/Forest Mage/gi)?.length, 2);
   assert.equal(prompt.match(/\bmagic\b/gi)?.length, 1);
   assert.doesNotMatch(prompt, /secret-family-id|secret-pack|CC0|representativeImagePath/i);
 });
@@ -264,6 +279,8 @@ test("STATIC_IMAGE validates, compiles, and receives a one-time token", async ()
   assert.deepEqual(session.consumeGenerationToken("static-image-token"), {
     compiledPrompt: compiled.compiledPrompt,
     background: "opaque",
+    referenceFamilyIds: [],
+    generationMode: "text-only",
     expiresAt: 1_100,
   });
 });

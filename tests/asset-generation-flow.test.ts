@@ -27,6 +27,7 @@ test("the product form presents the staged art-direction workflow without diagno
   assert.match(html, /Curated references/);
   assert.match(html, /Refined StyleSpec/);
   assert.match(html, /Generation result/);
+  assert.match(html, /sent as visual references/i);
   assert.match(html, /Advanced/);
   assert.match(html, /Pixel art/);
   assert.doesNotMatch(html, /Developer details/);
@@ -34,6 +35,7 @@ test("the product form presents the staged art-direction workflow without diagno
   assert.doesNotMatch(html, /Experimental · unavailable/);
   assert.doesNotMatch(html, /compiled prompt/i);
   assert.doesNotMatch(html, /token/i);
+  assert.doesNotMatch(html, /metadata, not visual input/i);
 });
 
 test("Generate performs one Draft parse, deterministic compile, then token-backed generation", async () => {

@@ -3,6 +3,7 @@ import test from "node:test";
 import { createGenerateImageHandler } from "../src/lib/generate-image-handler";
 import { createGenerationSession } from "../src/lib/generation-session";
 import type { GeneratedImage } from "../src/lib/image-generation-core";
+import type { ResolvedReferenceImageInput } from "../src/lib/reference-image-inputs";
 
 const generatedImage: GeneratedImage = {
   imageUrl: "data:image/png;base64,aGVsbG8=",
@@ -71,6 +72,7 @@ test("rejects malformed request bodies before token or image work", async () => 
       imageCalls += 1;
       return generatedImage;
     },
+    logError: () => {},
   });
   const malformedRequest = new Request("http://localhost/api/generate-image", {
     method: "POST",
@@ -135,6 +137,91 @@ test("uses only the output background stored behind the token", async () => {
     prompt: "trusted server compiled prompt",
     background: "transparent",
   }]);
+});
+
+test("resolves only token-bound references and passes them to the image generator in stable order", async () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken(
+    "trusted visual prompt",
+    "transparent",
+    ["kenney-zeta", "kenney-alpha"],
+  );
+  const resolved: ResolvedReferenceImageInput[] = [
+    {
+      id: "kenney-alpha",
+      title: "Alpha",
+      bytes: Buffer.from("alpha"),
+    },
+    {
+      id: "kenney-zeta",
+      title: "Zeta",
+      bytes: Buffer.from("zeta"),
+    },
+  ];
+  const resolverCalls: string[][] = [];
+  const generatorCalls: Array<{
+    prompt: string;
+    background: string;
+    references: readonly ResolvedReferenceImageInput[];
+  }> = [];
+  const handler = createGenerateImageHandler({
+    consumeGenerationToken: session.consumeGenerationToken,
+    resolveReferenceImageInputs: async (ids) => {
+      resolverCalls.push([...ids]);
+      return resolved;
+    },
+    generateCompiledImage: async (prompt, background, references) => {
+      generatorCalls.push({ prompt, background, references });
+      return generatedImage;
+    },
+  });
+
+  const response = await handler(
+    requestFor(token, {
+      referenceFamilyIds: ["browser-controlled"],
+      imageUrl: "https://example.com/browser-controlled.png",
+    }),
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(resolverCalls, [["kenney-alpha", "kenney-zeta"]]);
+  assert.deepEqual(generatorCalls, [{
+    prompt: "trusted visual prompt",
+    background: "transparent",
+    references: resolved,
+  }]);
+});
+
+test("an unavailable token-bound reference fails before paid generation without text-only fallback", async () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken(
+    "trusted visual prompt",
+    "opaque",
+    ["kenney-missing"],
+  );
+  let imageCalls = 0;
+  const handler = createGenerateImageHandler({
+    consumeGenerationToken: session.consumeGenerationToken,
+    resolveReferenceImageInputs: async () => {
+      throw new Error(
+        "private /data/reference-source/Kenney/missing.png",
+      );
+    },
+    generateCompiledImage: async () => {
+      imageCalls += 1;
+      return generatedImage;
+    },
+    logError: () => {},
+  });
+
+  const response = await handler(requestFor(token));
+  const body = await responseBody(response);
+
+  assert.equal(response.status, 503);
+  assert.equal(body.category, "reference_unavailable");
+  assert.doesNotMatch(JSON.stringify(body), /private|reference-source|missing\.png/);
+  assert.equal(imageCalls, 0);
+  assert.equal(session.consumeGenerationToken(token), null);
 });
 
 test("consumes a token before the external image API and consumes it after a failed generation", async () => {

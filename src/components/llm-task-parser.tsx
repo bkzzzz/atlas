@@ -392,7 +392,7 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
         <WorkflowSection number="02" title="Curated references" active={Boolean(draftSpec)}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-2xl text-sm leading-6 text-slate-400">
-              Atlas ranks a small local collection using the draft StyleSpec. Reference previews are shown here; selected references guide generation through metadata, not visual input.
+              Atlas ranks a small local collection using the draft StyleSpec. Selected previews are sent as visual references with the approved generation prompt.
             </p>
             <SecondaryButton
               disabled={!draftSpec || disabled}
@@ -466,7 +466,7 @@ export function LlmTaskParser({ characterId, characterName }: Props) {
         <WorkflowSection number="03" title="Refined StyleSpec" active={selectedReferences.length > 0}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-2xl text-sm leading-6 text-slate-400">
-              Selected metadata is folded back into the art direction before generation.
+              Selected guidance is folded into the art direction and bound to the next generation.
             </p>
             <SecondaryButton disabled={disabled || selectedReferences.length === 0} onClick={() => void refineStyleSpec()}>
               {busyStep === "refine" ? "Refining…" : refinedSpec ? "Rebuild StyleSpec" : "Refine StyleSpec"}

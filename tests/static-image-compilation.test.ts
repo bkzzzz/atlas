@@ -76,7 +76,11 @@ const trustedIndex: ReferenceFamilyIndex = {
 };
 
 function dependencies(
-  tokenCalls: Array<{ prompt: string; background: string }>,
+  tokenCalls: Array<{
+    prompt: string;
+    background: string;
+    referenceFamilyIds: readonly string[];
+  }>,
 ): StaticImageCompilationDependencies {
   return {
     loadReferenceFamilyIndex: async () => trustedIndex,
@@ -85,15 +89,19 @@ function dependencies(
       metadata,
       styleSourceMetadata: null,
     }),
-    createGenerationToken: (prompt, background) => {
-      tokenCalls.push({ prompt, background });
+    createGenerationToken: (prompt, background, referenceFamilyIds) => {
+      tokenCalls.push({ prompt, background, referenceFamilyIds });
       return "generation-token";
     },
   };
 }
 
 test("compilation resolves IDs from the trusted index and creates a token without parsing", async () => {
-  const tokenCalls: Array<{ prompt: string; background: string }> = [];
+  const tokenCalls: Array<{
+    prompt: string;
+    background: string;
+    referenceFamilyIds: readonly string[];
+  }> = [];
   const result = await compileAndAuthorizeStaticImageTask(
     {
       characterId: "character-1",
@@ -134,6 +142,10 @@ test("compilation resolves IDs from the trusted index and creates a token withou
   assert.equal(tokenCalls.length, 1);
   assert.equal(tokenCalls[0]?.prompt, result.compiledPrompt);
   assert.equal(tokenCalls[0]?.background, "transparent");
+  assert.deepEqual(tokenCalls[0]?.referenceFamilyIds, [
+    "kenney-platformer-adventurer",
+    "kenney-platformer-female",
+  ]);
   assert.doesNotMatch(
     result.compiledPrompt,
     /kenney-platformer|Kenney|CC0-1\.0|representativeImagePath/i,

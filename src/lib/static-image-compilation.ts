@@ -36,6 +36,7 @@ export type StaticImageCompilationDependencies = Readonly<{
   createGenerationToken: (
     compiledPrompt: string,
     background: GenerationBackground,
+    referenceFamilyIds: readonly string[],
   ) => string;
 }>;
 
@@ -92,7 +93,11 @@ export function compileStaticImageTaskAndCreateToken(
       : "opaque";
   return {
     ...compiled,
-    generationToken: createToken(compiled.compiledPrompt, background),
+    generationToken: createToken(
+      compiled.compiledPrompt,
+      background,
+      task.referenceGuidance.map(({ id }) => id),
+    ),
   };
 }
 

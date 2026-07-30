@@ -6,6 +6,10 @@ import {
   type ImageApiClient,
 } from "@/lib/image-generation-core";
 import type { GenerationBackground } from "@/lib/generation-session";
+import {
+  createReferenceImageUploads,
+  type ResolvedReferenceImageInput,
+} from "@/lib/reference-image-inputs";
 
 const IMAGE_TIMEOUT_MS = 60_000;
 
@@ -19,15 +23,18 @@ function createOpenAIImageClient(apiKey: string): ImageApiClient {
 
 // This wrapper is the only image-generation module that reads environment
 // variables. It keeps the API key out of the client bundle and test fixtures.
-export function generateCompiledImage(
+export async function generateCompiledImage(
   compiledPrompt: string,
   background: GenerationBackground,
+  referenceImages: readonly ResolvedReferenceImageInput[] = [],
 ): Promise<GeneratedImage> {
+  const uploads = await createReferenceImageUploads(referenceImages);
   return generateImageFromCompiledPrompt(compiledPrompt, {
     apiKey: process.env.OPENAI_API_KEY,
     model: process.env.OPENAI_IMAGE_MODEL,
     createClient: createOpenAIImageClient,
     timeoutMs: IMAGE_TIMEOUT_MS,
     background,
+    referenceImages: uploads,
   });
 }

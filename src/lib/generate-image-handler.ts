@@ -5,23 +5,32 @@ import type {
 import {
   classifyImageGenerationError,
   type GeneratedImage,
+  ImageGenerationError,
   type ImageGenerationDiagnostic,
 } from "@/lib/image-generation-core";
+import type { ResolvedReferenceImageInput } from "@/lib/reference-image-inputs";
 
 type ConsumeGenerationToken = (token: string) => PendingGeneration | null;
 type GenerateCompiledImage = (
   compiledPrompt: string,
   background: GenerationBackground,
+  referenceImages: readonly ResolvedReferenceImageInput[],
 ) => Promise<GeneratedImage>;
+type ResolveReferenceImageInputs = (
+  referenceFamilyIds: readonly string[],
+) => Promise<readonly ResolvedReferenceImageInput[]>;
 
 export type GenerateImageHandlerDependencies = {
   consumeGenerationToken: ConsumeGenerationToken;
   generateCompiledImage: GenerateCompiledImage;
+  resolveReferenceImageInputs?: ResolveReferenceImageInputs;
   logError?: (message: string, details: { category: string } & ImageGenerationDiagnostic) => void;
 };
 
 function statusForGenerationError(category: ReturnType<typeof classifyImageGenerationError>["category"]) {
-  if (category === "not_configured") return 503;
+  if (category === "not_configured" || category === "reference_unavailable") {
+    return 503;
+  }
   if (category === "authentication_error") return 401;
   if (category === "permission_or_model_access") return 403;
   if (category === "model_not_found") return 404;
@@ -81,9 +90,29 @@ export function createGenerateImageHandler(dependencies: GenerateImageHandlerDep
       }
 
       activeTokens.add(token);
+      let referenceImages: readonly ResolvedReferenceImageInput[] = [];
+      if (pending.generationMode === "visual-reference") {
+        try {
+          referenceImages =
+            await dependencies.resolveReferenceImageInputs?.(
+              pending.referenceFamilyIds,
+            ) ?? [];
+        } catch {
+          throw new ImageGenerationError("reference_unavailable");
+        }
+        if (
+          referenceImages.length !== pending.referenceFamilyIds.length ||
+          referenceImages.some(
+            ({ id }, index) => id !== pending.referenceFamilyIds[index],
+          )
+        ) {
+          throw new ImageGenerationError("reference_unavailable");
+        }
+      }
       const image = await dependencies.generateCompiledImage(
         pending.compiledPrompt,
         pending.background,
+        referenceImages,
       );
       return Response.json({ image: { ...image, compiledPrompt: pending.compiledPrompt } });
     } catch (cause) {

@@ -27,6 +27,8 @@ test("a valid generation token succeeds once and unknown tokens fail", () => {
   assert.deepEqual(session.consumeGenerationToken(token), {
     compiledPrompt: "compiled prompt",
     background: "opaque",
+    referenceFamilyIds: [],
+    generationMode: "text-only",
     expiresAt: 1_100,
   });
   assert.equal(session.consumeGenerationToken(token), null);
@@ -40,8 +42,58 @@ test("a generation token preserves the server-selected output background", () =>
   assert.deepEqual(session.consumeGenerationToken(token), {
     compiledPrompt: "compiled prompt",
     background: "transparent",
+    referenceFamilyIds: [],
+    generationMode: "text-only",
     expiresAt: 1_100,
   });
+});
+
+test("a generation token binds a copied stable reference order and derives visual mode", () => {
+  const { session } = makeSession();
+  const referenceFamilyIds = [
+    "kenney-platformer-female",
+    "kenney-platformer-adventurer",
+  ];
+  const token = session.createGenerationToken(
+    "compiled prompt",
+    "transparent",
+    referenceFamilyIds,
+  );
+
+  referenceFamilyIds.reverse();
+  assert.deepEqual(session.consumeGenerationToken(token), {
+    compiledPrompt: "compiled prompt",
+    background: "transparent",
+    referenceFamilyIds: [
+      "kenney-platformer-adventurer",
+      "kenney-platformer-female",
+    ],
+    generationMode: "visual-reference",
+    expiresAt: 1_100,
+  });
+});
+
+test("a generation token rejects duplicate or excessive reference IDs", () => {
+  const { session } = makeSession();
+
+  assert.throws(
+    () =>
+      session.createGenerationToken("compiled prompt", "opaque", [
+        "kenney-a",
+        "kenney-a",
+      ]),
+    /one to three unique reference family IDs/i,
+  );
+  assert.throws(
+    () =>
+      session.createGenerationToken("compiled prompt", "opaque", [
+        "kenney-a",
+        "kenney-b",
+        "kenney-c",
+        "kenney-d",
+      ]),
+    /one to three unique reference family IDs/i,
+  );
 });
 
 test("expired generation tokens fail without becoming usable", () => {

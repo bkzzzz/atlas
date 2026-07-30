@@ -55,6 +55,52 @@ test("compiles identical structured input into the exact same prompt", () => {
   );
 });
 
+test("compiled prompt excludes premature Character Memory guidance", () => {
+  const prompt = compileSingleStaticImageTask(
+    parsedTask(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS),
+    {
+      ...metadata,
+      character: {
+        ...metadata.character,
+        name: "character-name-sentinel",
+        description: "character-description-sentinel",
+        personality: "character-personality-sentinel",
+        species: "character-species-sentinel",
+      },
+      memory: {
+        visualStyle: "memory-style-sentinel",
+        lore: "memory-lore-sentinel",
+        designRules: "memory-rules-sentinel",
+        approvedSummary: "memory-approved-sentinel",
+        rejectedSummary: "memory-rejected-sentinel",
+        preferredPrompt: "memory-prompt-sentinel",
+      },
+      approvedAssets: [{
+        id: "approved-asset",
+        name: "approved-asset-sentinel",
+        imageUrl: "https://example.com/approved.png",
+        type: "Reference",
+        provider: "Manual",
+        prompt: null,
+        createdAt: "2026-07-29T00:00:00.000Z",
+      }],
+      rejectedAssets: [{
+        id: "rejected-asset",
+        name: "rejected-asset-sentinel",
+        imageUrl: "https://example.com/rejected.png",
+        type: "Reference",
+        provider: "Manual",
+        feedback: "rejected-feedback-sentinel",
+        createdAt: "2026-07-29T00:00:00.000Z",
+      }],
+    },
+  ).compiledPrompt;
+
+  assert.doesNotMatch(prompt, /memory-(?:style|lore|rules|approved|rejected|prompt)-sentinel/);
+  assert.doesNotMatch(prompt, /(?:approved|rejected)-(?:asset|feedback)-sentinel/);
+  assert.doesNotMatch(prompt, /character-(?:name|description|personality|species)-sentinel/);
+});
+
 test("explicit technical settings compile into concrete production instructions", () => {
   const task = parsedTask(
     {
@@ -92,7 +138,7 @@ test("pixel-art constraints lead the prompt and prohibit post-process pixelation
   assert.match(prompt, /logical sprite scale of 24x48 to 32x64/i);
 });
 
-test("style source inheritance is independent from the selected visual style", () => {
+test("compiled prompt does not inject a premature character style source", () => {
   const styleSource = {
     ...metadata,
     character: { ...metadata.character, id: "character-2", name: "Nova" },
@@ -114,7 +160,7 @@ test("style source inheritance is independent from the selected visual style", (
     styleSource,
   ).compiledPrompt;
 
-  assert.match(prompt, /Draw style and theme from Nova, especially storybook cut paper; rounded layered shapes; warm paper texture/i);
+  assert.doesNotMatch(prompt, /Nova|storybook cut paper|rounded layered shapes|warm paper texture/i);
   assert.ok(prompt.startsWith("TRUE 2D PIXEL ART GAME ASSET."));
   assert.match(prompt, /transparent background/i);
   assert.match(prompt, /ground shadow/i);
@@ -165,7 +211,7 @@ test("outputs a concise creative brief using only supported section headings", (
   assert.ok(prompt.length < 1_400);
 });
 
-test("approved and requested references receive guidance without copying identity", () => {
+test("requested references remain while premature approved assets stay out of the prompt", () => {
   const task = parsedTask(DEFAULT_STATIC_IMAGE_ASSET_SETTINGS);
   task.referenceAssets = ["vintage RPG portrait"];
   const prompt = compileSingleStaticImageTask(task, {
@@ -182,8 +228,8 @@ test("approved and requested references receive guidance without copying identit
   }).compiledPrompt;
 
   assert.match(prompt, /Reference Guidance:/);
-  assert.match(prompt, /visual style, palette, costume language, shape language, and theme/i);
-  assert.match(prompt, /without copying another character's identity/i);
+  assert.match(prompt, /requested references vintage RPG portrait/i);
+  assert.doesNotMatch(prompt, /Gothic palette study/i);
 });
 
 test("compiles selected family metadata once without leaking provenance", () => {
@@ -219,13 +265,16 @@ test("compiles selected family metadata once without leaking provenance", () => 
   assert.match(prompt, /Image 3: Castle Tower\./);
   assert.match(
     prompt,
-    /Use the input images only as visual references for rendering technique, edge treatment, shape language, proportion conventions, palette treatment, and gameplay readability\./,
+    /Treat the input images as the primary source of visual style, including rendering technique, edge treatment, shape language, proportion conventions, palette treatment, and gameplay readability\./,
   );
   assert.match(
     prompt,
     /Do not copy their exact subject, identity, pose, composition, text, logos, or distinctive content\./,
   );
   assert.match(prompt, /The Draft StyleSpec remains authoritative\./);
+  assert.ok(prompt.startsWith("PRODUCTION-READY 2D GAME ASSET."));
+  assert.match(prompt, /simple, isolated, and immediately readable at gameplay scale/i);
+  assert.doesNotMatch(prompt, /polished 2D illustrated|cohesive illustrative rendering style/i);
   assert.equal(prompt.match(/Forest Mage/gi)?.length, 2);
   assert.equal(prompt.match(/\bmagic\b/gi)?.length, 1);
   assert.doesNotMatch(prompt, /secret-family-id|secret-pack|CC0|representativeImagePath/i);

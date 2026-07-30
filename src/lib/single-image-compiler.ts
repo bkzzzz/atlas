@@ -39,10 +39,6 @@ function sentence(value: string) {
   return /[.!?]$/.test(value) ? value : `${value}.`;
 }
 
-function withIndefiniteArticle(value: string) {
-  return `${/^[aeiou]/i.test(value) ? "an" : "a"} ${value}`;
-}
-
 function section(title: string, lines: Array<string | null | undefined>) {
   const content = unique(lines);
   return content.length ? `${title}:\n${content.map(sentence).join(" ")}` : null;
@@ -67,7 +63,7 @@ const STYLE_FRAGMENTS: Record<StaticImageAssetSettings["visualStyle"], string> =
   VECTOR_STYLE:
     "FLAT VECTOR-INSPIRED 2D GAME ASSET. Build the image from simple geometric shapes, crisp contours, clean flat fills, controlled color separation, and a highly readable silhouette. Keep edges sharp and graphic. Return a raster image, not SVG.",
   ILLUSTRATION:
-    "POLISHED 2D ILLUSTRATED GAME ASSET. Use a cohesive illustrative rendering style, a clear readable silhouette, intentional color and lighting, and controlled detail suitable for production game art.",
+    "PRODUCTION-READY 2D GAME ASSET. Keep the subject simple, isolated, and immediately readable at gameplay scale. Use a clear silhouette, controlled detail, clean separation from the background, and no unnecessary decorative complexity.",
 };
 
 const PIXEL_DETAIL_FRAGMENTS: Record<StaticImageAssetSettings["pixelDetail"], string> = {
@@ -96,17 +92,17 @@ const VIEW_FRAGMENTS: Record<StaticImageAssetSettings["viewAngle"], string> = {
 
 const BACKGROUND_FRAGMENTS: Record<StaticImageAssetSettings["background"], string | null> = {
   TRANSPARENT:
-    "Isolate the character on a transparent background with no scenery, backdrop, or floor plane.",
+    "Isolate the subject on a transparent background with no scenery, backdrop, or floor plane.",
   WHITE:
-    "Isolate the character on a pure white background with no scenery or environmental backdrop.",
+    "Isolate the subject on a pure white background with no scenery or environmental backdrop.",
   SIMPLE_SOLID:
-    "Isolate the character against one simple, flat solid-color background with no environmental scenery.",
+    "Isolate the subject against one simple, flat solid-color background with no environmental scenery.",
   UNSPECIFIED: null,
 };
 
 const SHADOW_FRAGMENTS: Record<StaticImageAssetSettings["groundShadow"], string> = {
   NONE:
-    "Do not include a cast shadow, contact shadow, floor ellipse, or glow beneath the character.",
+    "Do not include a cast shadow, contact shadow, floor ellipse, or glow beneath the subject.",
   ALLOW:
     "A restrained ground shadow may be used only when it improves grounding and does not obscure the asset silhouette.",
 };
@@ -120,11 +116,7 @@ function compositionDirection(task: ParsedStaticImageTask) {
   ]).join(" ");
 }
 
-function referenceGuidance(
-  task: ParsedStaticImageTask,
-  metadata: CharacterMetadata,
-  styleSource: CharacterMetadata | null,
-) {
+function referenceGuidance(task: ParsedStaticImageTask) {
   const guidance: string[] = [];
 
   if (task.referenceGuidance.length) {
@@ -144,15 +136,10 @@ function referenceGuidance(
     if (categories) guidance.push(categories);
     if (tags) guidance.push(tags);
     guidance.push(
-      "Use the input images only as visual references for rendering technique, edge treatment, shape language, proportion conventions, palette treatment, and gameplay readability",
+      "Treat the input images as the primary source of visual style, including rendering technique, edge treatment, shape language, proportion conventions, palette treatment, and gameplay readability",
       "Do not copy their exact subject, identity, pose, composition, text, logos, or distinctive content",
       "The Draft StyleSpec remains authoritative",
       "Preserve the requested subject, composition, dimensions, background, asset settings, and explicit constraints",
-    );
-  }
-  if (metadata.approvedAssets.length) {
-    guidance.push(
-      `Use ${metadata.approvedAssets.map((asset) => asset.name).join(", ")} to inform visual style, palette, costume language, shape language, and theme without copying another character's identity`,
     );
   }
   if (task.referenceAssets.length) {
@@ -160,22 +147,6 @@ function referenceGuidance(
       `Use the requested references ${unique(task.referenceAssets).join(", ")} for relevant visual style, palette, costume language, shape language, and theme only`,
     );
   }
-  if (styleSource) {
-    const sourceDetails = unique([
-      styleSource.memory?.visualStyle,
-      styleSource.memory?.designRules,
-      styleSource.memory?.preferredPrompt,
-    ]);
-    guidance.push(
-      `Draw style and theme from ${styleSource.character.name}${sourceDetails.length ? `, especially ${sourceDetails.join("; ")}` : ""}, while preserving ${metadata.character.name}'s identity`,
-    );
-    if (styleSource.approvedAssets.length) {
-      guidance.push(
-        `Use ${styleSource.approvedAssets.map((asset) => asset.name).join(", ")} as supporting style references, not as character identity references`,
-      );
-    }
-  }
-
   return guidance;
 }
 
@@ -183,20 +154,17 @@ function referenceGuidance(
 // It translates validated structured data directly into a concise creative brief.
 export function compileSingleStaticImageTask(
   task: ParsedStaticImageTask,
-  metadata: CharacterMetadata,
-  styleSource: CharacterMetadata | null = null,
+  _metadata: CharacterMetadata,
+  _styleSource: CharacterMetadata | null = null,
 ): CompiledStaticImagePrompt {
-  const memory = metadata.memory;
+  void _metadata;
+  void _styleSource;
+
   const compilerInstructions = [
     "Create exactly one coherent still image.",
-    "Preserve character identity, memory, and approved references.",
-    "Avoid rejected-reference feedback.",
   ];
   const userRequest = clean(task.userRequest);
   const subjectAlreadyStated = includesConcept(userRequest, task.visualSubject);
-  const appearanceAlreadyStated =
-    includesConcept(userRequest, metadata.character.description) ||
-    includesConcept(task.visualSubject, metadata.character.description);
   const background =
     BACKGROUND_FRAGMENTS[task.assetSettings.background] ??
     `Use this requested background direction: ${task.background}`;
@@ -208,9 +176,6 @@ export function compileSingleStaticImageTask(
         ]
       : []),
     ...task.negativeConstraints,
-    ...metadata.rejectedAssets.map((asset) =>
-      asset.feedback ? `${asset.name}: ${asset.feedback}` : asset.name
-    ),
   ]);
 
   const sections = [
@@ -218,18 +183,6 @@ export function compileSingleStaticImageTask(
     section("Asset and Subject", [
       `Create one ${task.assetKind}${subjectAlreadyStated ? "" : ` featuring ${task.visualSubject}`}`,
       userRequest ? `User description: ${userRequest}` : null,
-      `Design ${metadata.character.name} as ${withIndefiniteArticle(metadata.character.species)}`,
-      appearanceAlreadyStated
-        ? null
-        : `Use this defining appearance: ${metadata.character.description}`,
-      clean(metadata.character.personality)
-        ? `The character should feel ${metadata.character.personality}`
-        : null,
-      memory?.lore ? `Honor this established lore: ${memory.lore}` : null,
-      memory?.visualStyle ? `Carry forward this established visual language within the selected rendering method: ${memory.visualStyle}` : null,
-      memory?.designRules ? `Follow these established design principles: ${memory.designRules}` : null,
-      memory?.preferredPrompt ? memory.preferredPrompt : null,
-      memory?.approvedSummary ? `Preserve what is already working: ${memory.approvedSummary}` : null,
       listSentence("Work from these stated assumptions:", task.assumptions),
       listSentence("Include:", task.positiveConstraints),
       `Return one still raster image at ${task.dimensions}`,
@@ -249,9 +202,8 @@ export function compileSingleStaticImageTask(
       background,
       SHADOW_FRAGMENTS[task.assetSettings.groundShadow],
     ]),
-    section("Reference Guidance", referenceGuidance(task, metadata, styleSource)),
+    section("Reference Guidance", referenceGuidance(task)),
     section("Final Exclusion Rules", [
-      memory?.rejectedSummary ? `Do not repeat these prior problems: ${memory.rejectedSummary}` : null,
       listSentence("Exclude:", finalExclusions),
     ]),
   ].filter((value): value is string => Boolean(value));

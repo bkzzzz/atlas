@@ -38,6 +38,7 @@ export type GeneratedImage = {
   model: string;
   compiledPrompt: string;
   createdAt: string;
+  assetId?: string;
 };
 
 export type ProductGenerationResult = {

@@ -30,5 +30,7 @@ export async function persistGeneratedImage(
     ...image,
     imageUrl: stored.url,
     blobPathname: stored.pathname,
+    mimeType: stored.mimeType,
+    byteSize: stored.byteSize,
   };
 }

@@ -76,6 +76,7 @@ test("asset collection creation and listing remain available without an approval
     byteSize: 4,
     type: "Mood board",
     provider: "Manual",
+    kind: "REFERENCE",
     status: "PENDING",
   }]);
 });
@@ -125,4 +126,71 @@ test("asset details can be edited and assets can be deleted, while status is not
   assert.equal(deletedResponse.status, 204);
   assert.deepEqual(deletedBlobs, ["references/reference.png"]);
   assert.deepEqual(deleted, ["asset-1"]);
+});
+
+test("generated assets cannot be patched through the legacy reference API", async () => {
+  let updated = false;
+  const handler = createAssetItemHandler({
+    findAsset: async () => ({ ...asset, kind: "GENERATED" }),
+    updateAsset: async () => {
+      updated = true;
+      return asset;
+    },
+    deleteAsset: async () => {},
+    deleteReferenceImage: async () => {},
+  });
+
+  const response = await handler.PATCH(
+    new Request("http://localhost/assets/generated-asset", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: "Changed" }),
+    }),
+    "generated-asset",
+  );
+
+  assert.equal(response.status, 404);
+  assert.equal(updated, false);
+});
+
+test("generated assets cannot be deleted through the legacy reference API", async () => {
+  let deleted = false;
+  let blobDeleted = false;
+  const handler = createAssetItemHandler({
+    findAsset: async () => ({ ...asset, kind: "GENERATED" }),
+    updateAsset: async () => asset,
+    deleteAsset: async () => {
+      deleted = true;
+    },
+    deleteReferenceImage: async () => {
+      blobDeleted = true;
+    },
+  });
+
+  const response = await handler.DELETE("generated-asset");
+
+  assert.equal(response.status, 404);
+  assert.equal(deleted, false);
+  assert.equal(blobDeleted, false);
+});
+
+test("legacy null-kind and explicit reference assets remain mutable", async () => {
+  const kinds = [null, "REFERENCE"] as const;
+  for (const kind of kinds) {
+    const handler = createAssetItemHandler({
+      findAsset: async () => ({ ...asset, kind }),
+      updateAsset: async (_id, data) => ({ ...asset, ...data }),
+      deleteAsset: async () => {},
+      deleteReferenceImage: async () => {},
+    });
+    const response = await handler.PATCH(
+      new Request("http://localhost/assets/reference", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "Allowed" }),
+      }),
+      "reference",
+    );
+    assert.equal(response.status, 200);
+  }
 });

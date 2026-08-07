@@ -1802,3 +1802,117 @@ textarea.atlas-control {
     transform: none;
   }
 }
+
+/* Generated asset workspace */
+
+.atlas-workspace-page {
+  padding: clamp(28px, 5vw, 72px);
+}
+
+.atlas-workspace-page__shell {
+  position: relative;
+  z-index: 2;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.atlas-workspace-page__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--atlas-border-strong);
+}
+
+.atlas-workspace-page__header h1 {
+  margin: 8px 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.2rem, 5vw, 4.5rem);
+  font-weight: 400;
+  letter-spacing: -0.045em;
+}
+
+.atlas-workspace-page__header p:last-child,
+.atlas-workspace-empty p,
+.atlas-workspace-card__body p,
+.atlas-workspace-card__body time {
+  color: var(--atlas-text-muted);
+}
+
+.atlas-workspace-page__header p:last-child,
+.atlas-workspace-empty p {
+  margin: 0;
+}
+
+.atlas-workspace-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.atlas-workspace-card {
+  overflow: hidden;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius-lg);
+  background: var(--atlas-surface);
+}
+
+.atlas-workspace-card__image {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--atlas-control);
+}
+
+.atlas-workspace-card__image img {
+  object-fit: contain;
+}
+
+.atlas-workspace-card__body {
+  padding: 16px;
+}
+
+.atlas-workspace-card__body h2,
+.atlas-workspace-empty h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.atlas-workspace-card__body p {
+  margin: 4px 0;
+}
+
+.atlas-workspace-card__body time {
+  font-size: 0.78rem;
+}
+
+.atlas-workspace-empty {
+  margin-top: 32px;
+  padding: 64px 24px;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius-lg);
+  background: var(--atlas-surface);
+  text-align: center;
+}
+
+.atlas-workspace-empty p {
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .atlas-workspace-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .atlas-workspace-page__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .atlas-workspace-gallery {
+    grid-template-columns: 1fr;
+  }
+}

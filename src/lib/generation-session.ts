@@ -2,8 +2,27 @@ export type PendingGeneration = {
   compiledPrompt: string;
   background: GenerationBackground;
   referenceAssetIds: readonly string[];
+  persistence?: GenerationPersistenceMetadata;
   expiresAt: number;
 };
+
+export type GenerationPersistenceMetadata = Readonly<{
+  generationRequestId: string;
+  anonymousOwnerKey: string;
+  characterId: string;
+  assetName: string;
+  assetType: string;
+  sourcePrompt: string;
+  generationSettings: Readonly<Record<string, GenerationSettingValue>>;
+}>;
+
+type GenerationSettingValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { readonly [key: string]: GenerationSettingValue }
+  | readonly GenerationSettingValue[];
 
 export type GenerationBackground = "opaque" | "transparent";
 
@@ -28,12 +47,14 @@ export function createGenerationSession(options: GenerationSessionOptions = {}) 
     compiledPrompt: string,
     background: GenerationBackground = "opaque",
     referenceAssetIds: readonly string[] = [],
+    persistence?: GenerationPersistenceMetadata,
   ) {
     const token = createToken();
     pendingGenerations.set(token, {
       compiledPrompt,
       background,
       referenceAssetIds: Object.freeze([...referenceAssetIds]),
+      ...(persistence ? { persistence: Object.freeze({ ...persistence }) } : {}),
       expiresAt: now() + ttlMs,
     });
     return token;

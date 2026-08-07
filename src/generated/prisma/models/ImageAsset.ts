@@ -47,6 +47,12 @@ export type ImageAssetMinAggregateOutputType = {
   status: string | null
   prompt: string | null
   feedback: string | null
+  kind: $Enums.AssetKind | null
+  anonymousOwnerKey: string | null
+  generationRequestId: string | null
+  model: string | null
+  sourcePrompt: string | null
+  compiledPrompt: string | null
   createdAt: Date | null
 }
 
@@ -63,6 +69,12 @@ export type ImageAssetMaxAggregateOutputType = {
   status: string | null
   prompt: string | null
   feedback: string | null
+  kind: $Enums.AssetKind | null
+  anonymousOwnerKey: string | null
+  generationRequestId: string | null
+  model: string | null
+  sourcePrompt: string | null
+  compiledPrompt: string | null
   createdAt: Date | null
 }
 
@@ -79,6 +91,13 @@ export type ImageAssetCountAggregateOutputType = {
   status: number
   prompt: number
   feedback: number
+  kind: number
+  anonymousOwnerKey: number
+  generationRequestId: number
+  model: number
+  sourcePrompt: number
+  compiledPrompt: number
+  generationSettings: number
   createdAt: number
   _all: number
 }
@@ -105,6 +124,12 @@ export type ImageAssetMinAggregateInputType = {
   status?: true
   prompt?: true
   feedback?: true
+  kind?: true
+  anonymousOwnerKey?: true
+  generationRequestId?: true
+  model?: true
+  sourcePrompt?: true
+  compiledPrompt?: true
   createdAt?: true
 }
 
@@ -121,6 +146,12 @@ export type ImageAssetMaxAggregateInputType = {
   status?: true
   prompt?: true
   feedback?: true
+  kind?: true
+  anonymousOwnerKey?: true
+  generationRequestId?: true
+  model?: true
+  sourcePrompt?: true
+  compiledPrompt?: true
   createdAt?: true
 }
 
@@ -137,6 +168,13 @@ export type ImageAssetCountAggregateInputType = {
   status?: true
   prompt?: true
   feedback?: true
+  kind?: true
+  anonymousOwnerKey?: true
+  generationRequestId?: true
+  model?: true
+  sourcePrompt?: true
+  compiledPrompt?: true
+  generationSettings?: true
   createdAt?: true
   _all?: true
 }
@@ -240,6 +278,13 @@ export type ImageAssetGroupByOutputType = {
   status: string
   prompt: string | null
   feedback: string | null
+  kind: $Enums.AssetKind | null
+  anonymousOwnerKey: string | null
+  generationRequestId: string | null
+  model: string | null
+  sourcePrompt: string | null
+  compiledPrompt: string | null
+  generationSettings: runtime.JsonValue | null
   createdAt: Date
   _count: ImageAssetCountAggregateOutputType | null
   _avg: ImageAssetAvgAggregateOutputType | null
@@ -279,6 +324,13 @@ export type ImageAssetWhereInput = {
   status?: Prisma.StringFilter<"ImageAsset"> | string
   prompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
   feedback?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  kind?: Prisma.EnumAssetKindNullableFilter<"ImageAsset"> | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  generationRequestId?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  model?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  sourcePrompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  compiledPrompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  generationSettings?: Prisma.JsonNullableFilter<"ImageAsset">
   createdAt?: Prisma.DateTimeFilter<"ImageAsset"> | Date | string
   character?: Prisma.XOR<Prisma.CharacterScalarRelationFilter, Prisma.CharacterWhereInput>
 }
@@ -296,12 +348,20 @@ export type ImageAssetOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   prompt?: Prisma.SortOrderInput | Prisma.SortOrder
   feedback?: Prisma.SortOrderInput | Prisma.SortOrder
+  kind?: Prisma.SortOrderInput | Prisma.SortOrder
+  anonymousOwnerKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  generationRequestId?: Prisma.SortOrderInput | Prisma.SortOrder
+  model?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  compiledPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  generationSettings?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   character?: Prisma.CharacterOrderByWithRelationInput
 }
 
 export type ImageAssetWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  generationRequestId?: string
   AND?: Prisma.ImageAssetWhereInput | Prisma.ImageAssetWhereInput[]
   OR?: Prisma.ImageAssetWhereInput[]
   NOT?: Prisma.ImageAssetWhereInput | Prisma.ImageAssetWhereInput[]
@@ -316,9 +376,15 @@ export type ImageAssetWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"ImageAsset"> | string
   prompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
   feedback?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  kind?: Prisma.EnumAssetKindNullableFilter<"ImageAsset"> | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  model?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  sourcePrompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  compiledPrompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  generationSettings?: Prisma.JsonNullableFilter<"ImageAsset">
   createdAt?: Prisma.DateTimeFilter<"ImageAsset"> | Date | string
   character?: Prisma.XOR<Prisma.CharacterScalarRelationFilter, Prisma.CharacterWhereInput>
-}, "id">
+}, "id" | "generationRequestId">
 
 export type ImageAssetOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -333,6 +399,13 @@ export type ImageAssetOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   prompt?: Prisma.SortOrderInput | Prisma.SortOrder
   feedback?: Prisma.SortOrderInput | Prisma.SortOrder
+  kind?: Prisma.SortOrderInput | Prisma.SortOrder
+  anonymousOwnerKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  generationRequestId?: Prisma.SortOrderInput | Prisma.SortOrder
+  model?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  compiledPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  generationSettings?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ImageAssetCountOrderByAggregateInput
   _avg?: Prisma.ImageAssetAvgOrderByAggregateInput
@@ -357,6 +430,13 @@ export type ImageAssetScalarWhereWithAggregatesInput = {
   status?: Prisma.StringWithAggregatesFilter<"ImageAsset"> | string
   prompt?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
   feedback?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
+  kind?: Prisma.EnumAssetKindNullableWithAggregatesFilter<"ImageAsset"> | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
+  generationRequestId?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
+  model?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
+  sourcePrompt?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
+  compiledPrompt?: Prisma.StringNullableWithAggregatesFilter<"ImageAsset"> | string | null
+  generationSettings?: Prisma.JsonNullableWithAggregatesFilter<"ImageAsset">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ImageAsset"> | Date | string
 }
 
@@ -372,6 +452,13 @@ export type ImageAssetCreateInput = {
   status: string
   prompt?: string | null
   feedback?: string | null
+  kind?: $Enums.AssetKind | null
+  anonymousOwnerKey?: string | null
+  generationRequestId?: string | null
+  model?: string | null
+  sourcePrompt?: string | null
+  compiledPrompt?: string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   character: Prisma.CharacterCreateNestedOneWithoutAssetsInput
 }
@@ -389,6 +476,13 @@ export type ImageAssetUncheckedCreateInput = {
   status: string
   prompt?: string | null
   feedback?: string | null
+  kind?: $Enums.AssetKind | null
+  anonymousOwnerKey?: string | null
+  generationRequestId?: string | null
+  model?: string | null
+  sourcePrompt?: string | null
+  compiledPrompt?: string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -404,6 +498,13 @@ export type ImageAssetUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.NullableEnumAssetKindFieldUpdateOperationsInput | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  compiledPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   character?: Prisma.CharacterUpdateOneRequiredWithoutAssetsNestedInput
 }
@@ -421,6 +522,13 @@ export type ImageAssetUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.NullableEnumAssetKindFieldUpdateOperationsInput | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  compiledPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -437,6 +545,13 @@ export type ImageAssetCreateManyInput = {
   status: string
   prompt?: string | null
   feedback?: string | null
+  kind?: $Enums.AssetKind | null
+  anonymousOwnerKey?: string | null
+  generationRequestId?: string | null
+  model?: string | null
+  sourcePrompt?: string | null
+  compiledPrompt?: string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -452,6 +567,13 @@ export type ImageAssetUpdateManyMutationInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.NullableEnumAssetKindFieldUpdateOperationsInput | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  compiledPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -468,6 +590,13 @@ export type ImageAssetUncheckedUpdateManyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.NullableEnumAssetKindFieldUpdateOperationsInput | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  compiledPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -494,6 +623,13 @@ export type ImageAssetCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   feedback?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  anonymousOwnerKey?: Prisma.SortOrder
+  generationRequestId?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  sourcePrompt?: Prisma.SortOrder
+  compiledPrompt?: Prisma.SortOrder
+  generationSettings?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -514,6 +650,12 @@ export type ImageAssetMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   feedback?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  anonymousOwnerKey?: Prisma.SortOrder
+  generationRequestId?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  sourcePrompt?: Prisma.SortOrder
+  compiledPrompt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -530,6 +672,12 @@ export type ImageAssetMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   prompt?: Prisma.SortOrder
   feedback?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  anonymousOwnerKey?: Prisma.SortOrder
+  generationRequestId?: Prisma.SortOrder
+  model?: Prisma.SortOrder
+  sourcePrompt?: Prisma.SortOrder
+  compiledPrompt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -591,6 +739,10 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableEnumAssetKindFieldUpdateOperationsInput = {
+  set?: $Enums.AssetKind | null
+}
+
 export type ImageAssetCreateWithoutCharacterInput = {
   id?: string
   name: string
@@ -603,6 +755,13 @@ export type ImageAssetCreateWithoutCharacterInput = {
   status: string
   prompt?: string | null
   feedback?: string | null
+  kind?: $Enums.AssetKind | null
+  anonymousOwnerKey?: string | null
+  generationRequestId?: string | null
+  model?: string | null
+  sourcePrompt?: string | null
+  compiledPrompt?: string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -618,6 +777,13 @@ export type ImageAssetUncheckedCreateWithoutCharacterInput = {
   status: string
   prompt?: string | null
   feedback?: string | null
+  kind?: $Enums.AssetKind | null
+  anonymousOwnerKey?: string | null
+  generationRequestId?: string | null
+  model?: string | null
+  sourcePrompt?: string | null
+  compiledPrompt?: string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -663,6 +829,13 @@ export type ImageAssetScalarWhereInput = {
   status?: Prisma.StringFilter<"ImageAsset"> | string
   prompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
   feedback?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  kind?: Prisma.EnumAssetKindNullableFilter<"ImageAsset"> | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  generationRequestId?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  model?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  sourcePrompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  compiledPrompt?: Prisma.StringNullableFilter<"ImageAsset"> | string | null
+  generationSettings?: Prisma.JsonNullableFilter<"ImageAsset">
   createdAt?: Prisma.DateTimeFilter<"ImageAsset"> | Date | string
 }
 
@@ -678,6 +851,13 @@ export type ImageAssetCreateManyCharacterInput = {
   status: string
   prompt?: string | null
   feedback?: string | null
+  kind?: $Enums.AssetKind | null
+  anonymousOwnerKey?: string | null
+  generationRequestId?: string | null
+  model?: string | null
+  sourcePrompt?: string | null
+  compiledPrompt?: string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -693,6 +873,13 @@ export type ImageAssetUpdateWithoutCharacterInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.NullableEnumAssetKindFieldUpdateOperationsInput | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  compiledPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -708,6 +895,13 @@ export type ImageAssetUncheckedUpdateWithoutCharacterInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.NullableEnumAssetKindFieldUpdateOperationsInput | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  compiledPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -723,6 +917,13 @@ export type ImageAssetUncheckedUpdateManyWithoutCharacterInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   feedback?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kind?: Prisma.NullableEnumAssetKindFieldUpdateOperationsInput | $Enums.AssetKind | null
+  anonymousOwnerKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  compiledPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationSettings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -741,6 +942,13 @@ export type ImageAssetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   status?: boolean
   prompt?: boolean
   feedback?: boolean
+  kind?: boolean
+  anonymousOwnerKey?: boolean
+  generationRequestId?: boolean
+  model?: boolean
+  sourcePrompt?: boolean
+  compiledPrompt?: boolean
+  generationSettings?: boolean
   createdAt?: boolean
   character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["imageAsset"]>
@@ -758,6 +966,13 @@ export type ImageAssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   status?: boolean
   prompt?: boolean
   feedback?: boolean
+  kind?: boolean
+  anonymousOwnerKey?: boolean
+  generationRequestId?: boolean
+  model?: boolean
+  sourcePrompt?: boolean
+  compiledPrompt?: boolean
+  generationSettings?: boolean
   createdAt?: boolean
   character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["imageAsset"]>
@@ -775,6 +990,13 @@ export type ImageAssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   status?: boolean
   prompt?: boolean
   feedback?: boolean
+  kind?: boolean
+  anonymousOwnerKey?: boolean
+  generationRequestId?: boolean
+  model?: boolean
+  sourcePrompt?: boolean
+  compiledPrompt?: boolean
+  generationSettings?: boolean
   createdAt?: boolean
   character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["imageAsset"]>
@@ -792,10 +1014,17 @@ export type ImageAssetSelectScalar = {
   status?: boolean
   prompt?: boolean
   feedback?: boolean
+  kind?: boolean
+  anonymousOwnerKey?: boolean
+  generationRequestId?: boolean
+  model?: boolean
+  sourcePrompt?: boolean
+  compiledPrompt?: boolean
+  generationSettings?: boolean
   createdAt?: boolean
 }
 
-export type ImageAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "characterId" | "name" | "imageUrl" | "blobPathname" | "mimeType" | "byteSize" | "type" | "provider" | "status" | "prompt" | "feedback" | "createdAt", ExtArgs["result"]["imageAsset"]>
+export type ImageAssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "characterId" | "name" | "imageUrl" | "blobPathname" | "mimeType" | "byteSize" | "type" | "provider" | "status" | "prompt" | "feedback" | "kind" | "anonymousOwnerKey" | "generationRequestId" | "model" | "sourcePrompt" | "compiledPrompt" | "generationSettings" | "createdAt", ExtArgs["result"]["imageAsset"]>
 export type ImageAssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
 }
@@ -824,6 +1053,13 @@ export type $ImageAssetPayload<ExtArgs extends runtime.Types.Extensions.Internal
     status: string
     prompt: string | null
     feedback: string | null
+    kind: $Enums.AssetKind | null
+    anonymousOwnerKey: string | null
+    generationRequestId: string | null
+    model: string | null
+    sourcePrompt: string | null
+    compiledPrompt: string | null
+    generationSettings: runtime.JsonValue | null
     createdAt: Date
   }, ExtArgs["result"]["imageAsset"]>
   composites: {}
@@ -1261,6 +1497,13 @@ export interface ImageAssetFieldRefs {
   readonly status: Prisma.FieldRef<"ImageAsset", 'String'>
   readonly prompt: Prisma.FieldRef<"ImageAsset", 'String'>
   readonly feedback: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly kind: Prisma.FieldRef<"ImageAsset", 'AssetKind'>
+  readonly anonymousOwnerKey: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly generationRequestId: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly model: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly sourcePrompt: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly compiledPrompt: Prisma.FieldRef<"ImageAsset", 'String'>
+  readonly generationSettings: Prisma.FieldRef<"ImageAsset", 'Json'>
   readonly createdAt: Prisma.FieldRef<"ImageAsset", 'DateTime'>
 }
     

@@ -8,7 +8,10 @@ import { prisma } from "@/lib/prisma";
 const handler = createAssetCollectionHandler({
   listAssets: (characterId) =>
     prisma.imageAsset.findMany({
-      where: { characterId },
+      where: {
+        characterId,
+        OR: [{ kind: null }, { kind: "REFERENCE" }],
+      },
       orderBy: { createdAt: "desc" },
     }),
   findCharacter: (characterId) =>

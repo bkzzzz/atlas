@@ -72,3 +72,30 @@ test("expired generation tokens fail without becoming usable", () => {
   advanceBy(100);
   assert.equal(session.consumeGenerationToken(token), null);
 });
+
+test("a generation token binds server-created workspace persistence metadata", () => {
+  const { session } = makeSession();
+  const persistence = {
+    generationRequestId: "request-1",
+    anonymousOwnerKey: "owner-key",
+    characterId: "character-1",
+    assetName: "Mira — sprite",
+    assetType: "sprite",
+    sourcePrompt: "Create a sprite.",
+    generationSettings: { version: 1 },
+  };
+  const token = session.createGenerationToken(
+    "compiled prompt",
+    "opaque",
+    [],
+    persistence,
+  );
+
+  assert.deepEqual(session.consumeGenerationToken(token), {
+    compiledPrompt: "compiled prompt",
+    background: "opaque",
+    referenceAssetIds: [],
+    persistence,
+    expiresAt: 1_100,
+  });
+});

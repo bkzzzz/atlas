@@ -144,6 +144,60 @@ test("stores a generated image before returning it", async () => {
   assert.equal(body.image.blobPathname, persisted.blobPathname);
 });
 
+test("adds the saved asset ID without trusting browser persistence metadata", async () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken("stored prompt");
+  assert.ok(token);
+  const received: unknown[] = [];
+  const handler = createGenerateImageHandler({
+    consumeGenerationToken: session.consumeGenerationToken,
+    generateCompiledImage: async () => generatedImage,
+    persistGeneratedAsset: async (image, pending) => {
+      received.push({ image, pending });
+      return { ...image, assetId: "asset-1" };
+    },
+  });
+
+  const response = await handler(requestFor(token, {
+    assetId: "browser-asset",
+    anonymousOwnerKey: "browser-owner",
+  }));
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(body.image.assetId, "asset-1");
+  assert.equal(body.image.compiledPrompt, "stored prompt");
+  assert.equal(received.length, 1);
+});
+
+test("reports a safe persistence error after image generation succeeds", async () => {
+  const { session } = makeSession();
+  const token = session.createGenerationToken("stored prompt");
+  assert.ok(token);
+  const logs: Array<Record<string, unknown>> = [];
+  const handler = createGenerateImageHandler({
+    consumeGenerationToken: session.consumeGenerationToken,
+    generateCompiledImage: async () => generatedImage,
+    persistGeneratedAsset: async () => {
+      throw new Error("database failed with private persistence details");
+    },
+    logError: (_message, details) => logs.push(details),
+  });
+
+  const response = await handler(requestFor(token));
+  const body = await responseBody(response);
+
+  assert.equal(response.status, 503);
+  assert.deepEqual(body, {
+    error: "Generated image could not be saved. Please try again.",
+    category: "persistence_failed",
+  });
+  assert.doesNotMatch(
+    JSON.stringify({ body, logs }),
+    /private persistence details/,
+  );
+});
+
 test("uses only the output background stored behind the token", async () => {
   const { session } = makeSession();
   const token = session.createGenerationToken("trusted server compiled prompt", "transparent");

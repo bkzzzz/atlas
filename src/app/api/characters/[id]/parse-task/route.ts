@@ -1,4 +1,5 @@
 import { buildCharacterMetadata } from "@/lib/metadata-builder";
+import { getOrCreateAnonymousAssetOwner } from "@/lib/anonymous-asset-owner";
 import { betaAccess } from "@/lib/beta-access";
 import { requireBetaAccess } from "@/lib/beta-access-handler";
 import { prisma } from "@/lib/prisma";
@@ -70,7 +71,10 @@ async function parseTask(
       const [memory, assets] = await Promise.all([
         prisma.characterMemory.findUnique({ where: { characterId } }),
         prisma.imageAsset.findMany({
-          where: { characterId },
+          where: {
+            characterId,
+            OR: [{ kind: null }, { kind: "REFERENCE" }],
+          },
           orderBy: { createdAt: "desc" },
         }),
       ]);
@@ -82,7 +86,10 @@ async function parseTask(
             where: { characterId: styleSourceCharacterId },
           }),
           prisma.imageAsset.findMany({
-            where: { characterId: styleSourceCharacterId },
+            where: {
+              characterId: styleSourceCharacterId,
+              OR: [{ kind: null }, { kind: "REFERENCE" }],
+            },
             orderBy: { createdAt: "desc" },
           }),
         ]);
@@ -123,13 +130,35 @@ async function parseTask(
         metadata,
         styleSourceMetadata,
       );
+      const anonymousOwner = getOrCreateAnonymousAssetOwner(request, {
+        secureCookies: process.env.NODE_ENV === "production",
+      });
+      const generationRequestId = crypto.randomUUID();
       const generationToken = createGenerationToken(
         compiled.compiledPrompt,
         assetSettings.background === "TRANSPARENT" ? "transparent" : "opaque",
         metadata.visualReferences.map(({ id }) => id),
+        {
+          generationRequestId,
+          anonymousOwnerKey: anonymousOwner.ownerKey,
+          characterId,
+          assetName: `${character.name} — ${parsed.parsedTask.assetKind}`,
+          assetType: parsed.parsedTask.assetKind,
+          sourcePrompt: parsed.parsedTask.userRequest,
+          generationSettings: {
+            version: 1,
+            assetSettings,
+            styleSourceCharacterId,
+            referenceAssetIds: metadata.visualReferences.map(({ id }) => id),
+            parser: {
+              model: parsed.model,
+              requestId: parsed.requestId,
+            },
+          },
+        },
       );
 
-      return Response.json({
+      const response = Response.json({
         selectedMode,
         parsedTask: parsed.parsedTask,
         metadata,
@@ -137,6 +166,10 @@ async function parseTask(
         generationToken,
         parser: { model: parsed.model, usage: parsed.usage },
       });
+      if (anonymousOwner.setCookie) {
+        response.headers.append("Set-Cookie", anonymousOwner.setCookie);
+      }
+      return response;
     });
 
     if (!modeResult.supported) {

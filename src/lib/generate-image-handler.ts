@@ -22,17 +22,26 @@ type ResolveReferenceImageUploads = (
 type PersistGeneratedImage = (
   image: GeneratedImage,
 ) => Promise<GeneratedImage>;
+type PersistGeneratedAsset = (
+  image: GeneratedImage,
+  pending: PendingGeneration,
+) => Promise<GeneratedImage>;
 
 export type GenerateImageHandlerDependencies = {
   consumeGenerationToken: ConsumeGenerationToken;
   generateCompiledImage: GenerateCompiledImage;
   resolveReferenceImageUploads?: ResolveReferenceImageUploads;
   persistGeneratedImage?: PersistGeneratedImage;
+  persistGeneratedAsset?: PersistGeneratedAsset;
   logError?: (message: string, details: { category: string } & ImageGenerationDiagnostic) => void;
 };
 
 function statusForGenerationError(category: ReturnType<typeof classifyImageGenerationError>["category"]) {
-  if (category === "not_configured" || category === "reference_unavailable") return 503;
+  if (
+    category === "not_configured" ||
+    category === "reference_unavailable" ||
+    category === "persistence_failed"
+  ) return 503;
   if (category === "authentication_error") return 401;
   if (category === "permission_or_model_access") return 403;
   if (category === "model_not_found") return 404;
@@ -111,9 +120,17 @@ export function createGenerateImageHandler(dependencies: GenerateImageHandlerDep
         pending.background,
         referenceImages,
       );
-      const image = dependencies.persistGeneratedImage
-        ? await dependencies.persistGeneratedImage(generatedImage)
-        : generatedImage;
+      let image: GeneratedImage;
+      try {
+        const storedImage = dependencies.persistGeneratedImage
+          ? await dependencies.persistGeneratedImage(generatedImage)
+          : generatedImage;
+        image = dependencies.persistGeneratedAsset
+          ? await dependencies.persistGeneratedAsset(storedImage, pending)
+          : storedImage;
+      } catch {
+        throw new ImageGenerationError("persistence_failed");
+      }
       return Response.json({ image: { ...image, compiledPrompt: pending.compiledPrompt } });
     } catch (cause) {
       const error = classifyImageGenerationError(cause);

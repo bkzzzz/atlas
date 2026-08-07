@@ -15,10 +15,15 @@ type AssetCollectionDependencies = Readonly<{
   deleteReferenceImage: (pathname: string) => Promise<void>;
 }>;
 
+type ReferenceMutationAsset = Readonly<{
+  blobPathname?: string | null;
+  kind?: string | null;
+}>;
+
 type AssetItemDependencies = Readonly<{
   findAsset: (
     assetId: string,
-  ) => Promise<{ blobPathname?: string | null } | null>;
+  ) => Promise<ReferenceMutationAsset | null>;
   updateAsset: (
     assetId: string,
     data: Record<string, unknown>,
@@ -92,6 +97,7 @@ export function createAssetCollectionHandler(
           byteSize: stored.byteSize,
           type: input.type.trim(),
           provider: input.provider.trim(),
+          kind: "REFERENCE",
           // Retained only because the legacy database column is required.
           status: "PENDING",
         });
@@ -165,7 +171,8 @@ export function createAssetItemHandler(
           { status: 400 },
         );
       }
-      if (!(await dependencies.findAsset(assetId))) {
+      const asset = await dependencies.findAsset(assetId);
+      if (!isReferenceAsset(asset)) {
         return Response.json({ error: "Asset not found." }, { status: 404 });
       }
       const normalized = Object.fromEntries(
@@ -180,7 +187,7 @@ export function createAssetItemHandler(
     },
     async DELETE(assetId: string) {
       const asset = await dependencies.findAsset(assetId);
-      if (!asset) {
+      if (!isReferenceAsset(asset)) {
         return Response.json({ error: "Asset not found." }, { status: 404 });
       }
       if (asset.blobPathname) {
@@ -190,6 +197,12 @@ export function createAssetItemHandler(
       return new Response(null, { status: 204 });
     },
   };
+}
+
+function isReferenceAsset(
+  asset: ReferenceMutationAsset | null,
+): asset is ReferenceMutationAsset {
+  return asset !== null && (asset.kind == null || asset.kind === "REFERENCE");
 }
 
 function invalidCreateResponse() {

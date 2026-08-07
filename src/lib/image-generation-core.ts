@@ -10,7 +10,8 @@ export type ImageGenerationErrorCategory =
   | "timeout"
   | "unknown_upstream_error"
   | "not_configured"
-  | "reference_unavailable";
+  | "reference_unavailable"
+  | "persistence_failed";
 
 export type ImageGenerationDiagnostic = {
   code: string | null;
@@ -36,6 +37,9 @@ export class ImageGenerationError extends Error {
 export type GeneratedImage = {
   imageUrl: string;
   blobPathname?: string;
+  mimeType?: string;
+  byteSize?: number;
+  assetId?: string;
   model: string;
   createdAt: string;
 };
@@ -76,6 +80,7 @@ export function safeImageGenerationMessage(category: ImageGenerationErrorCategor
     not_configured: "Image generation is not configured on this server.",
     reference_unavailable:
       "One or more visual references are unavailable. Generate again after updating the references.",
+    persistence_failed: "Generated image could not be saved. Please try again.",
     unknown_upstream_error: "Could not generate the image. Click Generate to try again.",
   }[category];
 }

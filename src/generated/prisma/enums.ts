@@ -9,7 +9,9 @@
 * 🟢 You can import this file directly.
 */
 
+export const AssetKind = {
+  REFERENCE: 'REFERENCE',
+  GENERATED: 'GENERATED'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type AssetKind = (typeof AssetKind)[keyof typeof AssetKind]

@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "tsx scripts/verify-local-environment.ts",
     "dev": "next dev",
     "build": "next build",
+    "prestart": "tsx scripts/verify-local-environment.ts",
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test tests/**/*.test.ts"

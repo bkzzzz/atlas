@@ -10,6 +10,9 @@ import {
   type ImageToStore,
   type StoredReference,
 } from "@/lib/image-storage-core";
+import { verifyRuntimeEnvironment } from "@/lib/local-environment-safety";
+
+verifyRuntimeEnvironment();
 
 const storage = createImageStorage({
   token: process.env.BLOB_READ_WRITE_TOKEN,

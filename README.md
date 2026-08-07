@@ -119,11 +119,13 @@ The product uses server-side routes for persistence, prompt compilation, short-l
 3. Set the required values in `.env.local`:
 
    ```dotenv
-   DATABASE_URL="your-pooled-neon-postgresql-connection-string"
-   BLOB_READ_WRITE_TOKEN="your-vercel-blob-read-write-token"
+   DATABASE_URL="your-workspace-dev-pooled-neon-connection-string"
+   BLOB_READ_WRITE_TOKEN="your-atlas-dev-blob-read-write-token"
    BETA_ACCESS_CODE="atlas-beta-2026"
    OPENAI_API_KEY="your-api-key"
    ```
+
+   `npm run dev` and `npm start` fail before Next.js starts unless `DATABASE_URL` identifies the workspace-dev Neon endpoint and `BLOB_READ_WRITE_TOKEN` belongs to atlas-dev-blob. The same checks run inside local server code even when npm lifecycle scripts are bypassed; Vercel runtimes are excluded using Vercel's system environment markers.
 
    The template also exposes optional model overrides. Keep the defaults unless you are intentionally testing a different supported model.
 
